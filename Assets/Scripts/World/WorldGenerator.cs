@@ -172,7 +172,7 @@ namespace BaziBaqa
                 SetMaterial(chimney, CreateMaterial(new Color(0.16f, 0.17f, 0.19f), 0.05f));
             }
 
-            TextMesh label = CreateWorldLabel(GameText.BuildingName(type) + "  «" + GameClock.ToPersianDigits(level.ToString()) + "»", root.transform, root.transform.position + Vector3.up * 2.7f);
+            TextMesh label = CreateWorldLabel(GameText.BuildingLabel(type, level), root.transform, root.transform.position + Vector3.up * 2.7f);
             label.color = Color.white;
             _generatedObjects.Add(root);
             return root;

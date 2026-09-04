@@ -44,6 +44,7 @@ namespace BaziBaqa
         public const string Bird = "Bird_";
         public const string Label = "Label";
         public const string BuildGhost = "BuildGhost";
+        public const string Rain = "Rain";
 
         // اجزای جلوه‌ها
         public const string Fire = "Fire";

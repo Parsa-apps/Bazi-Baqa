@@ -4,7 +4,22 @@ namespace BaziBaqa
 {
     public sealed class TrainingSystem : MonoBehaviour
     {
-        public int MaximumGroupSize { get { return 10; } }
+        /// <summary>حداکثر تعداد اعضای گروه.</summary>
+        public const int MaximumGroupSize = 10;
+
+        /// <summary>هزینه‌ی تربیت یک نگهبان؛ یک‌جا تعریف می‌شود تا UI و منطق یکی باشند.</summary>
+        public static readonly ResourceCost[] GuardCost =
+        {
+            new ResourceCost(ResourceType.Food, 12),
+            new ResourceCost(ResourceType.Energy, 5),
+            new ResourceCost(ResourceType.Gold, 3)
+        };
+
+        /// <summary>خط هزینه برای پنجره‌ی تربیت (متن از جدول بومی‌سازی).</summary>
+        public static string CostLine()
+        {
+            return GameText.CostLine(GuardCost);
+        }
 
         public void Initialize()
         {
@@ -23,24 +38,18 @@ namespace BaziBaqa
         {
             if (GameManager.Instance.Construction.FindByType(BuildingType.Workshop) == null)
             {
-                GameEvents.Notify("برای تربیت نیرو ابتدا یک کارگاه بسازید.");
+                GameEvents.Notify(Loc.Get("toast.train_needs_workshop"));
                 return;
             }
             if (GameManager.Instance.AliveSurvivorCount() >= MaximumGroupSize)
             {
-                GameEvents.Notify("گروه به ظرفیت ده نفر رسیده است.");
+                GameEvents.Notify(Loc.Get("toast.train_group_full", Loc.Num(MaximumGroupSize)));
                 return;
             }
 
-            ResourceCost[] costs =
+            if (!GameManager.Instance.Resources.TrySpend(GuardCost))
             {
-                new ResourceCost(ResourceType.Food, 12),
-                new ResourceCost(ResourceType.Energy, 5),
-                new ResourceCost(ResourceType.Gold, 3)
-            };
-            if (!GameManager.Instance.Resources.TrySpend(costs))
-            {
-                GameEvents.Notify("برای تربیت نیرو غذا، انرژی و طلا کافی نیست.");
+                GameEvents.Notify(Loc.Get("toast.train_no_resources"));
                 return;
             }
             GameManager.Instance.RecruitSurvivor(SurvivorRole.Guard);

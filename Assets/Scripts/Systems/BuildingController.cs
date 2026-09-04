@@ -47,18 +47,18 @@ namespace BaziBaqa
             switch (Type)
             {
                 case BuildingType.Camp:
-                    if (GameManager.Instance.Technology.IsUnlocked(TechnologyType.WaterPurification) && resources.TrySpend(ResourceType.Energy, 1)) resources.Add(ResourceType.Water, 3 * Level, "تصفیه‌ی آب");
+                    if (GameManager.Instance.Technology.IsUnlocked(TechnologyType.WaterPurification) && resources.TrySpend(ResourceType.Energy, 1)) resources.Add(ResourceType.Water, 3 * Level, "water-purification");
                     break;
                 case BuildingType.Farm:
                     int harvest = 2 * Level;
                     if (GameManager.Instance.Technology.IsUnlocked(TechnologyType.FieldRotation)) harvest += Level;
-                    resources.Add(ResourceType.Food, harvest, "تولید مزرعه");
+                    resources.Add(ResourceType.Food, harvest, "farm-production");
                     break;
                 case BuildingType.SolarStation:
-                    if (!GameManager.Instance.Clock.IsNight) resources.Add(ResourceType.Energy, 3 * Level, "تولید نیروگاه");
+                    if (!GameManager.Instance.Clock.IsNight) resources.Add(ResourceType.Energy, 3 * Level, "solar-production");
                     break;
                 case BuildingType.Workshop:
-                    if (resources.TrySpend(ResourceType.Energy, 1)) resources.Add(ResourceType.Gold, 1, "تولید کارگاه");
+                    if (resources.TrySpend(ResourceType.Energy, 1)) resources.Add(ResourceType.Gold, 1, "workshop-production");
                     break;
             }
         }
@@ -78,7 +78,7 @@ namespace BaziBaqa
             if (Health <= 0f)
             {
                 gameObject.SetActive(false);
-                GameEvents.Notify(GameText.BuildingName(Type) + " ویران شد.");
+                GameEvents.Notify(Loc.Get("toast.building_destroyed", GameText.BuildingName(Type)));
             }
         }
 

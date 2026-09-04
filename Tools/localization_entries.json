@@ -1,0 +1,918 @@
+{
+ "ui.splash.studio_line": {
+  "fa": "استودیوی بازی‌سازی پارسا",
+  "en": "Parsa Apps Game Studio"
+ },
+ "ui.menu.new_game": {
+  "fa": "آغاز نجات",
+  "en": "Begin the rescue"
+ },
+ "ui.tutorial.title": {
+  "fa": "راهنمای آغاز",
+  "en": "Getting started"
+ },
+ "ui.tutorial.ready": {
+  "fa": "آماده‌ام؛ شروع کنیم",
+  "en": "Ready; let's start"
+ },
+ "ui.modal.save_and_menu": {
+  "fa": "ذخیره و منوی اصلی",
+  "en": "Save and back to menu"
+ },
+ "ui.modal.save_now": {
+  "fa": "ثبت ذخیره",
+  "en": "Save the journey"
+ },
+ "ui.result.victory": {
+  "fa": "جزیره نجات یافت",
+  "en": "The island was saved"
+ },
+ "ui.result.defeat": {
+  "fa": "چراغ اردوگاه خاموش شد",
+  "en": "The camp light went out"
+ },
+ "ui.result.victory_detail": {
+  "fa": "گروه شما هفت روز را با همکاری پشت سر گذاشت.",
+  "en": "Your group endured seven days together."
+ },
+ "ui.result.defeat_detail": {
+  "fa": "همه‌ی بازمانده‌ها از دست رفتند. از تجربه‌ی این سفر استفاده کنید.",
+  "en": "Every survivor was lost. Use what this journey taught you."
+ },
+ "hud.companions": {
+  "fa": "همراهان",
+  "en": "Companions"
+ },
+ "ui.survivor.lost": {
+  "fa": "از دست رفته",
+  "en": "Lost"
+ },
+ "ui.action.build": {
+  "fa": "ساخت‌وساز",
+  "en": "Build"
+ },
+ "ui.action.train": {
+  "fa": "تربیت نیرو",
+  "en": "Train"
+ },
+ "ui.action.quests": {
+  "fa": "مأموریت‌ها",
+  "en": "Quests"
+ },
+ "ui.action.achievements": {
+  "fa": "دستاوردها",
+  "en": "Achievements"
+ },
+ "ui.action.equipment": {
+  "fa": "تجهیزات",
+  "en": "Equipment"
+ },
+ "ui.action.raid": {
+  "fa": "یورش",
+  "en": "Raid"
+ },
+ "ui.action.map": {
+  "fa": "نقشه",
+  "en": "Map"
+ },
+ "ui.action.daily": {
+  "fa": "پاداش روز",
+  "en": "Daily"
+ },
+ "ui.action.save": {
+  "fa": "ذخیره",
+  "en": "Save"
+ },
+ "ui.build.title": {
+  "fa": "انتخاب سازه",
+  "en": "Choose a structure"
+ },
+ "ui.common.close": {
+  "fa": "بستن",
+  "en": "Close"
+ },
+ "ui.building.upgrade": {
+  "fa": "ارتقای ساختمان",
+  "en": "Upgrade structure"
+ },
+ "ui.train.title": {
+  "fa": "مرکز تربیت نیرو",
+  "en": "Training centre"
+ },
+ "ui.train.button": {
+  "fa": "تربیت نگهبان",
+  "en": "Train a guard"
+ },
+ "ui.tech.title": {
+  "fa": "درخت فناوری",
+  "en": "Technology tree"
+ },
+ "ui.daily.claim": {
+  "fa": "گرفتن پاداش",
+  "en": "Claim reward"
+ },
+ "ui.quest.title": {
+  "fa": "مأموریت‌های گروه",
+  "en": "Group quests"
+ },
+ "ui.quest.claimed": {
+  "fa": "گرفته شد",
+  "en": "Claimed"
+ },
+ "ui.quest.active": {
+  "fa": "در حال انجام",
+  "en": "In progress"
+ },
+ "ui.quest.claim_all": {
+  "fa": "گرفتن پاداش‌های آماده",
+  "en": "Claim ready rewards"
+ },
+ "ui.equip.title": {
+  "fa": "تجهیزات گروه",
+  "en": "Group equipment"
+ },
+ "ui.raid.title": {
+  "fa": "یورش به اردوگاه دشمن",
+  "en": "Raid the enemy camp"
+ },
+ "ui.raid.start": {
+  "fa": "شروع یورش",
+  "en": "Start the raid"
+ },
+ "ui.settings.hint": {
+  "fa": "تنظیمات روی دستگاه ذخیره می‌شوند.",
+  "en": "Settings are stored on this device."
+ },
+ "ui.settings.sound_on": {
+  "fa": "صدا: روشن",
+  "en": "Sound: on"
+ },
+ "ui.settings.sound_off": {
+  "fa": "صدا: خاموش",
+  "en": "Sound: off"
+ },
+ "ui.settings.haptics_on": {
+  "fa": "لرزش لمسی: روشن",
+  "en": "Vibration: on"
+ },
+ "ui.settings.haptics_off": {
+  "fa": "لرزش لمسی: خاموش",
+  "en": "Vibration: off"
+ },
+ "ui.menu.about": {
+  "fa": "درباره‌ی سازنده",
+  "en": "About the maker"
+ },
+ "ui.about.website": {
+  "fa": "باز کردن وب‌سایت",
+  "en": "Open the website"
+ },
+ "label.free": {
+  "fa": "رایگان",
+  "en": "Free"
+ },
+ "hud.day_line": {
+  "fa": "روز {0}  •  {1}",
+  "en": "Day {0}  •  {1}"
+ },
+ "hud.weather_line": {
+  "fa": "☁  {0}",
+  "en": "☁  {0}"
+ },
+ "hud.population_line": {
+  "fa": "گروه: {0} / {1}",
+  "en": "Group: {0} / {1}"
+ },
+ "hud.companions_line": {
+  "fa": "همراهان  •  مرحله‌ی گروه: {0}",
+  "en": "Companions  •  Group level: {0}"
+ },
+ "hud.technology_line": {
+  "fa": "فناوری  {0}",
+  "en": "Technology  {0}"
+ },
+ "hud.morale_suffix": {
+  "fa": "  •  روحیه: {0}",
+  "en": "  •  Morale: {0}"
+ },
+ "hud.objective_line": {
+  "fa": "هدف: زنده ماندن تا روز {0}",
+  "en": "Goal: survive until day {0}"
+ },
+ "ui.building.detail": {
+  "fa": "سطح: {0}\nسلامت: {1} / {2}\n\nهزینه‌ی ارتقا:\n{3}",
+  "en": "Level {0}\nHealth {1} / {2}\n\nUpgrade cost:\n{3}"
+ },
+ "ui.train.body": {
+  "fa": "کارگاه، محل آموزش نیروهای تازه است.\n\nهزینه‌ی هر نیروی نگهبان:\n{0}\n\nظرفیت گروه: {1} / {2}",
+  "en": "The workshop trains new recruits.\n\nCost per guard:\n{0}\n\nGroup size: {1} / {2}"
+ },
+ "ui.tech.points": {
+  "fa": "امتیاز پژوهش: {0}",
+  "en": "Research points: {0}"
+ },
+ "ui.tech.cost": {
+  "fa": "هزینه: {0} امتیاز",
+  "en": "Cost: {0} research points"
+ },
+ "ui.daily.body": {
+  "fa": "هر روز برای ماندن در کنار گروه پاداش بگیرید.\n\n{0}\nردیف روزانه: {1}\n\n{2}",
+  "en": "Stay with the group each day to earn a reward.\n\n{0}\nDaily streak: {1}\n\n{2}"
+ },
+ "ui.daily.reward_line": {
+  "fa": "پاداش امروز: {0}  •  {1}",
+  "en": "Today's reward: {0}  •  {1}"
+ },
+ "ui.daily.available": {
+  "fa": "پاداش امروز در انتظار شماست.",
+  "en": "Today's reward is waiting for you."
+ },
+ "ui.daily.claimed": {
+  "fa": "پاداش امروز را دریافت کردید؛ فردا دوباره سر بزنید.",
+  "en": "You already claimed today's reward. Come back tomorrow."
+ },
+ "ui.quest.entry_line": {
+  "fa": "{0}\n{1}\nپاداش: {2}   •   {3}",
+  "en": "{0}\n{1}\nReward: {2}   •   {3}"
+ },
+ "ui.equip.level_line": {
+  "fa": "سطح: {0} / {1}",
+  "en": "Level {0} / {1}"
+ },
+ "ui.equip.cost_line": {
+  "fa": "هزینه: {0}",
+  "en": "Cost: {0}"
+ },
+ "ui.equip.level_required": {
+  "fa": "(نیاز به مرحله‌ی بالاتر)",
+  "en": "(requires a higher group level)"
+ },
+ "ui.equip.gather_bonus": {
+  "fa": "جمع‌آوری +{0}٪",
+  "en": "Gathering +{0}%"
+ },
+ "ui.equip.attack_bonus": {
+  "fa": "حمله +{0}",
+  "en": "Attack +{0}"
+ },
+ "ui.equip.armor_bonus": {
+  "fa": "کاهش آسیب {0}٪",
+  "en": "Damage reduction {0}%"
+ },
+ "ui.raid.body": {
+  "fa": "نگهبانان را برای غنیمت به سمت اردوگاه دشمن بفرستید.\n\n{0}\n{1}\n{2}\n\n{3}",
+  "en": "Send your guards to the enemy camp for loot.\n\n{0}\n{1}\n{2}\n\n{3}"
+ },
+ "ui.raid.guards_line": {
+  "fa": "نگهبانان آماده: {0}",
+  "en": "Ready guards: {0}"
+ },
+ "ui.raid.chance_line": {
+  "fa": "شانس پیروزی: {0}٪",
+  "en": "Victory chance: {0}%"
+ },
+ "ui.raid.cost_line": {
+  "fa": "هزینه: {0} و {1}",
+  "en": "Cost: {0} and {1}"
+ },
+ "ui.raid.record_line": {
+  "fa": "کارنامه: {0} برد / {1} باخت",
+  "en": "Record: {0} wins / {1} losses"
+ },
+ "ui.map.title": {
+  "fa": "نقشه‌ی جزیره",
+  "en": "Island map"
+ },
+ "ui.common.done": {
+  "fa": "✓",
+  "en": "OK"
+ },
+ "ui.equip.effect_block": {
+  "fa": "اثر فعلی\n{0}\n{1}\n{2}",
+  "en": "Current effect\n{0}\n{1}\n{2}"
+ },
+ "ui.tutorial.body": {
+  "fa": "برای بقا، منابع را جمع کنید و نیازهای گروه را زیر نظر داشته باشید.\n\nاز نوار پایین ساخت‌وساز را باز کنید و یک سازه روی زمین انتخاب کنید. روی ساختمان ساخته‌شده بزنید تا ارتقا دهید.\n\nشب‌ها سایه‌ها حمله می‌کنند؛ برج دیده‌بانی و نگهبان‌ها از اردوگاه محافظت می‌کنند.",
+  "en": "Gather resources and watch the group's needs.\n\nOpen Build from the bottom bar and choose a spot on the ground for each structure. Tap a built structure to upgrade it.\n\nAt night the shadows attack; watchtowers and guards keep the camp safe."
+ },
+ "label.survivor": {
+  "fa": "بازمانده",
+  "en": "Survivor"
+ },
+ "status.healing": {
+  "fa": "در حال درمان",
+  "en": "Healing"
+ },
+ "status.eating": {
+  "fa": "در حال خوردن غذا",
+  "en": "Eating"
+ },
+ "status.drinking": {
+  "fa": "در حال نوشیدن آب",
+  "en": "Drinking"
+ },
+ "status.resting": {
+  "fa": "در حال استراحت",
+  "en": "Resting"
+ },
+ "status.fleeing": {
+  "fa": "فرار از خطر",
+  "en": "Fleeing danger"
+ },
+ "status.aid": {
+  "fa": "کمک به زخمی‌ها",
+  "en": "Aiding the injured"
+ },
+ "status.healing_ally": {
+  "fa": "درمان یک هم‌گروهی",
+  "en": "Healing a companion"
+ },
+ "status.patrol": {
+  "fa": "گشت‌زنی اطراف اردوگاه",
+  "en": "Patrolling the camp"
+ },
+ "status.gathering": {
+  "fa": "جمع‌آوری {0}",
+  "en": "Gathering {0}"
+ },
+ "status.idle": {
+  "fa": "در انتظار فرمان",
+  "en": "Waiting for orders"
+ },
+ "status.lost": {
+  "fa": "از دست رفته",
+  "en": "Lost"
+ },
+ "toast.survivor_lost": {
+  "fa": "{0} دیگر توان ادامه ندارد.",
+  "en": "{0} cannot go on."
+ },
+ "status.preparing": {
+  "fa": "در حال آماده‌سازی",
+  "en": "Preparing"
+ },
+ "log.warn_prefix": {
+  "fa": "هشدار:",
+  "en": "Warning:"
+ },
+ "log.error_prefix": {
+  "fa": "خطا:",
+  "en": "Error:"
+ },
+ "log.generic_failure": {
+  "fa": "یک عملیات ناموفق بود",
+  "en": "An operation did not complete."
+ },
+ "log.save_done": {
+  "fa": "ذخیره‌سازی انجام شد (نسخه‌ی {0}).",
+  "en": "Saved (version {0})."
+ },
+ "log.save_failed": {
+  "fa": "ذخیره‌ی بازی انجام نشد",
+  "en": "The game could not be saved"
+ },
+ "log.backup_loaded": {
+  "fa": "ذخیره‌ی اصلی آسیب دیده بود؛ نسخه‌ی پشتیبان بارگذاری شد.",
+  "en": "The main save was damaged; the backup was loaded."
+ },
+ "log.load_failed": {
+  "fa": "خواندن ذخیره ناموفق بود",
+  "en": "The save file could not be read"
+ },
+ "log.delete_failed": {
+  "fa": "پاک‌کردن فایل ذخیره ناموفق بود: {0}",
+  "en": "Deleting the save file failed: {0}"
+ },
+ "ui.settings.language": {
+  "fa": "زبان: {0}",
+  "en": "Language: {0}"
+ },
+ "language.fa": {
+  "fa": "فارسی",
+  "en": "فارسی"
+ },
+ "language.en": {
+  "fa": "English",
+  "en": "English"
+ },
+ "toast.language_single": {
+  "fa": "هم‌اکنون تنها یک زبان در دسترس است.",
+  "en": "Only one language is available right now."
+ },
+ "format.building_label": {
+  "fa": "{0} «{1}»",
+  "en": "{0} «{1}»"
+ },
+ "format.cost_entry": {
+  "fa": "{0} {1}",
+  "en": "{0} {1}"
+ },
+ "format.cost_join": {
+  "fa": "  •  ",
+  "en": "  •  "
+ },
+ "format.quest_line": {
+  "fa": "  •  مأموریت: {0}",
+  "en": "  •  Quest: {0}"
+ },
+ "label.east": {
+  "fa": "شرق",
+  "en": "East"
+ },
+ "label.west": {
+  "fa": "غرب",
+  "en": "West"
+ },
+ "survivor.name.0": {
+  "fa": "سارا",
+  "en": "Sara"
+ },
+ "survivor.name.1": {
+  "fa": "یونس",
+  "en": "Younes"
+ },
+ "survivor.name.2": {
+  "fa": "آوا",
+  "en": "Ava"
+ },
+ "survivor.name.3": {
+  "fa": "کاوه",
+  "en": "Kaveh"
+ },
+ "survivor.name.4": {
+  "fa": "نورا",
+  "en": "Nora"
+ },
+ "survivor.name.5": {
+  "fa": "سام",
+  "en": "Sam"
+ },
+ "survivor.name.6": {
+  "fa": "رها",
+  "en": "Raha"
+ },
+ "survivor.name.7": {
+  "fa": "بهرام",
+  "en": "Bahram"
+ },
+ "survivor.name.8": {
+  "fa": "مینا",
+  "en": "Mina"
+ },
+ "survivor.name.9": {
+  "fa": "داریوش",
+  "en": "Darius"
+ },
+ "survivor.name.10": {
+  "fa": "ترانه",
+  "en": "Taraneh"
+ },
+ "survivor.name.11": {
+  "fa": "آرمان",
+  "en": "Arman"
+ },
+ "status.returning": {
+  "fa": "بازگشت به اردوگاه",
+  "en": "Returning to camp"
+ },
+ "status.building": {
+  "fa": "ساخت‌وساز",
+  "en": "Building"
+ },
+ "status.guarding": {
+  "fa": "نگهبانی اردوگاه",
+  "en": "Guarding the camp"
+ },
+ "status.injured": {
+  "fa": "زخمی و نیازمند درمان",
+  "en": "Injured and needs treatment"
+ },
+ "equipment.tool": {
+  "fa": "ابزار (کشاورزی/جمع‌آوری)",
+  "en": "Tools (farming/gathering)"
+ },
+ "equipment.weapon": {
+  "fa": "سلاح (دفاع/حمله)",
+  "en": "Weapons (defense/attack)"
+ },
+ "equipment.armor": {
+  "fa": "زره (کاهش آسیب)",
+  "en": "Armor (damage reduction)"
+ },
+ "log.low_memory": {
+  "fa": "هشدار حافظه: کیفیت به «{0}» کاهش یافت و منابع آزاد شدند.",
+  "en": "Memory warning: quality lowered to {0} and unused assets were released."
+ },
+ "log.quality_down": {
+  "fa": "برای روان‌تر شدن، کیفیت به «{0}» کاهش یافت.",
+  "en": "Quality lowered to {0} to keep the frame rate smooth."
+ },
+ "log.quality_up": {
+  "fa": "کیفیت به «{0}» ارتقا یافت.",
+  "en": "Quality raised to {0}."
+ },
+ "toast.run_started": {
+  "fa": "گروه شما به ساحل ناشناخته رسید؛ با هم بقا پیدا کنید.",
+  "en": "Your group reached an unknown shore; together you will survive."
+ },
+ "toast.no_save": {
+  "fa": "ذخیره‌ای پیدا نشد؛ یک سفر تازه آغاز می‌شود.",
+  "en": "No save found; a new journey begins."
+ },
+ "toast.joined": {
+  "fa": "{0} به گروه پیوست.",
+  "en": "{0} joined the group."
+ },
+ "toast.day_started": {
+  "fa": "روز {0} آغاز شد؛ {1} امتیاز فناوری گرفتید.",
+  "en": "Day {0} begins; you gained {1} technology points."
+ },
+ "toast.place_spot": {
+  "fa": "محل ساخت «{0}» را روی زمین لمس کنید.",
+  "en": "Tap a spot on the ground to place the {0}."
+ },
+ "toast.upgrade_no_resources": {
+  "fa": "منابع کافی برای ارتقا وجود ندارد.",
+  "en": "Not enough resources to upgrade."
+ },
+ "toast.upgraded": {
+  "fa": "{0} ارتقا یافت.",
+  "en": "{0} was upgraded."
+ },
+ "toast.bad_spot": {
+  "fa": "این محل برای ساخت مناسب نیست.",
+  "en": "This spot is not suitable for building."
+ },
+ "toast.build_no_resources": {
+  "fa": "منابع کافی برای ساخت وجود ندارد.",
+  "en": "Not enough resources to build."
+ },
+ "toast.built": {
+  "fa": "{0} ساخته شد.",
+  "en": "{0} was built."
+ },
+ "toast.building_destroyed": {
+  "fa": "{0} ویران شد.",
+  "en": "{0} was destroyed."
+ },
+ "toast.enemy_defeated": {
+  "fa": "یک سایه شکست خورد.",
+  "en": "A shadow was defeated."
+ },
+ "toast.night_wave": {
+  "fa": "موج شبانه رسید؛ {0} سایه از سمت {1} نزدیک می‌شوند.",
+  "en": "The night wave arrived; {0} shadows approach from the {1}."
+ },
+ "toast.weather_changed": {
+  "fa": "هوا تغییر کرد: {0}",
+  "en": "The weather changed: {0}"
+ },
+ "toast.low_food": {
+  "fa": "ذخیره‌ی غذا کم است؛ جمع‌آور و کشاورز را فعال نگه دارید.",
+  "en": "Food is running low; keep the gatherer and farmer busy."
+ },
+ "toast.low_water": {
+  "fa": "آب گروه رو به پایان است؛ پیشاهنگ را به چشمه بفرستید.",
+  "en": "The group is almost out of water; send the scout to the spring."
+ },
+ "toast.level_up": {
+  "fa": "گروه به مرحله‌ی {0} رسید؛ روحیه‌ی همه بالا رفت.",
+  "en": "The group reached level {0}; everyone's morale rose."
+ },
+ "toast.daily_reward": {
+  "fa": "پاداش روزانه: {0}  •  {1} (ردیف روزانه: {2})",
+  "en": "Daily reward: {0}  •  {1} (streak: {2})"
+ },
+ "toast.train_needs_workshop": {
+  "fa": "برای تربیت نیرو ابتدا یک کارگاه بسازید.",
+  "en": "Build a workshop before training anyone."
+ },
+ "toast.train_group_full": {
+  "fa": "گروه به ظرفیت {0} نفر رسیده است.",
+  "en": "The group is already at its limit of {0}."
+ },
+ "toast.train_no_resources": {
+  "fa": "برای تربیت نیرو غذا، انرژی و طلا کافی نیست.",
+  "en": "Not enough food, energy or gold to train a guard."
+ },
+ "toast.quest_done": {
+  "fa": "مأموریت «{0}» انجام شد؛ {1} گرفتید.",
+  "en": "Quest '{0}' completed; you received {1}."
+ },
+ "toast.achievement_unlocked": {
+  "fa": "دستاورد «{0}» باز شد؛ {1} طلا جایزه گرفتید.",
+  "en": "Achievement '{0}' unlocked; you earned {1} gold."
+ },
+ "toast.tech_already": {
+  "fa": "این فناوری قبلاً باز شده است.",
+  "en": "This technology is already unlocked."
+ },
+ "toast.tech_points": {
+  "fa": "برای پژوهش به {0} امتیاز فناوری نیاز دارید.",
+  "en": "Research costs {0} technology points."
+ },
+ "toast.tech_need_prerequisite": {
+  "fa": "ابتدا فناوری همکاری را باز کنید.",
+  "en": "Unlock the cooperation technology first."
+ },
+ "toast.equip_max": {
+  "fa": "این تجهیزات به بالاترین سطح رسیده است.",
+  "en": "This equipment is already at max level."
+ },
+ "toast.equip_level_needed": {
+  "fa": "برای این ارتقا به مرحله‌ی گروه {0} نیاز دارید.",
+  "en": "This upgrade needs group level {0}."
+ },
+ "toast.equip_no_resources": {
+  "fa": "منابع کافی نیست؛ به {0} بیشتری نیاز دارید.",
+  "en": "Not enough resources; you need more {0}."
+ },
+ "toast.equip_blocked": {
+  "fa": "ارتقا ممکن نیست: {0}",
+  "en": "Upgrade blocked: {0}"
+ },
+ "toast.equip_upgraded": {
+  "fa": "{0} به سطح {1} ارتقا یافت.",
+  "en": "{0} upgraded to level {1}."
+ },
+ "toast.raid_night": {
+  "fa": "در شب نمی‌توان یورش برد؛ شب متعلق به سایه‌هاست.",
+  "en": "You cannot raid at night; the night belongs to the shadows."
+ },
+ "toast.raid_today": {
+  "fa": "امروز یک‌بار یورش رفتید؛ فردا دوباره تلاش کنید.",
+  "en": "You already raided today; try again tomorrow."
+ },
+ "toast.raid_guards": {
+  "fa": "برای یورش به دست‌کم {0} نگهبان نیاز دارید.",
+  "en": "A raid needs at least {0} guards."
+ },
+ "toast.raid_energy": {
+  "fa": "برای یورش {0} انرژی لازم است.",
+  "en": "A raid costs {0} energy."
+ },
+ "toast.raid_gold": {
+  "fa": "برای آماده‌سازی یورش {0} طلا لازم است.",
+  "en": "Preparing the raid costs {0} gold."
+ },
+ "toast.raid_blocked": {
+  "fa": "یورش ممکن نیست: {0}",
+  "en": "The raid is not possible: {0}"
+ },
+ "toast.raid_won": {
+  "fa": "یورش پیروز شد! غنیمت: {0}",
+  "en": "The raid succeeded! Loot: {0}"
+ },
+ "toast.raid_lost": {
+  "fa": "یورش شکست خورد و خسارت دیدید؛ روحیه‌ی گروه پایین آمد.",
+  "en": "The raid failed and you took damage; group morale dropped."
+ },
+ "technology.cooperation": {
+  "fa": "همکاری گروهی",
+  "en": "Group cooperation"
+ },
+ "technology.waterpurification": {
+  "fa": "تصفیه‌ی آب",
+  "en": "Water purification"
+ },
+ "technology.reinforcedwalls": {
+  "fa": "دیوار تقویت‌شده",
+  "en": "Reinforced walls"
+ },
+ "technology.fieldrotation": {
+  "fa": "کشت چرخشی",
+  "en": "Field rotation"
+ },
+ "technology.cooperation.unlocked": {
+  "fa": "همکاری گروهی باز شد؛ بازمانده‌ها سریع‌تر کار می‌کنند.",
+  "en": "Group cooperation unlocked; survivors work faster."
+ },
+ "technology.waterpurification.unlocked": {
+  "fa": "تصفیه‌ی آب باز شد؛ ذخیره‌ی آب افزایش یافت.",
+  "en": "Water purification unlocked; the water reserve grew."
+ },
+ "technology.reinforcedwalls.unlocked": {
+  "fa": "دیوارهای تقویت‌شده، دفاع پایگاه را بیشتر کردند.",
+  "en": "Reinforced walls strengthened the camp defense."
+ },
+ "technology.fieldrotation.unlocked": {
+  "fa": "کشت چرخشی باز شد؛ مزرعه پربازده‌تر شد.",
+  "en": "Field rotation unlocked; the farm yields more."
+ },
+ "achievement.builder": {
+  "fa": "سازنده",
+  "en": "Builder"
+ },
+ "achievement.defender": {
+  "fa": "مدافع اردوگاه",
+  "en": "Camp defender"
+ },
+ "achievement.scavenger": {
+  "fa": "جمع‌آور",
+  "en": "Scavenger"
+ },
+ "achievement.firstnight": {
+  "fa": "دومین روز",
+  "en": "Second day"
+ },
+ "achievement.survivor": {
+  "fa": "بازمانده‌ی ماهر",
+  "en": "Skilled survivor"
+ },
+ "achievement.rich": {
+  "fa": "ثروتمند",
+  "en": "Wealthy"
+ },
+ "achievement.bringeroflife": {
+  "fa": "آورنده‌ی زندگی",
+  "en": "Bringer of life"
+ },
+ "quest.q_house.title": {
+  "fa": "اولین پناهگاه",
+  "en": "First shelter"
+ },
+ "quest.q_house.description": {
+  "fa": "یک خانه برای گروه بسازید.",
+  "en": "Build a house for the group."
+ },
+ "quest.q_wood.title": {
+  "fa": "تأمین چوب",
+  "en": "Wood supply"
+ },
+ "quest.q_wood.description": {
+  "fa": "ذخیره‌ی چوب را به {0} برسانید.",
+  "en": "Raise your wood stock to {0}."
+ },
+ "quest.q_storage.title": {
+  "fa": "انبار امن",
+  "en": "Safe storage"
+ },
+ "quest.q_storage.description": {
+  "fa": "یک انبار بسازید تا منابع در امان بمانند.",
+  "en": "Build a storage so your supplies stay safe."
+ },
+ "quest.q_guard.title": {
+  "fa": "نگهبان تازه",
+  "en": "New guard"
+ },
+ "quest.q_guard.description": {
+  "fa": "گروه را به {0} نفر برسانید.",
+  "en": "Grow the group to {0} people."
+ },
+ "quest.q_tower.title": {
+  "fa": "برج دیده‌بانی",
+  "en": "Watchtower"
+ },
+ "quest.q_tower.description": {
+  "fa": "برای دفاع شبانه یک برج بسازید.",
+  "en": "Build a watchtower for the night defense."
+ },
+ "quest.q_day3.title": {
+  "fa": "سه روز مقاومت",
+  "en": "Three days of resistance"
+ },
+ "quest.q_day3.description": {
+  "fa": "تا روز {0} زنده بمانید.",
+  "en": "Survive until day {0}."
+ },
+ "quest.q_farm.title": {
+  "fa": "مزرعه‌ی نو",
+  "en": "A new farm"
+ },
+ "quest.q_farm.description": {
+  "fa": "یک مزرعه راه‌اندازی کنید.",
+  "en": "Set up a farm."
+ },
+ "quest.q_workshop.title": {
+  "fa": "کارگاه تولید",
+  "en": "Production workshop"
+ },
+ "quest.q_workshop.description": {
+  "fa": "کارگاه را فعال کنید.",
+  "en": "Bring the workshop online."
+ },
+ "story.s_voice.title": {
+  "fa": "ندای ناشناخته",
+  "en": "An unknown call"
+ },
+ "story.s_voice.body": {
+  "fa": "در سحرگاه، صدایی از اعماق جنگل شنیده می‌شود. کسی باید ببیند چه خبر است.",
+  "en": "At dawn, a sound drifts from deep in the forest. Someone should see what it is."
+ },
+ "story.s_voice.scout.title": {
+  "fa": "پیشاهنگ را بفرست",
+  "en": "Send the scout"
+ },
+ "story.s_voice.guard.title": {
+  "fa": "با یک نگهبان برو",
+  "en": "Go with a guard"
+ },
+ "story.s_voice.ignore.title": {
+  "fa": "بی‌تفاوت بمان",
+  "en": "Stay put"
+ },
+ "story.s_stranger.title": {
+  "fa": "رهگذری زخمی",
+  "en": "A wounded traveller"
+ },
+ "story.s_stranger.body": {
+  "fa": "یک بازمانده‌ی ناآشنا زخمی به اردوگاه می‌رسد و کمک می‌خواهد.",
+  "en": "An unfamiliar survivor reaches the camp, wounded and asking for help."
+ },
+ "story.s_stranger.heal.title": {
+  "fa": "مداوا کنید",
+  "en": "Tend their wounds"
+ },
+ "story.s_stranger.ask.title": {
+  "fa": "راهنمایی بگیرید",
+  "en": "Ask for directions"
+ },
+ "story.s_stranger.reject.title": {
+  "fa": "دور کنید",
+  "en": "Turn them away"
+ },
+ "story.s_storm.title": {
+  "fa": "توفان پیش رو",
+  "en": "A storm ahead"
+ },
+ "story.s_storm.body": {
+  "fa": "آسمان تیره می‌شود و باد به نشانه‌ی توفان وزیدن می‌گیرد. آماده‌سازی لازم است.",
+  "en": "The sky darkens and the wind turns toward a storm. Preparation is needed."
+ },
+ "story.s_storm.reinforce.title": {
+  "fa": "پناهگاه را تقویت کن",
+  "en": "Reinforce the shelter"
+ },
+ "story.s_storm.stock.title": {
+  "fa": "ذخیره‌ی غذا",
+  "en": "Stock food"
+ },
+ "story.s_storm.patrol.title": {
+  "fa": "قبل از توفان برو",
+  "en": "Go before the storm"
+ },
+ "story.decision.resources": {
+  "fa": "انتخاب شما: {0} — {1} گرفتید.",
+  "en": "Your choice: {0} — you gained {1}."
+ },
+ "story.decision.morale": {
+  "fa": "انتخاب شما: {0}؛ روحیه‌ی گروه {1} واحد تغییر کرد.",
+  "en": "Your choice: {0}; group morale shifted by {1}."
+ },
+ "story.decision.heal": {
+  "fa": "انتخاب شما: {0}؛ زخمی‌ها درمان شدند.",
+  "en": "Your choice: {0}; the wounded were treated."
+ },
+ "format.resource_line": {
+  "fa": "{0}  {1}",
+  "en": "{0}  {1}"
+ },
+ "story.s_voice.scout.hint": {
+  "fa": "گروه ذخیره‌ی چوب می‌یابد ولی پیشاهنگ خسته می‌شود.",
+  "en": "The group gains wood, but the scout is exhausted."
+ },
+ "story.s_voice.guard.hint": {
+  "fa": "با احتیاط پیش می‌روید؛ روحیه تقویت می‌شود.",
+  "en": "You advance cautiously; morale rises."
+ },
+ "story.s_voice.ignore.hint": {
+  "fa": "چیزی رخ نمی‌دهد، ولی تردید در گروه می‌ماند.",
+  "en": "Nothing happens, but doubt lingers in the group."
+ },
+ "story.s_stranger.heal.hint": {
+  "fa": "با مصرف غذا گروه کمک می‌کند و روحیه بالا می‌رود.",
+  "en": "The group gives food and care; morale rises."
+ },
+ "story.s_stranger.ask.hint": {
+  "fa": "رهگذر جای چشمه‌ی آب را نشان می‌دهد.",
+  "en": "The traveller shows you where the water spring is."
+ },
+ "story.s_stranger.reject.hint": {
+  "fa": "گروه کنار کشیده و حس امنیت کمی می‌کاهد.",
+  "en": "The group steps back and feels a little less safe."
+ },
+ "story.s_storm.reinforce.hint": {
+  "fa": "سنگ اضافه و امنیت بیش‌تر؛ اما زمان می‌برد.",
+  "en": "More stone and more safety, but it costs time."
+ },
+ "story.s_storm.stock.hint": {
+  "fa": "خودتان را برای روزهای سخت آماده می‌کنید.",
+  "en": "You prepare for the hard days ahead."
+ },
+ "story.s_storm.patrol.hint": {
+  "fa": "پیش از توفان گشت می‌زنید و انرژی به دست می‌آورید.",
+  "en": "You patrol before the storm and gather energy."
+ },
+ "ui.action.pause": {
+  "fa": "مکث",
+  "en": "Pause"
+ },
+ "ui.daily.title": {
+  "fa": "پاداش روزانه",
+  "en": "Daily reward"
+ },
+ "toast.save_restored": {
+  "fa": "سفر قبلی با موفقیت بازیابی شد.",
+  "en": "Your previous journey was restored."
+ }
+}

@@ -67,7 +67,7 @@ namespace BaziBaqa
                     break;
             }
             WeatherChanged?.Invoke(weather);
-            if (announce) GameEvents.Notify("هوا تغییر کرد: " + GameText.WeatherName(weather));
+            if (announce) GameEvents.Notify(Loc.Get("toast.weather_changed", GameText.WeatherName(weather)));
         }
 
         private void UpdateDayLight()
@@ -84,7 +84,7 @@ namespace BaziBaqa
         private void CreateRainEffect()
         {
             if (GameManager.Instance == null || GameManager.Instance.World == null) return;
-            GameObject rainObject = new GameObject("باران");
+            GameObject rainObject = new GameObject(WorldParts.Rain);
             rainObject.transform.SetParent(GameManager.Instance.World.EffectRoot, false);
             rainObject.transform.position = new Vector3(0f, 13f, 0f);
             _rain = rainObject.AddComponent<ParticleSystem>();

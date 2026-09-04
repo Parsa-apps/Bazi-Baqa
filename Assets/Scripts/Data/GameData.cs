@@ -220,12 +220,16 @@ namespace BaziBaqa
             data.seed = newSeed;
             // سه مأموریتِ اول به‌عنوان پنجره‌ی شروعِ متمایز صادر شده‌اند (شاخص‌های ۰،۱،۲).
             data.questIndex = 3;
-            data.survivors.Add(CreateSurvivor("سارا", SurvivorRole.Gatherer, new Vector3(-2f, 0f, -1f)));
-            data.survivors.Add(CreateSurvivor("یونس", SurvivorRole.Builder, new Vector3(2f, 0f, -1f)));
-            data.survivors.Add(CreateSurvivor("آوا", SurvivorRole.Medic, new Vector3(-1f, 0f, 2f)));
-            data.survivors.Add(CreateSurvivor("کاوه", SurvivorRole.Guard, new Vector3(2f, 0f, 2f)));
-            data.survivors.Add(CreateSurvivor("نورا", SurvivorRole.Scout, new Vector3(-3f, 0f, 2f)));
-            data.survivors.Add(CreateSurvivor("سام", SurvivorRole.Farmer, new Vector3(3f, 0f, 1f)));
+            for (int i = 0; i < GameText.StartingSurvivorCount; i++)
+            {
+                SurvivorRole[] roles = { SurvivorRole.Gatherer, SurvivorRole.Builder, SurvivorRole.Medic, SurvivorRole.Guard, SurvivorRole.Scout, SurvivorRole.Farmer };
+                Vector3[] offsets =
+                {
+                    new Vector3(-2f, 0f, -1f), new Vector3(2f, 0f, -1f), new Vector3(-1f, 0f, 2f),
+                    new Vector3(2f, 0f, 2f), new Vector3(-3f, 0f, 2f), new Vector3(3f, 0f, 1f)
+                };
+                data.survivors.Add(CreateSurvivor(GameText.SurvivorNameAt(i), roles[i % roles.Length], offsets[i % offsets.Length]));
+            }
             data.buildings.Add(new BuildingSaveData
             {
                 id = "camp-main",
@@ -258,26 +262,123 @@ namespace BaziBaqa
         }
     }
 
+    /// <summary>
+    /// نام‌ها و قالب‌های متنیِ داده‌محور. هیچ رشته‌ای اینجا نوشته نمی‌شود؛ همه از
+    /// LocalizationManager خوانده می‌شوند تا افزودن زبان تازه فقط یک ویرایشِ جدول باشد.
+    /// </summary>
     public static class GameText
     {
-        public static string ResourceName(ResourceType type)
+        /// <summary>تعداد نام‌های آماده در استخرِ نام (survivor.name.0 … survivor.name.N).</summary>
+        public const int SurvivorNameCount = 12;
+        public const int StartingSurvivorCount = 6;
+        public const int RecruitNameOffset = 6;
+
+        // ---------- کلیدها (برای تست و ممیزی) ----------
+
+        public static string ResourceKey(ResourceType type) { return "resource." + type.ToString().ToLowerInvariant(); }
+        public static string BuildingKey(BuildingType type) { return "building." + type.ToString().ToLowerInvariant(); }
+        public static string RoleKey(SurvivorRole role) { return "role." + role.ToString().ToLowerInvariant(); }
+        public static string WeatherKey(WeatherType type) { return "weather." + type.ToString().ToLowerInvariant(); }
+        public static string TechnologyKey(TechnologyType type) { return "technology." + type.ToString().ToLowerInvariant(); }
+        public static string AchievementKey(AchievementId id) { return "achievement." + id.ToString().ToLowerInvariant(); }
+        public static string StateKey(SurvivorState state) { return "status." + state.ToString().ToLowerInvariant(); }
+        public static string EquipmentKey(EquipmentType type) { return "equipment." + type.ToString().ToLowerInvariant(); }
+        public static string QuestKey(string questId, string part) { return "quest." + questId + "." + part; }
+        public static string StoryKey(string storyId, string part) { return "story." + storyId + "." + part; }
+
+        // ---------- نام‌ها ----------
+
+        public static string ResourceName(ResourceType type) { return Loc.Get(ResourceKey(type)); }
+        public static string BuildingName(BuildingType type) { return Loc.Get(BuildingKey(type)); }
+        public static string RoleName(SurvivorRole role) { return Loc.Get(RoleKey(role)); }
+        public static string WeatherName(WeatherType type) { return Loc.Get(WeatherKey(type)); }
+        public static string TechnologyName(TechnologyType type) { return Loc.Get(TechnologyKey(type)); }
+        public static string AchievementName(AchievementId id) { return Loc.Get(AchievementKey(id)); }
+        public static string EquipmentName(EquipmentType type) { return Loc.Get(EquipmentKey(type)); }
+        public static string StateName(SurvivorState state) { return Loc.Get(StateKey(state)); }
+
+        /// <summary>نامِ بازمانده از استخرِ نام‌های جدول (به‌جای رشته‌های سخت‌کدشده در کد).</summary>
+        public static string SurvivorNameAt(int index)
         {
-            return Loc.Get("resource." + type.ToString().ToLowerInvariant());
+            int wrapped = index % SurvivorNameCount;
+            if (wrapped < 0) wrapped += SurvivorNameCount;
+            return Loc.Get("survivor.name." + wrapped);
         }
 
-        public static string RoleName(SurvivorRole role)
+        // ---------- قالب‌های مشترک ----------
+
+        /// <summary>هزینه‌ی ساخت/ارتقا به شکل «چوب ۲۰  •  سنگ ۱۰» (برچسب «رایگان» اگر خالی باشد).</summary>
+        public static string CostLine(System.Collections.Generic.IEnumerable<ResourceCost> costs)
         {
-            return Loc.Get("role." + role.ToString().ToLowerInvariant());
+            System.Collections.Generic.List<string> parts = new System.Collections.Generic.List<string>();
+            if (costs != null)
+            {
+                foreach (ResourceCost cost in costs) parts.Add(ResourceAmount(cost.type, cost.amount));
+            }
+            string joined = Join(parts);
+            return string.IsNullOrEmpty(joined) ? Loc.Get("label.free") : joined;
         }
 
-        public static string BuildingName(BuildingType type)
+        /// <summary>همان قالب برای هزینه‌های ارتقای تجهیزات.</summary>
+        public static string CostLine(System.Collections.Generic.IEnumerable<EquipmentUpgradeCost> costs)
         {
-            return Loc.Get("building." + type.ToString().ToLowerInvariant());
+            System.Collections.Generic.List<string> parts = new System.Collections.Generic.List<string>();
+            if (costs != null)
+            {
+                foreach (EquipmentUpgradeCost cost in costs)
+                {
+                    if (cost == null) continue;
+                    parts.Add(ResourceAmount(cost.type, cost.amount));
+                }
+            }
+            string joined = Join(parts);
+            return string.IsNullOrEmpty(joined) ? Loc.Get("label.free") : joined;
         }
 
-        public static string WeatherName(WeatherType type)
+        /// <summary>برچسب شناورِ ساختمان در جهان: «نام  «۲»».</summary>
+        public static string BuildingLabel(BuildingType type, int level)
         {
-            return Loc.Get("weather." + type.ToString().ToLowerInvariant());
+            return Loc.Get("format.building_label", BuildingName(type), Loc.Num(level));
+        }
+
+        /// <summary>خط «مأموریت فعال» در نوار پایین.</summary>
+        public static string QuestLine(string title)
+        {
+            return Loc.Get("format.quest_line", title);
+        }
+
+        /// <summary>یک سطر «منبع + مقدار» مثل «چوب ۲۰».</summary>
+        public static string ResourceAmount(ResourceType type, int amount)
+        {
+            return Loc.Get("format.cost_entry", ResourceName(type), Loc.Num(amount));
+        }
+
+        /// <summary>پیوند چند تکه‌ی متنی با جداکننده‌ی محلی («  •  » در فارسی).</summary>
+        public static string Join(params string[] parts)
+        {
+            System.Collections.Generic.List<string> kept = new System.Collections.Generic.List<string>();
+            if (parts != null)
+            {
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(parts[i])) kept.Add(parts[i]);
+                }
+            }
+            return Join(kept);
+        }
+
+        private static string Join(System.Collections.Generic.IEnumerable<string> parts)
+        {
+            System.Collections.Generic.List<string> kept = new System.Collections.Generic.List<string>();
+            if (parts != null)
+            {
+                foreach (string part in parts)
+                {
+                    if (!string.IsNullOrEmpty(part)) kept.Add(part);
+                }
+            }
+            if (kept.Count == 0) return string.Empty;
+            return string.Join(Loc.Get("format.cost_join"), kept.ToArray());
         }
     }
 }

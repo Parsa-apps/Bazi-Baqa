@@ -13,10 +13,12 @@ namespace BaziBaqa
         /// <summary>فایل‌های جانبی (مثل RuntimeLogger) برای همگام‌سازی لگ‌ها به این رویداد گوش می‌دهند.</summary>
         public static event Action<string> Logged;
 
-        private const string InfoTag = "[بازی بقا]";
-        private const string SaveTag = "[ذخیره]";
-        private const string SystemTag = "[سیستم]";
+        // برچسب‌های کنسول برای توسعه‌دهنده‌اند (در کنسول Unity خوانده می‌شوند)؛ بنابراین ASCII می‌مانند.
+        private const string InfoTag = "[BaziBaqa]";
+        private const string SaveTag = "[Save]";
+        private const string SystemTag = "[System]";
 
+        /// <summary>پیام‌های راه‌اندازی/جدول که پیش از آماده شدنِ Loc ثبت می‌شوند، باید بی‌خطر باشند.</summary>
         public static void Info(string message)
         {
             Debug.Log(InfoTag + " " + message);
@@ -37,13 +39,13 @@ namespace BaziBaqa
         public static void Warn(string message)
         {
             Debug.LogWarning(InfoTag + " " + message);
-            GameEvents.Notify("هشدار: " + message);
+            GameEvents.Notify(Loc.Get("log.warn_prefix") + " " + message);
         }
 
         public static void Error(string message)
         {
             Debug.LogError(InfoTag + " " + message);
-            GameEvents.Notify("خطا: " + message);
+            GameEvents.Notify(Loc.Get("log.error_prefix") + " " + message);
             Logged?.Invoke(message);
         }
 
@@ -52,7 +54,7 @@ namespace BaziBaqa
             string detail = message + " — " + exception.Message;
             Debug.LogError(InfoTag + " " + detail);
             Debug.LogException(exception);
-            GameEvents.Notify("خطا: " + message);
+            GameEvents.Notify(Loc.Get("log.error_prefix") + " " + message);
             Logged?.Invoke(detail);
         }
 
@@ -64,7 +66,7 @@ namespace BaziBaqa
             }
             catch (Exception exception)
             {
-                Error(label != null ? label() : "یک عملیات ناموفق بود", exception);
+                Error(label != null ? label() : Loc.Get("log.generic_failure"), exception);
                 return fallback;
             }
         }
@@ -78,7 +80,7 @@ namespace BaziBaqa
             }
             catch (Exception exception)
             {
-                Error(label != null ? label() : "یک عملیات ناموفق بود", exception);
+                Error(label != null ? label() : Loc.Get("log.generic_failure"), exception);
             }
         }
     }

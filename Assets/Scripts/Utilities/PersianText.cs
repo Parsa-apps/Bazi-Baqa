@@ -39,7 +39,7 @@ namespace BaziBaqa
 
             if (_label != null)
             {
-                _label.alignment = TextAnchor.MiddleRight;
+                ApplyDirection(_label);
                 _label.text = Process(sourceText);
             }
         }
@@ -47,8 +47,33 @@ namespace BaziBaqa
         public static void Set(Text label, string value)
         {
             if (label == null) return;
-            label.alignment = TextAnchor.MiddleRight;
+            ApplyDirection(label);
             label.text = Process(value);
+        }
+
+        /// <summary>
+        /// چینشِ راست‌به‌چپ فقط برای زبان‌های راست‌به‌چپ تحمیل می‌شود و فقط جایی که
+        /// فرستنده جهت را مشخص نکرده (چپ/پیش‌فرض) اصلاح می‌شود؛ چینشِ عمدی (مثلاً MiddleCenter)
+        /// دست‌نخورده می‌ماند.
+        /// </summary>
+        private static void ApplyDirection(Text label)
+        {
+            if (!LocalizationManager.IsRtl) return;
+            TextAnchor anchor = label.alignment;
+            if (anchor == TextAnchor.MiddleLeft || anchor == TextAnchor.UpperLeft || anchor == TextAnchor.LowerLeft || anchor == TextAnchor.None)
+            {
+                label.alignment = TextAnchor.MiddleRight;
+            }
+        }
+
+        /// <summary>
+        /// نمایش متن در Text قدیمیِ Unity (شکل‌دهی دستیِ حروف + ارقام فارسی).
+        /// مخصوص لایه‌ی قدیمی است؛ TextMeshPro خودش شکل‌دهی و RTL را انجام می‌دهد و
+        /// نباید از این تابع استفاده کند (وگرنه حروف دوبار برعکس می‌شوند).
+        /// </summary>
+        public static string LegacyDisplay(string value)
+        {
+            return Process(value);
         }
 
         public static string Process(string value)
@@ -64,8 +89,9 @@ namespace BaziBaqa
                 if (i > 0) result.Append(' ');
                 result.Append(ProcessWord(words[i]));
             }
-            // اعداد لاتین را به اعداد فارسی تبدیل می‌کنیم تا خوانایی بالا بماند.
-            return GameClock.ToPersianDigits(result.ToString());
+            // در زبان‌های راست‌به‌چپ ارقام فارسی خوانایی را بالا می‌برد؛ در چپ‌به‌راست دست نمی‌زنیم.
+            string shaped = result.ToString();
+            return LocalizationManager.IsRtl ? GameClock.ToPersianDigits(shaped) : shaped;
         }
 
         private static string ProcessWord(string word)

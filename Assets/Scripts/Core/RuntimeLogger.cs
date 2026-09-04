@@ -33,10 +33,10 @@ namespace BaziBaqa
             }
             catch (Exception exception)
             {
-                GameLogger.Info("پاک‌سازی لاگ قبلی ناموفق: " + exception.Message);
+                GameLogger.Info("Could not clear the previous log file: " + exception.Message);
             }
             Application.logMessageReceived += OnLogMessage;
-            GameLogger.Info("ثبت‌کننده‌ی زمان اجرا فعال شد.");
+            GameLogger.Info("Runtime logger active.");
         }
 
         private void OnLogMessage(string message, string stackTrace, LogType type)
@@ -56,7 +56,7 @@ namespace BaziBaqa
             }
             catch (Exception exception)
             {
-                Debug.LogWarning("نوشتن لاگ ناموفق بود: " + exception.Message);
+                Debug.LogWarning("Writing the log file failed: " + exception.Message);
             }
         }
 
@@ -66,11 +66,11 @@ namespace BaziBaqa
             {
                 if (string.IsNullOrEmpty(_path)) return;
                 Directory.CreateDirectory(Application.persistentDataPath);
-                File.AppendAllText(_path, "\n-- پایان جلسه --\n");
+                File.AppendAllText(_path, "\n-- session end --\n");
             }
             catch (Exception exception)
             {
-                GameLogger.Info("ذخیره‌ی پایان جلسه ناموفق: " + exception.Message);
+                GameLogger.Info("End-of-session log failed: " + exception.Message);
             }
         }
 

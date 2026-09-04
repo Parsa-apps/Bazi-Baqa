@@ -445,18 +445,62 @@ def parse_enums(paths: list[Path]) -> dict[str, list[str]]:
     return enums
 
 
+LOCALIZATION_KEY_SHAPE = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+$")
+LOCALIZATION_CALL = re.compile(r"\b(?:Loc|LocalizationManager)\.(?:Get|Has|TryGet)\s*\(|\b(?:SetTask|Configure)\s*\(")
+
+
+def _paren_slice(text: str, open_index: int) -> tuple[int, int]:
+    """محدوده‌ی داخل پرانتزِ بازِ متناسب (رشته‌ها را می‌شناسد تا پرانتزِ داخل رشته گیج‌کننده نباشد)."""
+    depth = 0
+    i = open_index
+    while i < len(text):
+        char = text[i]
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth == 0:
+                return open_index + 1, i
+        elif char == '"':
+            j = i + 1
+            while j < len(text):
+                if text[j] == "\\":
+                    j += 2
+                    continue
+                if text[j] == '"':
+                    break
+                j += 1
+            i = j
+        i += 1
+    return open_index + 1, len(text)
+
+
+def localization_keys(code: str) -> set[str]:
+    """کلیدهایی که مستقیماً به خواننده‌های متن داده می‌شوند (داخل شرط/ترنری هم پیدا می‌شوند)."""
+    keys: set[str] = set()
+    for match in LOCALIZATION_CALL.finditer(code):
+        start, end = _paren_slice(code, code.index("(", match.start()))
+        for literal in re.finditer(r'"([^"\\\n]*)"', code[start:end]):
+            value = literal.group(1)
+            if LOCALIZATION_KEY_SHAPE.match(value):
+                keys.add(value)
+    return keys
+
+
+def localization_prefixes(code: str) -> set[str]:
+    """پیشوندهای کلیدِ ساخته‌شده در کد، مثل "resource." + type.ToString()."""
+    return set(re.findall(r'"([a-z0-9_.]+\.)"\s*\+', code))
+
+
 def check_localization(paths: list[Path], tables: dict) -> int:
     """کلیدهای Loc.Get باید در جدول باشند؛ برگرداندن تعداد کلیدهای استفاده‌شده."""
     if not tables:
         return 0
     used: set[str] = set()
-    pattern = re.compile(r"(?:Loc|LocalizationManager)\.Get\(\s*\"([^\"]*)\"\s*(?=[,)])")
     for path in paths:
         code = raw_code(path)
-        for match in pattern.finditer(code):
-            used.add(match.group(1))
-        for match in re.finditer(r"(?:Loc|LocalizationManager)\.Get\(\s*\"([^\"]*)\"\s*\+", code):
-            prefix = match.group(1)
+        used |= localization_keys(code)
+        for prefix in localization_prefixes(code):
             for language, entries in tables.items():
                 if prefix and not any(key.startswith(prefix) for key in entries):
                     err(f"{rel(path)}: هیچ کلیدی با پیشوند «{prefix}» در زبان {language} نیست")
@@ -488,6 +532,141 @@ def check_dynamic_keys(paths: list[Path], tables: dict, enums: dict[str, list[st
                 key = prefix + member.lower()
                 if key not in fa:
                     err(f"{rel(path)}: {method} کلید «{key}» را می‌خواهد که در جدول نیست")
+
+
+UI_LABEL_CALL = re.compile(r"\b(Create\w*(?:Text|Button|Label)\s*\(|CreateModal\s*\(|Set\w*Text\s*\()")
+UI_LABEL_SLOT = {
+    "CreateText": 1,
+    "CreateTextMesh": 1,
+    "CreateButton": 1,
+    "CreateLabel": 1,
+    "CreateWorldLabel": 1,
+    "CreateModal": 0,
+    "SetText": 1,
+    "Set": 1,
+}
+KEY_SHAPE = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+$")
+ASCII_LETTER = re.compile(r"[A-Za-z]")
+
+
+def split_arguments(fragment: str) -> list[str]:
+    """شکستنِ آرگومان‌ها با کامای هم‌سطح (پرانتز/کروشه/رشته را می‌شناسد)."""
+    parts: list[str] = []
+    depth = 0
+    current: list[str] = []
+    i = 0
+    while i < len(fragment):
+        char = fragment[i]
+        if char == '"':
+            j = i + 1
+            while j < len(fragment):
+                if fragment[j] == "\\":
+                    j += 2
+                    continue
+                if fragment[j] == '"':
+                    break
+                j += 1
+            current.append(fragment[i : j + 1])
+            i = j + 1
+            continue
+        if char in "([{":
+            depth += 1
+        elif char in ")]}":
+            depth -= 1
+        if char == "," and depth == 0:
+            parts.append("".join(current))
+            current = []
+        else:
+            current.append(char)
+        i += 1
+    parts.append("".join(current))
+    return [part.strip() for part in parts]
+
+
+def check_ui_label_slots(paths: list[Path], tables: dict):
+    """برچسبِ قابل‌مشاهده نباید رشته‌ی خام باشد: یا باید خروجی Loc.Get باشد یا کلیدِ معتبرِ جدول.
+
+    این دروازه از «برچسبِ جایگزین‌شده با نامِ گره» (مثل PauseOverlay روی دکمه‌ی مکث) و
+    «کلیدِ خوانده‌نشده که خام نمایش داده می‌شود» جلوگیری می‌کند.
+    """
+    if not tables:
+        return
+    fa = tables.get("fa", {})
+    symbols = 0
+    for path in paths:
+        code = raw_code(path)
+        for match in UI_LABEL_CALL.finditer(code):
+            method = match.group(1).split("(")[0].strip()
+            slot = UI_LABEL_SLOT.get(method)
+            if slot is None:
+                continue
+            open_index = code.index("(", match.start())
+            start, end = _paren_slice(code, open_index)
+            args = split_arguments(code[start:end])
+            if slot >= len(args):
+                continue
+            argument = args[slot]
+            if "Loc." in argument or "LocalizationManager." in argument or "GameText." in argument:
+                continue  # خودش متن را از جدول می‌خواند
+            for literal in re.finditer(r'"([^"\\]*)"', argument):
+                value = literal.group(1)
+                if not value or not ASCII_LETTER.search(value):
+                    symbols += 1
+                    continue  # نماد/گلیف (✓، ×، ☁) مشکلی ندارد
+                if KEY_SHAPE.match(value):
+                    if value not in fa:
+                        err(f"{rel(path)}: «{value}» در جدول بومی‌سازی نیست (برچسبِ خامِ UI)")
+                    else:
+                        err(f"{rel(path)}: «{value}» کلیدِ جدول است؛ باید با Loc.Get خوانده شود نه به‌عنوان متن")
+                else:
+                    err(f"{rel(path)}: برچسبِ قابل‌مشاهده نباید رشته‌ی خام باشد: «{value[:40]}» (از جدول بومی‌سازی بخوانید)")
+    if symbols:
+        info(f"برچسب‌های نمادینِ بدون متن (گلیف/آیکن): {symbols}")
+
+
+def check_format_arguments(paths: list[Path], tables: dict):
+    """تعداد آرگومان‌های Loc.Get(key, …) باید با جایگاه‌های {0}/{1}… در متنِ جدول یکی باشد.
+
+    بی‌ربطیِ آرگومان و قالب، رایج‌ترین علت «متن خراب در UI» است؛ این‌جا پیش از اجرا گرفته می‌شود.
+    """
+    if not tables:
+        return
+    call = re.compile(r"\bLoc\.Get\s*\(")
+    placeholder = re.compile(r"\{(\d+)\}")
+    checked = 0
+    for path in paths:
+        code = raw_code(path)
+        for match in call.finditer(code):
+            open_index = code.index("(", match.start())
+            start, end = _paren_slice(code, open_index)
+            inner = code[start:end]
+            literal = re.match(r'\s*"([^"]+)"\s*(,|$)', inner)
+            if not literal:
+                continue
+            key = literal.group(1)
+            arguments = inner[literal.end():]
+            if not arguments.strip():
+                continue
+            depth = 0
+            count = 1
+            for char in arguments:
+                if char in "([{":
+                    depth += 1
+                elif char in ")]}":
+                    depth -= 1
+                elif char == "," and depth == 0:
+                    count += 1
+            value = tables.get("fa", {}).get(key)
+            if value is None:
+                continue  # نبودِ کلید در check_localization گزارش می‌شود
+            found = [int(index) for index in placeholder.findall(value)]
+            needed = max(found) + 1 if found else 0
+            checked += 1
+            if missing := sorted(set(range(needed)) - set(found)):
+                err(f"{rel(path)}: قالب «{key}» جایگاه {missing} را ندارد (عددِ جایگاه‌ها باید پیوسته باشد)")
+            if needed != count:
+                err(f"{rel(path)}: «{key}» {needed} جایگاه دارد ولی {count} آرگومان داده شد")
+    info(f"بررسی قالب‌های بومی‌سازی: {checked} فراخوانیِ آرگومان‌دار")
 
 
 def check_resources_paths(paths: list[Path]):
@@ -729,8 +908,10 @@ def check_hardcoded_text(paths: list[Path], tables: dict):
     if tables:
         used = set()
         for path in paths:
-            used |= set(re.findall(r"(?:Loc|LocalizationManager)\.Get\(\s*\"([^\"]*)\"\s*(?=[,)])", raw_code(path)))
-            used |= {key for key in re.findall(r"(?:Loc|LocalizationManager)\.Get\(\s*\"([^\"]*)\"\s*\+", raw_code(path)) if key and not key.endswith(".")}
+            code = raw_code(path)
+            used |= localization_keys(code)
+            for prefix in localization_prefixes(code):
+                used |= {key for key in tables.get("fa", {}) if key.startswith(prefix)}
         prefix_groups: dict[str, int] = {}
         for key in sorted(set(tables.get("fa", {})) - used):
             prefix_groups[key.split(".")[0]] = prefix_groups.get(key.split(".")[0], 0) + 1
@@ -757,6 +938,8 @@ def main() -> int:
     enums = parse_enums(runtime_paths)
     used_keys = check_localization(runtime_paths, tables)
     check_dynamic_keys(runtime_paths, tables, enums)
+    check_ui_label_slots(runtime_paths, tables)
+    check_format_arguments(runtime_paths, tables)
     check_resources_paths(paths)
     check_unity_asset_hygiene()
     check_asmdef_coverage(paths)

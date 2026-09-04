@@ -45,10 +45,10 @@ namespace BaziBaqa
             _atmosphere.Stop();
 
             DestroyStaleClips();
-            _click = CreateTone("کلیک", 660f, 0.07f, 0.22f);
-            _build = CreateTone("ساخت", 220f, 0.22f, 0.3f);
-            _alert = CreateTone("هشدار", 110f, 0.45f, 0.42f);
-            _quest = CreateTone("پاداش", 523f, 0.3f, 0.28f);
+            _click = CreateTone("Click", 660f, 0.07f, 0.22f);
+            _build = CreateTone("Build", 220f, 0.22f, 0.3f);
+            _alert = CreateTone("Warning", 110f, 0.45f, 0.42f);
+            _quest = CreateTone("Reward", 523f, 0.3f, 0.28f);
             _ambientClip = CreateAmbient();
             _dangerClip = CreateDanger();
             _birdsClip = CreateBirds();
@@ -155,7 +155,7 @@ namespace BaziBaqa
             const int sampleRate = 11025;
             const float duration = 4f;
             int samples = Mathf.CeilToInt(sampleRate * duration);
-            AudioClip clip = AudioClip.Create("آوای آرام جزیره", samples, 1, sampleRate, false);
+            AudioClip clip = AudioClip.Create("AmbientCalm", samples, 1, sampleRate, false);
             float[] data = new float[samples];
             for (int i = 0; i < samples; i++)
             {
@@ -176,7 +176,7 @@ namespace BaziBaqa
             const int sampleRate = 11025;
             const float duration = 3f;
             int samples = Mathf.CeilToInt(sampleRate * duration);
-            AudioClip clip = AudioClip.Create("آوای خطر", samples, 1, sampleRate, false);
+            AudioClip clip = AudioClip.Create("AmbientDanger", samples, 1, sampleRate, false);
             float[] data = new float[samples];
             for (int i = 0; i < samples; i++)
             {
@@ -195,7 +195,7 @@ namespace BaziBaqa
             const int sampleRate = 11025;
             const float duration = 6f;
             int samples = Mathf.CeilToInt(sampleRate * duration);
-            AudioClip clip = AudioClip.Create("آواز پرندگان", samples, 1, sampleRate, false);
+            AudioClip clip = AudioClip.Create("AmbientBirds", samples, 1, sampleRate, false);
             float[] data = new float[samples];
             for (int i = 0; i < samples; i++)
             {

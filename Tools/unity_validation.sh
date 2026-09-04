@@ -2,6 +2,10 @@
 # اجرای اعتبارسنجی «Unity واقعی» بدون باز کردن گرافیکیِ اِدیتور.
 #
 # این اسکریپت همان چیزی است که در مرحله‌ی «Unity Runtime Validation» لازم است:
+#   ۰) پیش‌بررسی ایستا (همیشه اجرا می‌شود؛ حتی بدون Unity):
+#        Tools/project_lint.py            → دروازه‌های متنی/بومی‌سازی/ساختار/نسخه
+#        Tools/localization_table.py      → پوشش کامل جدول بومی‌سازی
+#        Tools/validate_project.py        → سلامت کلی پروژه و آماده‌سازی Android
 #   ۱) ایمپورت کامل پروژه (کامپایل اسکریپت‌ها) → خطاهای CS کنسول
 #   ۲) اجرای تست‌های EditMode  (Assets/Tests/EditMode)
 #   ۳) اجرای تست‌های PlayMode   (Assets/Tests/PlayMode → بارگذاری صحنه، Save/Load، تعامل UI)
@@ -30,10 +34,29 @@ if [[ -z "$UNITY" ]]; then
   done
 fi
 if [[ -z "$UNITY" ]] && command -v unity-editor >/dev/null 2>&1; then UNITY="$(command -v unity-editor)"; fi
+preflight() {
+  local code=0
+  echo "→ preflight: project_lint"
+  python3 "$ROOT/Tools/project_lint.py" --quiet || { code=1; echo "  ✗ project_lint"; }
+  echo "→ preflight: localization_table --check"
+  python3 "$ROOT/Tools/localization_table.py" --check | tail -n 3 || true
+  python3 "$ROOT/Tools/localization_table.py" --check >/dev/null 2>&1 || { code=1; echo "  ✗ جدول بومی‌سازی کامل نیست"; }
+  echo "→ preflight: validate_project"
+  python3 "$ROOT/Tools/validate_project.py" | tail -n 3 || true
+  python3 "$ROOT/Tools/validate_project.py" >/dev/null 2>&1 || { code=1; echo "  ✗ validate_project"; }
+  return $code
+}
+
+if preflight; then
+  echo "✓ پیش‌بررسی ایستا پاس شد."
+else
+  echo "✗ پیش‌بررسی ایستا خطا دارد (متن‌ها/ساختار/نسخه را درست کنید؛ سپس Unity را اجرا کنید)." >&2
+  PREFLIGHT_STATUS=1
+fi
+
 if [[ -z "$UNITY" ]]; then
-  echo "✗ Unity پیدا نشد. با UNITY_BIN=/path/to/Unity این اسکریپت را دوباره اجرا کنید." >&2
-  echo "  (در این صورت معادلِ ایستا را اجرا کنید: python3 Tools/project_lint.py)" >&2
-  exit 127
+  echo "✗ Unity پیدا نشد؛ فقط بخش ایستا اجرا شد. با UNITY_BIN=/path/to/Unity دوباره اجرا کنید." >&2
+  exit "${PREFLIGHT_STATUS:-127}"
 fi
 
 echo "Unity: $UNITY"
@@ -42,6 +65,7 @@ echo "Unity: $UNITY"
 PROJECT="$ROOT"
 STATUS=0
 MODE="${1:-full}"
+PREFLIGHT_STATUS=0
 
 run_step() {
   local name="$1"; shift

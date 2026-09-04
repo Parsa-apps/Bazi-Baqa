@@ -16,6 +16,27 @@ namespace BaziBaqa
     /// </summary>
     public sealed class DailyRewardSystem : MonoBehaviour
     {
+        /// <summary>پاداش پایه و گام‌های ردیف روزانه؛ منبع یکتای اعداد برای UI و منطق.</summary>
+        public const int BaseFood = 12;
+        public const int BaseGold = 2;
+        public const int FoodPerStreak = 4;
+        public const int MaxStreakBonus = 3;
+
+        public static int BonusFor(int streak)
+        {
+            return Mathf.Clamp(streak, 0, MaxStreakBonus);
+        }
+
+        public static int FoodReward(int bonus)
+        {
+            return BaseFood + bonus * FoodPerStreak;
+        }
+
+        public static int GoldReward(int bonus)
+        {
+            return BaseGold + bonus;
+        }
+
         public int Streak { get; private set; }
         public bool Claimable { get; private set; }
         public bool ClaimedToday { get; private set; }
@@ -39,11 +60,13 @@ namespace BaziBaqa
             Streak = _lastDay == today - 1 ? Streak + 1 : 1;
             _lastDay = today;
 
-            int bonus = Mathf.Min(Streak - 1, 3);
-            GameManager.Instance.Resources.Add(ResourceType.Food, 12 + bonus * 4, "پاداش روزانه");
-            GameManager.Instance.Resources.Add(ResourceType.Gold, 2 + bonus, "پاداش روزانه");
-            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(5, "پاداش روزانه");
-            GameEvents.Notify("پاداش روزانه: " + (12 + bonus * 4) + " غذا و " + (2 + bonus) + " طلا (ردیف " + GameClock.ToPersianDigits(Streak.ToString()) + ")");
+            int bonus = BonusFor(Streak - 1);
+            int food = FoodReward(bonus);
+            int gold = GoldReward(bonus);
+            GameManager.Instance.Resources.Add(ResourceType.Food, food, "daily-reward");
+            GameManager.Instance.Resources.Add(ResourceType.Gold, gold, "daily-reward");
+            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(5, "daily-reward");
+            GameEvents.Notify(Loc.Get("toast.daily_reward", Loc.Num(food), Loc.Num(gold), Loc.Num(Streak)));
             if (GameManager.Instance.Audio != null) GameManager.Instance.Audio.PlayQuest();
             GameManager.Instance.SaveSoon();
             return true;

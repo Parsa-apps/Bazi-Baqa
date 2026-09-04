@@ -75,8 +75,8 @@ namespace BaziBaqa
 
         private void OnLevelUp()
         {
-            GameEvents.Notify("گروه به مرحله‌ی " + GameClock.ToPersianDigits(Level.ToString()) + " رسید؛ روحیه‌ی همه بالا رفت.");
-            GameManager.Instance.Resources.Add(ResourceType.Gold, 2 * Level, "پاداش مرحله‌ی گروه");
+            GameEvents.Notify(Loc.Get("toast.level_up", Loc.Num(Level)));
+            GameManager.Instance.Resources.Add(ResourceType.Gold, 2 * Level, "level-reward");
             for (int i = 0; i < GameManager.Instance.Survivors.Count; i++)
             {
                 SurvivorAgent survivor = GameManager.Instance.Survivors[i];

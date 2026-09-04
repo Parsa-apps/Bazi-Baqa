@@ -23,7 +23,11 @@ namespace BaziBaqa.EditorTools
         private const string ReportPath = "Logs/LocalizationAuditReport.txt";
 
         private static readonly Regex PersianLiteral = new Regex("\"((?:[^\"\\\\]|\\\\.)*)\"");
-        private static readonly Regex KeyUse = new Regex("(?:Loc|LocalizationManager)\\.Get\\(\\s*\"([a-z0-9_.\\-]+)\"");
+        private static readonly Regex PersianOrAsciiLiteral = new Regex("\"((?:[^\"\\\\]|\\\\.)*)\"");
+        private static readonly Regex KeyCall = new Regex("\\b(?:Loc|LocalizationManager)\\.(?:Get|Has|TryGet)\\s*\\(|\\b(?:SetTask|Configure)\\s*\\(");
+        private static readonly Regex KeyShape = new Regex("^[a-z][a-z0-9_]*(?:\\.[a-z0-9_]+)+$");
+        private static readonly Regex LabelCall = new Regex("\\b(?:Create\\w*(?:Text|Button|Label)|CreateModal|Set\\w*Text)\\s*\\(");
+        private static readonly Regex AsciiLetter = new Regex("[A-Za-z]");
         private static readonly Regex EntryPattern = new Regex("\\{\\s*\"key\":\\s*\"([^\"]+)\",\\s*\"value\":\\s*\"((?:[^\"\\\\]|\\\\.)*)\"\\s*\\}");
         private static readonly Regex LanguagePattern = new Regex("\"language\":\\s*\"([^\"]+)\"");
         private static readonly Regex PersianChar = new Regex("[\\u0600-\\u06FF\\uFB50-\\uFDFF\\uFE70-\\uFEFF]");
@@ -66,10 +70,14 @@ namespace BaziBaqa.EditorTools
                     }
                 }
                 string content = string.Join("\n", lines);
-                foreach (Match key in KeyUse.Matches(content))
+                foreach (string key in ReadKeys(content))
                 {
                     usedKeys++;
-                    if (!TableContains(key.Groups[1].Value)) missingKeys.Add(path + " → «" + key.Groups[1].Value + "»");
+                    if (!TableContains(key)) missingKeys.Add(path + " → «" + key + "»");
+                }
+                foreach (string label in ReadRawLabels(content))
+                {
+                    missingKeys.Add(path + " → برچسبِ خامِ UI: «" + label + "» (باید از جدول خوانده شود)");
                 }
             }
 
@@ -103,6 +111,113 @@ namespace BaziBaqa.EditorTools
             if (verbose && clean) EditorUtility.DisplayDialog("ممیزی بومی‌سازی", "پاک: " + tableKeys + " کلید، ۰ متن سخت‌کدشده.", "باشه");
             AssetDatabase.Refresh();
             return clean;
+        }
+
+        /// <summary>
+        /// کلیدهایی که به خواننده‌های متن داده می‌شوند؛ پرانتزها را می‌شمارد تا عبارت‌های شرطی
+        /// مثل Loc.Get(claimable ? "a.b" : "c.d") هم درست دیده شوند (همراست با Tools/project_lint.py).
+        /// </summary>
+        private static IEnumerable<string> ReadKeys(string code)
+        {
+            List<string> keys = new List<string>();
+            foreach (Match call in KeyCall.Matches(code))
+            {
+                int index = code.IndexOf("(", call.Index);
+                if (index < 0) continue;
+                int depth = 0;
+                int i = index;
+                for (; i < code.Length; i++)
+                {
+                    char c = code[i];
+                    if (c == '(') depth++;
+                    else if (c == ')')
+                    {
+                        depth--;
+                        if (depth == 0) break;
+                    }
+                    else if (c == '"')
+                    {
+                        int j = i + 1;
+                        while (j < code.Length && code[j] != '"')
+                        {
+                            if (code[j] == '\\') j++;
+                            j++;
+                        }
+                        string value = code.Substring(i + 1, Mathf.Max(0, j - i - 1));
+                        if (KeyShape.IsMatch(value) && !keys.Contains(value)) keys.Add(value);
+                        i = j;
+                    }
+                }
+            }
+            return keys;
+        }
+
+        /// <summary>
+        /// برچسب‌های خامِ قابل‌مشاهده در آرگومانِ متن (مثل CreateButton(parent, "PauseOverlay", …))؛
+        /// همان دروازه‌ای که در CI اجرا می‌شود تا «جایگزینیِ نامِ گره به‌جای متن» بیرون بزند.
+        /// </summary>
+        private static IEnumerable<string> ReadRawLabels(string code)
+        {
+            List<string> labels = new List<string>();
+            foreach (Match call in LabelCall.Matches(code))
+            {
+                int open = code.IndexOf("(", call.Index);
+                if (open < 0) continue;
+                int depth = 0;
+                int i = open;
+                int slot = -1;
+                string argument = null;
+                int argumentStart = open + 1;
+                for (; i < code.Length; i++)
+                {
+                    char c = code[i];
+                    if (c == '"')
+                    {
+                        int j = i + 1;
+                        while (j < code.Length && code[j] != '"')
+                        {
+                            if (code[j] == '\\') j++;
+                            j++;
+                        }
+                        i = j;
+                        continue;
+                    }
+                    if (c == '(' || c == '[' || c == '{') depth++;
+                    else if (c == ')' || c == ']' || c == '}')
+                    {
+                        depth--;
+                        if (depth == 0)
+                        {
+                            if (slot == 0 || slot == 1) argument = code.Substring(argumentStart, i - argumentStart);
+                            break;
+                        }
+                    }
+                    else if (c == ',' && depth == 1)
+                    {
+                        slot++;
+                        if (slot == 0 || slot == 1) argument = code.Substring(argumentStart, i - argumentStart);
+                        argumentStart = i + 1;
+                        if (slot > 1) break;
+                    }
+                    else if (depth == 1 && slot == -1) slot = 0;
+                }
+
+                // CreateModal متن را در آرگومان اول دارد؛ CreateText/CreateButton در آرگومان دوم.
+                string method = code.Substring(call.Index, open - call.Index);
+                bool firstArgIsText = method.StartsWith("CreateModal") || method.EndsWith("SetText");
+                if (argument == null) continue;
+                if (!firstArgIsText && slot < 1) continue;
+                foreach (Match literal in PersianOrAsciiLiteral.Matches(argument))
+                {
+                    string value = literal.Groups[1].Value;
+                    if (value.Length == 0) continue;
+                    if (!AsciiLetter.IsMatch(value)) continue;              // نماد/گلیف مجاز است
+                    if (KeyShape.IsMatch(value)) continue;                  // خودِ کلید (با ReadKeys سنجیده می‌شود)
+                    if (value.Contains("Loc.") || value.Contains("GameText.")) continue;
+                    if (!labels.Contains(value)) labels.Add(value);
+                }
+            }
+            return labels;
         }
 
         private static string StripComment(string line)

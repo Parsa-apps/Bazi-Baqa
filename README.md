@@ -10,10 +10,11 @@
 
 - موتور: Unity 2022.3 LTS یا جدیدتر
 - هدف: Android
-- زبان رابط: فارسی و راست‌چین
+- زبان رابط: فارسی و راست‌چین — همه‌ی متن‌ها از جدول بومی‌سازی خوانده می‌شوند و انگلیسی هم آماده است
 - صحنه‌ی اصلی: `Assets/Scenes/Main.unity`
 - راهنمای معماری: `Docs/Architecture.md`
 - راهنمای خروجی Android: `Docs/AndroidBuild.md`
+- راهنمای بومی‌سازی: `Docs/Localization.md` — اعتبارسنجی زمان اجرا: `Docs/RuntimeValidation.md`
 
 ## اجرای پروژه
 
@@ -32,5 +33,7 @@
 (اسکریپت `Assets/Editor/AndroidBuild.cs`). پیکربندی انتشار (IL2CPP، ARM64، minSdk 26 و بسته‌ی
 `com.parsaapps.bazibaqa`) و اعتبارسنج ساختار با `python3 Tools/validate_project.py` بررسی می‌شود.
 راهنمای کامل: `Docs/AndroidBuild.md` و راهنمای گرافیکی: `Docs/URPGraphics.md`.
+پیش از هر بیلد، دروازه‌های ایستا اجرا شوند: `python3 Tools/project_lint.py`، `python3 Tools/localization_table.py --check`
+و `python3 Tools/validate_project.py` (یا یک‌جا: `Tools/unity_validation.sh`).
 
 این نسخه بدون Asset خارجی، با Primitive و افکت‌های رویه‌ای اجرا می‌شود تا پروژه در اولین باز شدن Unity خطای Missing Reference نداشته باشد. پوشه‌های `Prefabs`، `Materials`، `Textures` و `Audio` برای جایگزینی تدریجی Assetهای نهایی آماده هستند.

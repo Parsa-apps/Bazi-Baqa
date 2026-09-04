@@ -1,129 +1,62 @@
 {
   "defaultLanguage": "fa",
+  "_comment": "جدول متن‌های بازی «سرزمین بقا». هر کلید یک متن قابل‌مشاهده است؛ برای افزودن زبان تازه یک بلوک زبان با همین کلیدها بیفزایید. فایل با Tools/localization_table.py تولید/ممیزی می‌شود (منبع ویرایش: Tools/localization_entries.json)؛ ترتیب کلیدها پایدار است.",
   "languages": [
     {
       "language": "fa",
       "direction": "rtl",
       "entries": [
         {
-          "key": "game.title",
-          "value": "سرزمین بقا"
+          "key": "achievement.bringeroflife",
+          "value": "آورنده‌ی زندگی"
         },
         {
-          "key": "game.tagline",
-          "value": "با هم‌کاری، زنده می‌مانیم"
+          "key": "achievement.builder",
+          "value": "سازنده"
         },
         {
-          "key": "game.studio",
-          "value": "Parsa Apps"
+          "key": "achievement.defender",
+          "value": "مدافع اردوگاه"
         },
         {
-          "key": "game.director",
-          "value": "فرشاد پارسا"
+          "key": "achievement.firstnight",
+          "value": "دومین روز"
         },
         {
-          "key": "game.loading",
-          "value": "در حال آماده‌سازی سرزمین بقا"
+          "key": "achievement.rich",
+          "value": "ثروتمند"
         },
         {
-          "key": "game.footer",
-          "value": "ساخته شده توسط Parsa Apps  •  مدیریت: فرشاد پارسا"
+          "key": "achievement.scavenger",
+          "value": "جمع‌آور"
         },
         {
-          "key": "game.credits",
-          "value": "ساخته شده توسط\nParsa Apps\n\nمدیریت: فرشاد پارسا\n\nوب‌سایت رسمی:\nParsa-apps.github.io"
-        },
-        {
-          "key": "menu.new_game",
-          "value": "سفر تازه"
-        },
-        {
-          "key": "menu.continue_game",
-          "value": "ادامه‌ی سفر"
-        },
-        {
-          "key": "menu.settings",
-          "value": "تنظیمات"
-        },
-        {
-          "key": "menu.about",
-          "value": "درباره"
-        },
-        {
-          "key": "menu.quit",
-          "value": "خروج"
-        },
-        {
-          "key": "hud.day",
-          "value": "روز"
-        },
-        {
-          "key": "hud.group",
-          "value": "گروه"
-        },
-        {
-          "key": "hud.technology",
-          "value": "فناوری"
-        },
-        {
-          "key": "hud.objective",
-          "value": "هدف"
-        },
-        {
-          "key": "hud.morale",
-          "value": "روحیه"
-        },
-        {
-          "key": "modal.pause",
-          "value": "بازی متوقف شد"
-        },
-        {
-          "key": "modal.continue",
-          "value": "ادامه"
-        },
-        {
-          "key": "modal.main_menu",
-          "value": "بازگشت به منو"
-        },
-        {
-          "key": "resource.wood",
-          "value": "چوب"
-        },
-        {
-          "key": "resource.stone",
-          "value": "سنگ"
-        },
-        {
-          "key": "resource.food",
-          "value": "غذا"
-        },
-        {
-          "key": "resource.gold",
-          "value": "طلا"
-        },
-        {
-          "key": "resource.energy",
-          "value": "انرژی"
-        },
-        {
-          "key": "resource.water",
-          "value": "آب"
+          "key": "achievement.survivor",
+          "value": "بازمانده‌ی ماهر"
         },
         {
           "key": "building.camp",
           "value": "اردوگاه"
         },
         {
+          "key": "building.farm",
+          "value": "مزرعه"
+        },
+        {
           "key": "building.house",
           "value": "خانه"
+        },
+        {
+          "key": "building.solarstation",
+          "value": "نیروگاه خورشیدی"
         },
         {
           "key": "building.storage",
           "value": "انبار"
         },
         {
-          "key": "building.farm",
-          "value": "مزرعه"
+          "key": "building.wall",
+          "value": "دیوار دفاعی"
         },
         {
           "key": "building.watchtower",
@@ -134,48 +67,1004 @@
           "value": "کارگاه"
         },
         {
-          "key": "building.wall",
-          "value": "دیوار دفاعی"
+          "key": "equipment.armor",
+          "value": "زره (کاهش آسیب)"
         },
         {
-          "key": "building.solarstation",
-          "value": "نیروگاه خورشیدی"
+          "key": "equipment.tool",
+          "value": "ابزار (کشاورزی/جمع‌آوری)"
         },
         {
-          "key": "role.gatherer",
-          "value": "جمع‌آور"
+          "key": "equipment.weapon",
+          "value": "سلاح (دفاع/حمله)"
+        },
+        {
+          "key": "format.building_label",
+          "value": "{0} «{1}»"
+        },
+        {
+          "key": "format.cost_entry",
+          "value": "{0} {1}"
+        },
+        {
+          "key": "format.cost_join",
+          "value": "  •  "
+        },
+        {
+          "key": "format.quest_line",
+          "value": "  •  مأموریت: {0}"
+        },
+        {
+          "key": "format.resource_line",
+          "value": "{0}  {1}"
+        },
+        {
+          "key": "game.credits",
+          "value": "ساخته شده توسط\nParsa Apps\n\nمدیریت: فرشاد پارسا\n\nوب‌سایت رسمی:\nParsa-apps.github.io"
+        },
+        {
+          "key": "game.footer",
+          "value": "ساخته شده توسط Parsa Apps  •  مدیریت: فرشاد پارسا"
+        },
+        {
+          "key": "game.loading",
+          "value": "در حال آماده‌سازی سرزمین بقا"
+        },
+        {
+          "key": "game.studio",
+          "value": "Parsa Apps"
+        },
+        {
+          "key": "game.tagline",
+          "value": "با هم‌کاری، زنده می‌مانیم"
+        },
+        {
+          "key": "game.title",
+          "value": "سرزمین بقا"
+        },
+        {
+          "key": "hud.companions",
+          "value": "همراهان"
+        },
+        {
+          "key": "hud.companions_line",
+          "value": "همراهان  •  مرحله‌ی گروه: {0}"
+        },
+        {
+          "key": "hud.day_line",
+          "value": "روز {0}  •  {1}"
+        },
+        {
+          "key": "hud.morale_suffix",
+          "value": "  •  روحیه: {0}"
+        },
+        {
+          "key": "hud.objective_line",
+          "value": "هدف: زنده ماندن تا روز {0}"
+        },
+        {
+          "key": "hud.population_line",
+          "value": "گروه: {0} / {1}"
+        },
+        {
+          "key": "hud.technology",
+          "value": "فناوری"
+        },
+        {
+          "key": "hud.technology_line",
+          "value": "فناوری  {0}"
+        },
+        {
+          "key": "hud.weather_line",
+          "value": "☁  {0}"
+        },
+        {
+          "key": "label.east",
+          "value": "شرق"
+        },
+        {
+          "key": "label.free",
+          "value": "رایگان"
+        },
+        {
+          "key": "label.survivor",
+          "value": "بازمانده"
+        },
+        {
+          "key": "label.west",
+          "value": "غرب"
+        },
+        {
+          "key": "language.en",
+          "value": "English"
+        },
+        {
+          "key": "language.fa",
+          "value": "فارسی"
+        },
+        {
+          "key": "log.backup_loaded",
+          "value": "ذخیره‌ی اصلی آسیب دیده بود؛ نسخه‌ی پشتیبان بارگذاری شد."
+        },
+        {
+          "key": "log.delete_failed",
+          "value": "پاک‌کردن فایل ذخیره ناموفق بود: {0}"
+        },
+        {
+          "key": "log.error_prefix",
+          "value": "خطا:"
+        },
+        {
+          "key": "log.generic_failure",
+          "value": "یک عملیات ناموفق بود"
+        },
+        {
+          "key": "log.load_failed",
+          "value": "خواندن ذخیره ناموفق بود"
+        },
+        {
+          "key": "log.low_memory",
+          "value": "هشدار حافظه: کیفیت به «{0}» کاهش یافت و منابع آزاد شدند."
+        },
+        {
+          "key": "log.quality_down",
+          "value": "برای روان‌تر شدن، کیفیت به «{0}» کاهش یافت."
+        },
+        {
+          "key": "log.quality_up",
+          "value": "کیفیت به «{0}» ارتقا یافت."
+        },
+        {
+          "key": "log.save_done",
+          "value": "ذخیره‌سازی انجام شد (نسخه‌ی {0})."
+        },
+        {
+          "key": "log.save_failed",
+          "value": "ذخیره‌ی بازی انجام نشد"
+        },
+        {
+          "key": "log.warn_prefix",
+          "value": "هشدار:"
+        },
+        {
+          "key": "menu.continue_game",
+          "value": "ادامه‌ی سفر"
+        },
+        {
+          "key": "menu.new_game",
+          "value": "سفر تازه"
+        },
+        {
+          "key": "menu.settings",
+          "value": "تنظیمات"
+        },
+        {
+          "key": "modal.continue",
+          "value": "ادامه"
+        },
+        {
+          "key": "modal.main_menu",
+          "value": "بازگشت به منو"
+        },
+        {
+          "key": "modal.pause",
+          "value": "بازی متوقف شد"
+        },
+        {
+          "key": "quest.q_day3.description",
+          "value": "تا روز {0} زنده بمانید."
+        },
+        {
+          "key": "quest.q_day3.title",
+          "value": "سه روز مقاومت"
+        },
+        {
+          "key": "quest.q_farm.description",
+          "value": "یک مزرعه راه‌اندازی کنید."
+        },
+        {
+          "key": "quest.q_farm.title",
+          "value": "مزرعه‌ی نو"
+        },
+        {
+          "key": "quest.q_guard.description",
+          "value": "گروه را به {0} نفر برسانید."
+        },
+        {
+          "key": "quest.q_guard.title",
+          "value": "نگهبان تازه"
+        },
+        {
+          "key": "quest.q_house.description",
+          "value": "یک خانه برای گروه بسازید."
+        },
+        {
+          "key": "quest.q_house.title",
+          "value": "اولین پناهگاه"
+        },
+        {
+          "key": "quest.q_storage.description",
+          "value": "یک انبار بسازید تا منابع در امان بمانند."
+        },
+        {
+          "key": "quest.q_storage.title",
+          "value": "انبار امن"
+        },
+        {
+          "key": "quest.q_tower.description",
+          "value": "برای دفاع شبانه یک برج بسازید."
+        },
+        {
+          "key": "quest.q_tower.title",
+          "value": "برج دیده‌بانی"
+        },
+        {
+          "key": "quest.q_wood.description",
+          "value": "ذخیره‌ی چوب را به {0} برسانید."
+        },
+        {
+          "key": "quest.q_wood.title",
+          "value": "تأمین چوب"
+        },
+        {
+          "key": "quest.q_workshop.description",
+          "value": "کارگاه را فعال کنید."
+        },
+        {
+          "key": "quest.q_workshop.title",
+          "value": "کارگاه تولید"
+        },
+        {
+          "key": "resource.energy",
+          "value": "انرژی"
+        },
+        {
+          "key": "resource.food",
+          "value": "غذا"
+        },
+        {
+          "key": "resource.gold",
+          "value": "طلا"
+        },
+        {
+          "key": "resource.stone",
+          "value": "سنگ"
+        },
+        {
+          "key": "resource.water",
+          "value": "آب"
+        },
+        {
+          "key": "resource.wood",
+          "value": "چوب"
         },
         {
           "key": "role.builder",
           "value": "سازنده"
         },
         {
-          "key": "role.medic",
-          "value": "پزشک"
+          "key": "role.farmer",
+          "value": "کشاورز"
+        },
+        {
+          "key": "role.gatherer",
+          "value": "جمع‌آور"
         },
         {
           "key": "role.guard",
           "value": "نگهبان"
         },
         {
+          "key": "role.medic",
+          "value": "پزشک"
+        },
+        {
           "key": "role.scout",
           "value": "پیشاهنگ"
         },
         {
-          "key": "role.farmer",
-          "value": "کشاورز"
+          "key": "status.aid",
+          "value": "کمک به زخمی‌ها"
+        },
+        {
+          "key": "status.building",
+          "value": "ساخت‌وساز"
+        },
+        {
+          "key": "status.drinking",
+          "value": "در حال نوشیدن آب"
+        },
+        {
+          "key": "status.eating",
+          "value": "در حال خوردن غذا"
+        },
+        {
+          "key": "status.fleeing",
+          "value": "فرار از خطر"
+        },
+        {
+          "key": "status.gathering",
+          "value": "جمع‌آوری {0}"
+        },
+        {
+          "key": "status.guarding",
+          "value": "نگهبانی اردوگاه"
+        },
+        {
+          "key": "status.healing",
+          "value": "در حال درمان"
+        },
+        {
+          "key": "status.healing_ally",
+          "value": "درمان یک هم‌گروهی"
+        },
+        {
+          "key": "status.idle",
+          "value": "در انتظار فرمان"
+        },
+        {
+          "key": "status.injured",
+          "value": "زخمی و نیازمند درمان"
+        },
+        {
+          "key": "status.lost",
+          "value": "از دست رفته"
+        },
+        {
+          "key": "status.patrol",
+          "value": "گشت‌زنی اطراف اردوگاه"
+        },
+        {
+          "key": "status.preparing",
+          "value": "در حال آماده‌سازی"
+        },
+        {
+          "key": "status.resting",
+          "value": "در حال استراحت"
+        },
+        {
+          "key": "status.returning",
+          "value": "بازگشت به اردوگاه"
+        },
+        {
+          "key": "story.decision.heal",
+          "value": "انتخاب شما: {0}؛ زخمی‌ها درمان شدند."
+        },
+        {
+          "key": "story.decision.morale",
+          "value": "انتخاب شما: {0}؛ روحیه‌ی گروه {1} واحد تغییر کرد."
+        },
+        {
+          "key": "story.decision.resources",
+          "value": "انتخاب شما: {0} — {1} گرفتید."
+        },
+        {
+          "key": "story.s_storm.body",
+          "value": "آسمان تیره می‌شود و باد به نشانه‌ی توفان وزیدن می‌گیرد. آماده‌سازی لازم است."
+        },
+        {
+          "key": "story.s_storm.patrol.hint",
+          "value": "پیش از توفان گشت می‌زنید و انرژی به دست می‌آورید."
+        },
+        {
+          "key": "story.s_storm.patrol.title",
+          "value": "قبل از توفان برو"
+        },
+        {
+          "key": "story.s_storm.reinforce.hint",
+          "value": "سنگ اضافه و امنیت بیش‌تر؛ اما زمان می‌برد."
+        },
+        {
+          "key": "story.s_storm.reinforce.title",
+          "value": "پناهگاه را تقویت کن"
+        },
+        {
+          "key": "story.s_storm.stock.hint",
+          "value": "خودتان را برای روزهای سخت آماده می‌کنید."
+        },
+        {
+          "key": "story.s_storm.stock.title",
+          "value": "ذخیره‌ی غذا"
+        },
+        {
+          "key": "story.s_storm.title",
+          "value": "توفان پیش رو"
+        },
+        {
+          "key": "story.s_stranger.ask.hint",
+          "value": "رهگذر جای چشمه‌ی آب را نشان می‌دهد."
+        },
+        {
+          "key": "story.s_stranger.ask.title",
+          "value": "راهنمایی بگیرید"
+        },
+        {
+          "key": "story.s_stranger.body",
+          "value": "یک بازمانده‌ی ناآشنا زخمی به اردوگاه می‌رسد و کمک می‌خواهد."
+        },
+        {
+          "key": "story.s_stranger.heal.hint",
+          "value": "با مصرف غذا گروه کمک می‌کند و روحیه بالا می‌رود."
+        },
+        {
+          "key": "story.s_stranger.heal.title",
+          "value": "مداوا کنید"
+        },
+        {
+          "key": "story.s_stranger.reject.hint",
+          "value": "گروه کنار کشیده و حس امنیت کمی می‌کاهد."
+        },
+        {
+          "key": "story.s_stranger.reject.title",
+          "value": "دور کنید"
+        },
+        {
+          "key": "story.s_stranger.title",
+          "value": "رهگذری زخمی"
+        },
+        {
+          "key": "story.s_voice.body",
+          "value": "در سحرگاه، صدایی از اعماق جنگل شنیده می‌شود. کسی باید ببیند چه خبر است."
+        },
+        {
+          "key": "story.s_voice.guard.hint",
+          "value": "با احتیاط پیش می‌روید؛ روحیه تقویت می‌شود."
+        },
+        {
+          "key": "story.s_voice.guard.title",
+          "value": "با یک نگهبان برو"
+        },
+        {
+          "key": "story.s_voice.ignore.hint",
+          "value": "چیزی رخ نمی‌دهد، ولی تردید در گروه می‌ماند."
+        },
+        {
+          "key": "story.s_voice.ignore.title",
+          "value": "بی‌تفاوت بمان"
+        },
+        {
+          "key": "story.s_voice.scout.hint",
+          "value": "گروه ذخیره‌ی چوب می‌یابد ولی پیشاهنگ خسته می‌شود."
+        },
+        {
+          "key": "story.s_voice.scout.title",
+          "value": "پیشاهنگ را بفرست"
+        },
+        {
+          "key": "story.s_voice.title",
+          "value": "ندای ناشناخته"
+        },
+        {
+          "key": "survivor.name.0",
+          "value": "سارا"
+        },
+        {
+          "key": "survivor.name.1",
+          "value": "یونس"
+        },
+        {
+          "key": "survivor.name.10",
+          "value": "ترانه"
+        },
+        {
+          "key": "survivor.name.11",
+          "value": "آرمان"
+        },
+        {
+          "key": "survivor.name.2",
+          "value": "آوا"
+        },
+        {
+          "key": "survivor.name.3",
+          "value": "کاوه"
+        },
+        {
+          "key": "survivor.name.4",
+          "value": "نورا"
+        },
+        {
+          "key": "survivor.name.5",
+          "value": "سام"
+        },
+        {
+          "key": "survivor.name.6",
+          "value": "رها"
+        },
+        {
+          "key": "survivor.name.7",
+          "value": "بهرام"
+        },
+        {
+          "key": "survivor.name.8",
+          "value": "مینا"
+        },
+        {
+          "key": "survivor.name.9",
+          "value": "داریوش"
+        },
+        {
+          "key": "technology.cooperation",
+          "value": "همکاری گروهی"
+        },
+        {
+          "key": "technology.cooperation.unlocked",
+          "value": "همکاری گروهی باز شد؛ بازمانده‌ها سریع‌تر کار می‌کنند."
+        },
+        {
+          "key": "technology.fieldrotation",
+          "value": "کشت چرخشی"
+        },
+        {
+          "key": "technology.fieldrotation.unlocked",
+          "value": "کشت چرخشی باز شد؛ مزرعه پربازده‌تر شد."
+        },
+        {
+          "key": "technology.reinforcedwalls",
+          "value": "دیوار تقویت‌شده"
+        },
+        {
+          "key": "technology.reinforcedwalls.unlocked",
+          "value": "دیوارهای تقویت‌شده، دفاع پایگاه را بیشتر کردند."
+        },
+        {
+          "key": "technology.waterpurification",
+          "value": "تصفیه‌ی آب"
+        },
+        {
+          "key": "technology.waterpurification.unlocked",
+          "value": "تصفیه‌ی آب باز شد؛ ذخیره‌ی آب افزایش یافت."
+        },
+        {
+          "key": "toast.achievement_unlocked",
+          "value": "دستاورد «{0}» باز شد؛ {1} طلا جایزه گرفتید."
+        },
+        {
+          "key": "toast.bad_spot",
+          "value": "این محل برای ساخت مناسب نیست."
+        },
+        {
+          "key": "toast.build_no_resources",
+          "value": "منابع کافی برای ساخت وجود ندارد."
+        },
+        {
+          "key": "toast.building_destroyed",
+          "value": "{0} ویران شد."
+        },
+        {
+          "key": "toast.built",
+          "value": "{0} ساخته شد."
+        },
+        {
+          "key": "toast.daily_reward",
+          "value": "پاداش روزانه: {0}  •  {1} (ردیف روزانه: {2})"
+        },
+        {
+          "key": "toast.day_started",
+          "value": "روز {0} آغاز شد؛ {1} امتیاز فناوری گرفتید."
+        },
+        {
+          "key": "toast.enemy_defeated",
+          "value": "یک سایه شکست خورد."
+        },
+        {
+          "key": "toast.equip_blocked",
+          "value": "ارتقا ممکن نیست: {0}"
+        },
+        {
+          "key": "toast.equip_level_needed",
+          "value": "برای این ارتقا به مرحله‌ی گروه {0} نیاز دارید."
+        },
+        {
+          "key": "toast.equip_max",
+          "value": "این تجهیزات به بالاترین سطح رسیده است."
+        },
+        {
+          "key": "toast.equip_no_resources",
+          "value": "منابع کافی نیست؛ به {0} بیشتری نیاز دارید."
+        },
+        {
+          "key": "toast.equip_upgraded",
+          "value": "{0} به سطح {1} ارتقا یافت."
+        },
+        {
+          "key": "toast.joined",
+          "value": "{0} به گروه پیوست."
+        },
+        {
+          "key": "toast.language_single",
+          "value": "هم‌اکنون تنها یک زبان در دسترس است."
+        },
+        {
+          "key": "toast.level_up",
+          "value": "گروه به مرحله‌ی {0} رسید؛ روحیه‌ی همه بالا رفت."
+        },
+        {
+          "key": "toast.low_food",
+          "value": "ذخیره‌ی غذا کم است؛ جمع‌آور و کشاورز را فعال نگه دارید."
+        },
+        {
+          "key": "toast.low_water",
+          "value": "آب گروه رو به پایان است؛ پیشاهنگ را به چشمه بفرستید."
+        },
+        {
+          "key": "toast.night_wave",
+          "value": "موج شبانه رسید؛ {0} سایه از سمت {1} نزدیک می‌شوند."
+        },
+        {
+          "key": "toast.no_save",
+          "value": "ذخیره‌ای پیدا نشد؛ یک سفر تازه آغاز می‌شود."
+        },
+        {
+          "key": "toast.place_spot",
+          "value": "محل ساخت «{0}» را روی زمین لمس کنید."
+        },
+        {
+          "key": "toast.quest_done",
+          "value": "مأموریت «{0}» انجام شد؛ {1} گرفتید."
+        },
+        {
+          "key": "toast.raid_blocked",
+          "value": "یورش ممکن نیست: {0}"
+        },
+        {
+          "key": "toast.raid_energy",
+          "value": "برای یورش {0} انرژی لازم است."
+        },
+        {
+          "key": "toast.raid_gold",
+          "value": "برای آماده‌سازی یورش {0} طلا لازم است."
+        },
+        {
+          "key": "toast.raid_guards",
+          "value": "برای یورش به دست‌کم {0} نگهبان نیاز دارید."
+        },
+        {
+          "key": "toast.raid_lost",
+          "value": "یورش شکست خورد و خسارت دیدید؛ روحیه‌ی گروه پایین آمد."
+        },
+        {
+          "key": "toast.raid_night",
+          "value": "در شب نمی‌توان یورش برد؛ شب متعلق به سایه‌هاست."
+        },
+        {
+          "key": "toast.raid_today",
+          "value": "امروز یک‌بار یورش رفتید؛ فردا دوباره تلاش کنید."
+        },
+        {
+          "key": "toast.raid_won",
+          "value": "یورش پیروز شد! غنیمت: {0}"
+        },
+        {
+          "key": "toast.run_started",
+          "value": "گروه شما به ساحل ناشناخته رسید؛ با هم بقا پیدا کنید."
+        },
+        {
+          "key": "toast.save_restored",
+          "value": "سفر قبلی با موفقیت بازیابی شد."
+        },
+        {
+          "key": "toast.survivor_lost",
+          "value": "{0} دیگر توان ادامه ندارد."
+        },
+        {
+          "key": "toast.tech_already",
+          "value": "این فناوری قبلاً باز شده است."
+        },
+        {
+          "key": "toast.tech_need_prerequisite",
+          "value": "ابتدا فناوری همکاری را باز کنید."
+        },
+        {
+          "key": "toast.tech_points",
+          "value": "برای پژوهش به {0} امتیاز فناوری نیاز دارید."
+        },
+        {
+          "key": "toast.train_group_full",
+          "value": "گروه به ظرفیت {0} نفر رسیده است."
+        },
+        {
+          "key": "toast.train_needs_workshop",
+          "value": "برای تربیت نیرو ابتدا یک کارگاه بسازید."
+        },
+        {
+          "key": "toast.train_no_resources",
+          "value": "برای تربیت نیرو غذا، انرژی و طلا کافی نیست."
+        },
+        {
+          "key": "toast.upgrade_no_resources",
+          "value": "منابع کافی برای ارتقا وجود ندارد."
+        },
+        {
+          "key": "toast.upgraded",
+          "value": "{0} ارتقا یافت."
+        },
+        {
+          "key": "toast.weather_changed",
+          "value": "هوا تغییر کرد: {0}"
+        },
+        {
+          "key": "ui.about.website",
+          "value": "باز کردن وب‌سایت"
+        },
+        {
+          "key": "ui.action.achievements",
+          "value": "دستاوردها"
+        },
+        {
+          "key": "ui.action.build",
+          "value": "ساخت‌وساز"
+        },
+        {
+          "key": "ui.action.daily",
+          "value": "پاداش روز"
+        },
+        {
+          "key": "ui.action.equipment",
+          "value": "تجهیزات"
+        },
+        {
+          "key": "ui.action.map",
+          "value": "نقشه"
+        },
+        {
+          "key": "ui.action.pause",
+          "value": "مکث"
+        },
+        {
+          "key": "ui.action.quests",
+          "value": "مأموریت‌ها"
+        },
+        {
+          "key": "ui.action.raid",
+          "value": "یورش"
+        },
+        {
+          "key": "ui.action.save",
+          "value": "ذخیره"
+        },
+        {
+          "key": "ui.action.train",
+          "value": "تربیت نیرو"
+        },
+        {
+          "key": "ui.build.title",
+          "value": "انتخاب سازه"
+        },
+        {
+          "key": "ui.building.detail",
+          "value": "سطح: {0}\nسلامت: {1} / {2}\n\nهزینه‌ی ارتقا:\n{3}"
+        },
+        {
+          "key": "ui.building.upgrade",
+          "value": "ارتقای ساختمان"
+        },
+        {
+          "key": "ui.common.close",
+          "value": "بستن"
+        },
+        {
+          "key": "ui.common.done",
+          "value": "✓"
+        },
+        {
+          "key": "ui.daily.available",
+          "value": "پاداش امروز در انتظار شماست."
+        },
+        {
+          "key": "ui.daily.body",
+          "value": "هر روز برای ماندن در کنار گروه پاداش بگیرید.\n\n{0}\nردیف روزانه: {1}\n\n{2}"
+        },
+        {
+          "key": "ui.daily.claim",
+          "value": "گرفتن پاداش"
+        },
+        {
+          "key": "ui.daily.claimed",
+          "value": "پاداش امروز را دریافت کردید؛ فردا دوباره سر بزنید."
+        },
+        {
+          "key": "ui.daily.reward_line",
+          "value": "پاداش امروز: {0}  •  {1}"
+        },
+        {
+          "key": "ui.daily.title",
+          "value": "پاداش روزانه"
+        },
+        {
+          "key": "ui.equip.armor_bonus",
+          "value": "کاهش آسیب {0}٪"
+        },
+        {
+          "key": "ui.equip.attack_bonus",
+          "value": "حمله +{0}"
+        },
+        {
+          "key": "ui.equip.cost_line",
+          "value": "هزینه: {0}"
+        },
+        {
+          "key": "ui.equip.effect_block",
+          "value": "اثر فعلی\n{0}\n{1}\n{2}"
+        },
+        {
+          "key": "ui.equip.gather_bonus",
+          "value": "جمع‌آوری +{0}٪"
+        },
+        {
+          "key": "ui.equip.level_line",
+          "value": "سطح: {0} / {1}"
+        },
+        {
+          "key": "ui.equip.level_required",
+          "value": "(نیاز به مرحله‌ی بالاتر)"
+        },
+        {
+          "key": "ui.equip.title",
+          "value": "تجهیزات گروه"
+        },
+        {
+          "key": "ui.map.title",
+          "value": "نقشه‌ی جزیره"
+        },
+        {
+          "key": "ui.menu.about",
+          "value": "درباره‌ی سازنده"
+        },
+        {
+          "key": "ui.menu.new_game",
+          "value": "آغاز نجات"
+        },
+        {
+          "key": "ui.modal.save_and_menu",
+          "value": "ذخیره و منوی اصلی"
+        },
+        {
+          "key": "ui.modal.save_now",
+          "value": "ثبت ذخیره"
+        },
+        {
+          "key": "ui.quest.active",
+          "value": "در حال انجام"
+        },
+        {
+          "key": "ui.quest.claim_all",
+          "value": "گرفتن پاداش‌های آماده"
+        },
+        {
+          "key": "ui.quest.claimed",
+          "value": "گرفته شد"
+        },
+        {
+          "key": "ui.quest.entry_line",
+          "value": "{0}\n{1}\nپاداش: {2}   •   {3}"
+        },
+        {
+          "key": "ui.quest.title",
+          "value": "مأموریت‌های گروه"
+        },
+        {
+          "key": "ui.raid.body",
+          "value": "نگهبانان را برای غنیمت به سمت اردوگاه دشمن بفرستید.\n\n{0}\n{1}\n{2}\n\n{3}"
+        },
+        {
+          "key": "ui.raid.chance_line",
+          "value": "شانس پیروزی: {0}٪"
+        },
+        {
+          "key": "ui.raid.cost_line",
+          "value": "هزینه: {0} و {1}"
+        },
+        {
+          "key": "ui.raid.guards_line",
+          "value": "نگهبانان آماده: {0}"
+        },
+        {
+          "key": "ui.raid.record_line",
+          "value": "کارنامه: {0} برد / {1} باخت"
+        },
+        {
+          "key": "ui.raid.start",
+          "value": "شروع یورش"
+        },
+        {
+          "key": "ui.raid.title",
+          "value": "یورش به اردوگاه دشمن"
+        },
+        {
+          "key": "ui.result.defeat",
+          "value": "چراغ اردوگاه خاموش شد"
+        },
+        {
+          "key": "ui.result.defeat_detail",
+          "value": "همه‌ی بازمانده‌ها از دست رفتند. از تجربه‌ی این سفر استفاده کنید."
+        },
+        {
+          "key": "ui.result.victory",
+          "value": "جزیره نجات یافت"
+        },
+        {
+          "key": "ui.result.victory_detail",
+          "value": "گروه شما هفت روز را با همکاری پشت سر گذاشت."
+        },
+        {
+          "key": "ui.settings.haptics_off",
+          "value": "لرزش لمسی: خاموش"
+        },
+        {
+          "key": "ui.settings.haptics_on",
+          "value": "لرزش لمسی: روشن"
+        },
+        {
+          "key": "ui.settings.hint",
+          "value": "تنظیمات روی دستگاه ذخیره می‌شوند."
+        },
+        {
+          "key": "ui.settings.language",
+          "value": "زبان: {0}"
+        },
+        {
+          "key": "ui.settings.sound_off",
+          "value": "صدا: خاموش"
+        },
+        {
+          "key": "ui.settings.sound_on",
+          "value": "صدا: روشن"
+        },
+        {
+          "key": "ui.splash.studio_line",
+          "value": "استودیوی بازی‌سازی پارسا"
+        },
+        {
+          "key": "ui.survivor.lost",
+          "value": "از دست رفته"
+        },
+        {
+          "key": "ui.tech.cost",
+          "value": "هزینه: {0} امتیاز"
+        },
+        {
+          "key": "ui.tech.points",
+          "value": "امتیاز پژوهش: {0}"
+        },
+        {
+          "key": "ui.tech.title",
+          "value": "درخت فناوری"
+        },
+        {
+          "key": "ui.train.body",
+          "value": "کارگاه، محل آموزش نیروهای تازه است.\n\nهزینه‌ی هر نیروی نگهبان:\n{0}\n\nظرفیت گروه: {1} / {2}"
+        },
+        {
+          "key": "ui.train.button",
+          "value": "تربیت نگهبان"
+        },
+        {
+          "key": "ui.train.title",
+          "value": "مرکز تربیت نیرو"
+        },
+        {
+          "key": "ui.tutorial.body",
+          "value": "برای بقا، منابع را جمع کنید و نیازهای گروه را زیر نظر داشته باشید.\n\nاز نوار پایین ساخت‌وساز را باز کنید و یک سازه روی زمین انتخاب کنید. روی ساختمان ساخته‌شده بزنید تا ارتقا دهید.\n\nشب‌ها سایه‌ها حمله می‌کنند؛ برج دیده‌بانی و نگهبان‌ها از اردوگاه محافظت می‌کنند."
+        },
+        {
+          "key": "ui.tutorial.ready",
+          "value": "آماده‌ام؛ شروع کنیم"
+        },
+        {
+          "key": "ui.tutorial.title",
+          "value": "راهنمای آغاز"
         },
         {
           "key": "weather.clear",
           "value": "آسمان صاف"
         },
         {
-          "key": "weather.rain",
-          "value": "بارانی"
-        },
-        {
           "key": "weather.fog",
           "value": "مه‌آلود"
+        },
+        {
+          "key": "weather.rain",
+          "value": "بارانی"
         },
         {
           "key": "weather.storm",
@@ -188,124 +1077,56 @@
       "direction": "ltr",
       "entries": [
         {
-          "key": "game.title",
-          "value": "Land of Survival"
+          "key": "achievement.bringeroflife",
+          "value": "Bringer of life"
         },
         {
-          "key": "game.tagline",
-          "value": "Together we survive"
+          "key": "achievement.builder",
+          "value": "Builder"
         },
         {
-          "key": "game.studio",
-          "value": "Parsa Apps"
+          "key": "achievement.defender",
+          "value": "Camp defender"
         },
         {
-          "key": "game.director",
-          "value": "Farshad Parsa"
+          "key": "achievement.firstnight",
+          "value": "Second day"
         },
         {
-          "key": "game.loading",
-          "value": "Preparing the land of survival"
+          "key": "achievement.rich",
+          "value": "Wealthy"
         },
         {
-          "key": "game.footer",
-          "value": "Built by Parsa Apps  •  Directed by Farshad Parsa"
+          "key": "achievement.scavenger",
+          "value": "Scavenger"
         },
         {
-          "key": "game.credits",
-          "value": "Built by\nParsa Apps\n\nDirected by Farshad Parsa\n\nOfficial site:\nParsa-apps.github.io"
-        },
-        {
-          "key": "menu.new_game",
-          "value": "New Journey"
-        },
-        {
-          "key": "menu.continue_game",
-          "value": "Continue Journey"
-        },
-        {
-          "key": "menu.settings",
-          "value": "Settings"
-        },
-        {
-          "key": "menu.about",
-          "value": "About"
-        },
-        {
-          "key": "menu.quit",
-          "value": "Quit"
-        },
-        {
-          "key": "hud.day",
-          "value": "Day"
-        },
-        {
-          "key": "hud.group",
-          "value": "Group"
-        },
-        {
-          "key": "hud.technology",
-          "value": "Technology"
-        },
-        {
-          "key": "hud.objective",
-          "value": "Objective"
-        },
-        {
-          "key": "hud.morale",
-          "value": "Morale"
-        },
-        {
-          "key": "modal.pause",
-          "value": "Game Paused"
-        },
-        {
-          "key": "modal.continue",
-          "value": "Continue"
-        },
-        {
-          "key": "modal.main_menu",
-          "value": "Back to Menu"
-        },
-        {
-          "key": "resource.wood",
-          "value": "Wood"
-        },
-        {
-          "key": "resource.stone",
-          "value": "Stone"
-        },
-        {
-          "key": "resource.food",
-          "value": "Food"
-        },
-        {
-          "key": "resource.gold",
-          "value": "Gold"
-        },
-        {
-          "key": "resource.energy",
-          "value": "Energy"
-        },
-        {
-          "key": "resource.water",
-          "value": "Water"
+          "key": "achievement.survivor",
+          "value": "Skilled survivor"
         },
         {
           "key": "building.camp",
           "value": "Camp"
         },
         {
+          "key": "building.farm",
+          "value": "Farm"
+        },
+        {
           "key": "building.house",
           "value": "House"
+        },
+        {
+          "key": "building.solarstation",
+          "value": "Solar Station"
         },
         {
           "key": "building.storage",
           "value": "Storage"
         },
         {
-          "key": "building.farm",
-          "value": "Farm"
+          "key": "building.wall",
+          "value": "Defense Wall"
         },
         {
           "key": "building.watchtower",
@@ -316,48 +1137,1004 @@
           "value": "Workshop"
         },
         {
-          "key": "building.wall",
-          "value": "Defense Wall"
+          "key": "equipment.armor",
+          "value": "Armor (damage reduction)"
         },
         {
-          "key": "building.solarstation",
-          "value": "Solar Station"
+          "key": "equipment.tool",
+          "value": "Tools (farming/gathering)"
         },
         {
-          "key": "role.gatherer",
-          "value": "Gatherer"
+          "key": "equipment.weapon",
+          "value": "Weapons (defense/attack)"
+        },
+        {
+          "key": "format.building_label",
+          "value": "{0} «{1}»"
+        },
+        {
+          "key": "format.cost_entry",
+          "value": "{0} {1}"
+        },
+        {
+          "key": "format.cost_join",
+          "value": "  •  "
+        },
+        {
+          "key": "format.quest_line",
+          "value": "  •  Quest: {0}"
+        },
+        {
+          "key": "format.resource_line",
+          "value": "{0}  {1}"
+        },
+        {
+          "key": "game.credits",
+          "value": "Built by\nParsa Apps\n\nDirected by Farshad Parsa\n\nOfficial site:\nParsa-apps.github.io"
+        },
+        {
+          "key": "game.footer",
+          "value": "Built by Parsa Apps  •  Directed by Farshad Parsa"
+        },
+        {
+          "key": "game.loading",
+          "value": "Preparing the land of survival"
+        },
+        {
+          "key": "game.studio",
+          "value": "Parsa Apps"
+        },
+        {
+          "key": "game.tagline",
+          "value": "Together we survive"
+        },
+        {
+          "key": "game.title",
+          "value": "Land of Survival"
+        },
+        {
+          "key": "hud.companions",
+          "value": "Companions"
+        },
+        {
+          "key": "hud.companions_line",
+          "value": "Companions  •  Group level: {0}"
+        },
+        {
+          "key": "hud.day_line",
+          "value": "Day {0}  •  {1}"
+        },
+        {
+          "key": "hud.morale_suffix",
+          "value": "  •  Morale: {0}"
+        },
+        {
+          "key": "hud.objective_line",
+          "value": "Goal: survive until day {0}"
+        },
+        {
+          "key": "hud.population_line",
+          "value": "Group: {0} / {1}"
+        },
+        {
+          "key": "hud.technology",
+          "value": "Technology"
+        },
+        {
+          "key": "hud.technology_line",
+          "value": "Technology  {0}"
+        },
+        {
+          "key": "hud.weather_line",
+          "value": "☁  {0}"
+        },
+        {
+          "key": "label.east",
+          "value": "East"
+        },
+        {
+          "key": "label.free",
+          "value": "Free"
+        },
+        {
+          "key": "label.survivor",
+          "value": "Survivor"
+        },
+        {
+          "key": "label.west",
+          "value": "West"
+        },
+        {
+          "key": "language.en",
+          "value": "English"
+        },
+        {
+          "key": "language.fa",
+          "value": "فارسی"
+        },
+        {
+          "key": "log.backup_loaded",
+          "value": "The main save was damaged; the backup was loaded."
+        },
+        {
+          "key": "log.delete_failed",
+          "value": "Deleting the save file failed: {0}"
+        },
+        {
+          "key": "log.error_prefix",
+          "value": "Error:"
+        },
+        {
+          "key": "log.generic_failure",
+          "value": "An operation did not complete."
+        },
+        {
+          "key": "log.load_failed",
+          "value": "The save file could not be read"
+        },
+        {
+          "key": "log.low_memory",
+          "value": "Memory warning: quality lowered to {0} and unused assets were released."
+        },
+        {
+          "key": "log.quality_down",
+          "value": "Quality lowered to {0} to keep the frame rate smooth."
+        },
+        {
+          "key": "log.quality_up",
+          "value": "Quality raised to {0}."
+        },
+        {
+          "key": "log.save_done",
+          "value": "Saved (version {0})."
+        },
+        {
+          "key": "log.save_failed",
+          "value": "The game could not be saved"
+        },
+        {
+          "key": "log.warn_prefix",
+          "value": "Warning:"
+        },
+        {
+          "key": "menu.continue_game",
+          "value": "Continue Journey"
+        },
+        {
+          "key": "menu.new_game",
+          "value": "New Journey"
+        },
+        {
+          "key": "menu.settings",
+          "value": "Settings"
+        },
+        {
+          "key": "modal.continue",
+          "value": "Continue"
+        },
+        {
+          "key": "modal.main_menu",
+          "value": "Back to Menu"
+        },
+        {
+          "key": "modal.pause",
+          "value": "Game Paused"
+        },
+        {
+          "key": "quest.q_day3.description",
+          "value": "Survive until day {0}."
+        },
+        {
+          "key": "quest.q_day3.title",
+          "value": "Three days of resistance"
+        },
+        {
+          "key": "quest.q_farm.description",
+          "value": "Set up a farm."
+        },
+        {
+          "key": "quest.q_farm.title",
+          "value": "A new farm"
+        },
+        {
+          "key": "quest.q_guard.description",
+          "value": "Grow the group to {0} people."
+        },
+        {
+          "key": "quest.q_guard.title",
+          "value": "New guard"
+        },
+        {
+          "key": "quest.q_house.description",
+          "value": "Build a house for the group."
+        },
+        {
+          "key": "quest.q_house.title",
+          "value": "First shelter"
+        },
+        {
+          "key": "quest.q_storage.description",
+          "value": "Build a storage so your supplies stay safe."
+        },
+        {
+          "key": "quest.q_storage.title",
+          "value": "Safe storage"
+        },
+        {
+          "key": "quest.q_tower.description",
+          "value": "Build a watchtower for the night defense."
+        },
+        {
+          "key": "quest.q_tower.title",
+          "value": "Watchtower"
+        },
+        {
+          "key": "quest.q_wood.description",
+          "value": "Raise your wood stock to {0}."
+        },
+        {
+          "key": "quest.q_wood.title",
+          "value": "Wood supply"
+        },
+        {
+          "key": "quest.q_workshop.description",
+          "value": "Bring the workshop online."
+        },
+        {
+          "key": "quest.q_workshop.title",
+          "value": "Production workshop"
+        },
+        {
+          "key": "resource.energy",
+          "value": "Energy"
+        },
+        {
+          "key": "resource.food",
+          "value": "Food"
+        },
+        {
+          "key": "resource.gold",
+          "value": "Gold"
+        },
+        {
+          "key": "resource.stone",
+          "value": "Stone"
+        },
+        {
+          "key": "resource.water",
+          "value": "Water"
+        },
+        {
+          "key": "resource.wood",
+          "value": "Wood"
         },
         {
           "key": "role.builder",
           "value": "Builder"
         },
         {
-          "key": "role.medic",
-          "value": "Medic"
+          "key": "role.farmer",
+          "value": "Farmer"
+        },
+        {
+          "key": "role.gatherer",
+          "value": "Gatherer"
         },
         {
           "key": "role.guard",
           "value": "Guard"
         },
         {
+          "key": "role.medic",
+          "value": "Medic"
+        },
+        {
           "key": "role.scout",
           "value": "Scout"
         },
         {
-          "key": "role.farmer",
-          "value": "Farmer"
+          "key": "status.aid",
+          "value": "Aiding the injured"
+        },
+        {
+          "key": "status.building",
+          "value": "Building"
+        },
+        {
+          "key": "status.drinking",
+          "value": "Drinking"
+        },
+        {
+          "key": "status.eating",
+          "value": "Eating"
+        },
+        {
+          "key": "status.fleeing",
+          "value": "Fleeing danger"
+        },
+        {
+          "key": "status.gathering",
+          "value": "Gathering {0}"
+        },
+        {
+          "key": "status.guarding",
+          "value": "Guarding the camp"
+        },
+        {
+          "key": "status.healing",
+          "value": "Healing"
+        },
+        {
+          "key": "status.healing_ally",
+          "value": "Healing a companion"
+        },
+        {
+          "key": "status.idle",
+          "value": "Waiting for orders"
+        },
+        {
+          "key": "status.injured",
+          "value": "Injured and needs treatment"
+        },
+        {
+          "key": "status.lost",
+          "value": "Lost"
+        },
+        {
+          "key": "status.patrol",
+          "value": "Patrolling the camp"
+        },
+        {
+          "key": "status.preparing",
+          "value": "Preparing"
+        },
+        {
+          "key": "status.resting",
+          "value": "Resting"
+        },
+        {
+          "key": "status.returning",
+          "value": "Returning to camp"
+        },
+        {
+          "key": "story.decision.heal",
+          "value": "Your choice: {0}; the wounded were treated."
+        },
+        {
+          "key": "story.decision.morale",
+          "value": "Your choice: {0}; group morale shifted by {1}."
+        },
+        {
+          "key": "story.decision.resources",
+          "value": "Your choice: {0} — you gained {1}."
+        },
+        {
+          "key": "story.s_storm.body",
+          "value": "The sky darkens and the wind turns toward a storm. Preparation is needed."
+        },
+        {
+          "key": "story.s_storm.patrol.hint",
+          "value": "You patrol before the storm and gather energy."
+        },
+        {
+          "key": "story.s_storm.patrol.title",
+          "value": "Go before the storm"
+        },
+        {
+          "key": "story.s_storm.reinforce.hint",
+          "value": "More stone and more safety, but it costs time."
+        },
+        {
+          "key": "story.s_storm.reinforce.title",
+          "value": "Reinforce the shelter"
+        },
+        {
+          "key": "story.s_storm.stock.hint",
+          "value": "You prepare for the hard days ahead."
+        },
+        {
+          "key": "story.s_storm.stock.title",
+          "value": "Stock food"
+        },
+        {
+          "key": "story.s_storm.title",
+          "value": "A storm ahead"
+        },
+        {
+          "key": "story.s_stranger.ask.hint",
+          "value": "The traveller shows you where the water spring is."
+        },
+        {
+          "key": "story.s_stranger.ask.title",
+          "value": "Ask for directions"
+        },
+        {
+          "key": "story.s_stranger.body",
+          "value": "An unfamiliar survivor reaches the camp, wounded and asking for help."
+        },
+        {
+          "key": "story.s_stranger.heal.hint",
+          "value": "The group gives food and care; morale rises."
+        },
+        {
+          "key": "story.s_stranger.heal.title",
+          "value": "Tend their wounds"
+        },
+        {
+          "key": "story.s_stranger.reject.hint",
+          "value": "The group steps back and feels a little less safe."
+        },
+        {
+          "key": "story.s_stranger.reject.title",
+          "value": "Turn them away"
+        },
+        {
+          "key": "story.s_stranger.title",
+          "value": "A wounded traveller"
+        },
+        {
+          "key": "story.s_voice.body",
+          "value": "At dawn, a sound drifts from deep in the forest. Someone should see what it is."
+        },
+        {
+          "key": "story.s_voice.guard.hint",
+          "value": "You advance cautiously; morale rises."
+        },
+        {
+          "key": "story.s_voice.guard.title",
+          "value": "Go with a guard"
+        },
+        {
+          "key": "story.s_voice.ignore.hint",
+          "value": "Nothing happens, but doubt lingers in the group."
+        },
+        {
+          "key": "story.s_voice.ignore.title",
+          "value": "Stay put"
+        },
+        {
+          "key": "story.s_voice.scout.hint",
+          "value": "The group gains wood, but the scout is exhausted."
+        },
+        {
+          "key": "story.s_voice.scout.title",
+          "value": "Send the scout"
+        },
+        {
+          "key": "story.s_voice.title",
+          "value": "An unknown call"
+        },
+        {
+          "key": "survivor.name.0",
+          "value": "Sara"
+        },
+        {
+          "key": "survivor.name.1",
+          "value": "Younes"
+        },
+        {
+          "key": "survivor.name.10",
+          "value": "Taraneh"
+        },
+        {
+          "key": "survivor.name.11",
+          "value": "Arman"
+        },
+        {
+          "key": "survivor.name.2",
+          "value": "Ava"
+        },
+        {
+          "key": "survivor.name.3",
+          "value": "Kaveh"
+        },
+        {
+          "key": "survivor.name.4",
+          "value": "Nora"
+        },
+        {
+          "key": "survivor.name.5",
+          "value": "Sam"
+        },
+        {
+          "key": "survivor.name.6",
+          "value": "Raha"
+        },
+        {
+          "key": "survivor.name.7",
+          "value": "Bahram"
+        },
+        {
+          "key": "survivor.name.8",
+          "value": "Mina"
+        },
+        {
+          "key": "survivor.name.9",
+          "value": "Darius"
+        },
+        {
+          "key": "technology.cooperation",
+          "value": "Group cooperation"
+        },
+        {
+          "key": "technology.cooperation.unlocked",
+          "value": "Group cooperation unlocked; survivors work faster."
+        },
+        {
+          "key": "technology.fieldrotation",
+          "value": "Field rotation"
+        },
+        {
+          "key": "technology.fieldrotation.unlocked",
+          "value": "Field rotation unlocked; the farm yields more."
+        },
+        {
+          "key": "technology.reinforcedwalls",
+          "value": "Reinforced walls"
+        },
+        {
+          "key": "technology.reinforcedwalls.unlocked",
+          "value": "Reinforced walls strengthened the camp defense."
+        },
+        {
+          "key": "technology.waterpurification",
+          "value": "Water purification"
+        },
+        {
+          "key": "technology.waterpurification.unlocked",
+          "value": "Water purification unlocked; the water reserve grew."
+        },
+        {
+          "key": "toast.achievement_unlocked",
+          "value": "Achievement '{0}' unlocked; you earned {1} gold."
+        },
+        {
+          "key": "toast.bad_spot",
+          "value": "This spot is not suitable for building."
+        },
+        {
+          "key": "toast.build_no_resources",
+          "value": "Not enough resources to build."
+        },
+        {
+          "key": "toast.building_destroyed",
+          "value": "{0} was destroyed."
+        },
+        {
+          "key": "toast.built",
+          "value": "{0} was built."
+        },
+        {
+          "key": "toast.daily_reward",
+          "value": "Daily reward: {0}  •  {1} (streak: {2})"
+        },
+        {
+          "key": "toast.day_started",
+          "value": "Day {0} begins; you gained {1} technology points."
+        },
+        {
+          "key": "toast.enemy_defeated",
+          "value": "A shadow was defeated."
+        },
+        {
+          "key": "toast.equip_blocked",
+          "value": "Upgrade blocked: {0}"
+        },
+        {
+          "key": "toast.equip_level_needed",
+          "value": "This upgrade needs group level {0}."
+        },
+        {
+          "key": "toast.equip_max",
+          "value": "This equipment is already at max level."
+        },
+        {
+          "key": "toast.equip_no_resources",
+          "value": "Not enough resources; you need more {0}."
+        },
+        {
+          "key": "toast.equip_upgraded",
+          "value": "{0} upgraded to level {1}."
+        },
+        {
+          "key": "toast.joined",
+          "value": "{0} joined the group."
+        },
+        {
+          "key": "toast.language_single",
+          "value": "Only one language is available right now."
+        },
+        {
+          "key": "toast.level_up",
+          "value": "The group reached level {0}; everyone's morale rose."
+        },
+        {
+          "key": "toast.low_food",
+          "value": "Food is running low; keep the gatherer and farmer busy."
+        },
+        {
+          "key": "toast.low_water",
+          "value": "The group is almost out of water; send the scout to the spring."
+        },
+        {
+          "key": "toast.night_wave",
+          "value": "The night wave arrived; {0} shadows approach from the {1}."
+        },
+        {
+          "key": "toast.no_save",
+          "value": "No save found; a new journey begins."
+        },
+        {
+          "key": "toast.place_spot",
+          "value": "Tap a spot on the ground to place the {0}."
+        },
+        {
+          "key": "toast.quest_done",
+          "value": "Quest '{0}' completed; you received {1}."
+        },
+        {
+          "key": "toast.raid_blocked",
+          "value": "The raid is not possible: {0}"
+        },
+        {
+          "key": "toast.raid_energy",
+          "value": "A raid costs {0} energy."
+        },
+        {
+          "key": "toast.raid_gold",
+          "value": "Preparing the raid costs {0} gold."
+        },
+        {
+          "key": "toast.raid_guards",
+          "value": "A raid needs at least {0} guards."
+        },
+        {
+          "key": "toast.raid_lost",
+          "value": "The raid failed and you took damage; group morale dropped."
+        },
+        {
+          "key": "toast.raid_night",
+          "value": "You cannot raid at night; the night belongs to the shadows."
+        },
+        {
+          "key": "toast.raid_today",
+          "value": "You already raided today; try again tomorrow."
+        },
+        {
+          "key": "toast.raid_won",
+          "value": "The raid succeeded! Loot: {0}"
+        },
+        {
+          "key": "toast.run_started",
+          "value": "Your group reached an unknown shore; together you will survive."
+        },
+        {
+          "key": "toast.save_restored",
+          "value": "Your previous journey was restored."
+        },
+        {
+          "key": "toast.survivor_lost",
+          "value": "{0} cannot go on."
+        },
+        {
+          "key": "toast.tech_already",
+          "value": "This technology is already unlocked."
+        },
+        {
+          "key": "toast.tech_need_prerequisite",
+          "value": "Unlock the cooperation technology first."
+        },
+        {
+          "key": "toast.tech_points",
+          "value": "Research costs {0} technology points."
+        },
+        {
+          "key": "toast.train_group_full",
+          "value": "The group is already at its limit of {0}."
+        },
+        {
+          "key": "toast.train_needs_workshop",
+          "value": "Build a workshop before training anyone."
+        },
+        {
+          "key": "toast.train_no_resources",
+          "value": "Not enough food, energy or gold to train a guard."
+        },
+        {
+          "key": "toast.upgrade_no_resources",
+          "value": "Not enough resources to upgrade."
+        },
+        {
+          "key": "toast.upgraded",
+          "value": "{0} was upgraded."
+        },
+        {
+          "key": "toast.weather_changed",
+          "value": "The weather changed: {0}"
+        },
+        {
+          "key": "ui.about.website",
+          "value": "Open the website"
+        },
+        {
+          "key": "ui.action.achievements",
+          "value": "Achievements"
+        },
+        {
+          "key": "ui.action.build",
+          "value": "Build"
+        },
+        {
+          "key": "ui.action.daily",
+          "value": "Daily"
+        },
+        {
+          "key": "ui.action.equipment",
+          "value": "Equipment"
+        },
+        {
+          "key": "ui.action.map",
+          "value": "Map"
+        },
+        {
+          "key": "ui.action.pause",
+          "value": "Pause"
+        },
+        {
+          "key": "ui.action.quests",
+          "value": "Quests"
+        },
+        {
+          "key": "ui.action.raid",
+          "value": "Raid"
+        },
+        {
+          "key": "ui.action.save",
+          "value": "Save"
+        },
+        {
+          "key": "ui.action.train",
+          "value": "Train"
+        },
+        {
+          "key": "ui.build.title",
+          "value": "Choose a structure"
+        },
+        {
+          "key": "ui.building.detail",
+          "value": "Level {0}\nHealth {1} / {2}\n\nUpgrade cost:\n{3}"
+        },
+        {
+          "key": "ui.building.upgrade",
+          "value": "Upgrade structure"
+        },
+        {
+          "key": "ui.common.close",
+          "value": "Close"
+        },
+        {
+          "key": "ui.common.done",
+          "value": "OK"
+        },
+        {
+          "key": "ui.daily.available",
+          "value": "Today's reward is waiting for you."
+        },
+        {
+          "key": "ui.daily.body",
+          "value": "Stay with the group each day to earn a reward.\n\n{0}\nDaily streak: {1}\n\n{2}"
+        },
+        {
+          "key": "ui.daily.claim",
+          "value": "Claim reward"
+        },
+        {
+          "key": "ui.daily.claimed",
+          "value": "You already claimed today's reward. Come back tomorrow."
+        },
+        {
+          "key": "ui.daily.reward_line",
+          "value": "Today's reward: {0}  •  {1}"
+        },
+        {
+          "key": "ui.daily.title",
+          "value": "Daily reward"
+        },
+        {
+          "key": "ui.equip.armor_bonus",
+          "value": "Damage reduction {0}%"
+        },
+        {
+          "key": "ui.equip.attack_bonus",
+          "value": "Attack +{0}"
+        },
+        {
+          "key": "ui.equip.cost_line",
+          "value": "Cost: {0}"
+        },
+        {
+          "key": "ui.equip.effect_block",
+          "value": "Current effect\n{0}\n{1}\n{2}"
+        },
+        {
+          "key": "ui.equip.gather_bonus",
+          "value": "Gathering +{0}%"
+        },
+        {
+          "key": "ui.equip.level_line",
+          "value": "Level {0} / {1}"
+        },
+        {
+          "key": "ui.equip.level_required",
+          "value": "(requires a higher group level)"
+        },
+        {
+          "key": "ui.equip.title",
+          "value": "Group equipment"
+        },
+        {
+          "key": "ui.map.title",
+          "value": "Island map"
+        },
+        {
+          "key": "ui.menu.about",
+          "value": "About the maker"
+        },
+        {
+          "key": "ui.menu.new_game",
+          "value": "Begin the rescue"
+        },
+        {
+          "key": "ui.modal.save_and_menu",
+          "value": "Save and back to menu"
+        },
+        {
+          "key": "ui.modal.save_now",
+          "value": "Save the journey"
+        },
+        {
+          "key": "ui.quest.active",
+          "value": "In progress"
+        },
+        {
+          "key": "ui.quest.claim_all",
+          "value": "Claim ready rewards"
+        },
+        {
+          "key": "ui.quest.claimed",
+          "value": "Claimed"
+        },
+        {
+          "key": "ui.quest.entry_line",
+          "value": "{0}\n{1}\nReward: {2}   •   {3}"
+        },
+        {
+          "key": "ui.quest.title",
+          "value": "Group quests"
+        },
+        {
+          "key": "ui.raid.body",
+          "value": "Send your guards to the enemy camp for loot.\n\n{0}\n{1}\n{2}\n\n{3}"
+        },
+        {
+          "key": "ui.raid.chance_line",
+          "value": "Victory chance: {0}%"
+        },
+        {
+          "key": "ui.raid.cost_line",
+          "value": "Cost: {0} and {1}"
+        },
+        {
+          "key": "ui.raid.guards_line",
+          "value": "Ready guards: {0}"
+        },
+        {
+          "key": "ui.raid.record_line",
+          "value": "Record: {0} wins / {1} losses"
+        },
+        {
+          "key": "ui.raid.start",
+          "value": "Start the raid"
+        },
+        {
+          "key": "ui.raid.title",
+          "value": "Raid the enemy camp"
+        },
+        {
+          "key": "ui.result.defeat",
+          "value": "The camp light went out"
+        },
+        {
+          "key": "ui.result.defeat_detail",
+          "value": "Every survivor was lost. Use what this journey taught you."
+        },
+        {
+          "key": "ui.result.victory",
+          "value": "The island was saved"
+        },
+        {
+          "key": "ui.result.victory_detail",
+          "value": "Your group endured seven days together."
+        },
+        {
+          "key": "ui.settings.haptics_off",
+          "value": "Vibration: off"
+        },
+        {
+          "key": "ui.settings.haptics_on",
+          "value": "Vibration: on"
+        },
+        {
+          "key": "ui.settings.hint",
+          "value": "Settings are stored on this device."
+        },
+        {
+          "key": "ui.settings.language",
+          "value": "Language: {0}"
+        },
+        {
+          "key": "ui.settings.sound_off",
+          "value": "Sound: off"
+        },
+        {
+          "key": "ui.settings.sound_on",
+          "value": "Sound: on"
+        },
+        {
+          "key": "ui.splash.studio_line",
+          "value": "Parsa Apps Game Studio"
+        },
+        {
+          "key": "ui.survivor.lost",
+          "value": "Lost"
+        },
+        {
+          "key": "ui.tech.cost",
+          "value": "Cost: {0} research points"
+        },
+        {
+          "key": "ui.tech.points",
+          "value": "Research points: {0}"
+        },
+        {
+          "key": "ui.tech.title",
+          "value": "Technology tree"
+        },
+        {
+          "key": "ui.train.body",
+          "value": "The workshop trains new recruits.\n\nCost per guard:\n{0}\n\nGroup size: {1} / {2}"
+        },
+        {
+          "key": "ui.train.button",
+          "value": "Train a guard"
+        },
+        {
+          "key": "ui.train.title",
+          "value": "Training centre"
+        },
+        {
+          "key": "ui.tutorial.body",
+          "value": "Gather resources and watch the group's needs.\n\nOpen Build from the bottom bar and choose a spot on the ground for each structure. Tap a built structure to upgrade it.\n\nAt night the shadows attack; watchtowers and guards keep the camp safe."
+        },
+        {
+          "key": "ui.tutorial.ready",
+          "value": "Ready; let's start"
+        },
+        {
+          "key": "ui.tutorial.title",
+          "value": "Getting started"
         },
         {
           "key": "weather.clear",
           "value": "Clear Sky"
         },
         {
-          "key": "weather.rain",
-          "value": "Rainy"
-        },
-        {
           "key": "weather.fog",
           "value": "Foggy"
+        },
+        {
+          "key": "weather.rain",
+          "value": "Rainy"
         },
         {
           "key": "weather.storm",

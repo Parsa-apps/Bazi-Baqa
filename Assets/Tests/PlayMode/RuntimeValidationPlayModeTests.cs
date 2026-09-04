@@ -208,6 +208,102 @@ namespace BaziBaqa.Tests
             Assert.IsTrue(found, "اعلان باید برچسب نوتیفیکیشن HUD را پر کند.");
         }
 
+        [UnityTest]
+        public IEnumerator Localization_LanguageSwitchAtRuntime_RebuildsTheInterface()
+        {
+            BootstrapGame();
+            yield return null;
+
+            Assert.AreEqual(0, LocalizationManager.MissingKeyCount,
+                "هیچ کلیدی نباید گم شود: " + string.Join(", ", LocalizationManager.MissingKeys));
+
+            List<string> farsi = VisibleLabels();
+            Assert.Greater(farsi.Count, 10, "پیش از تغییر زبان باید متن‌های فارسی روی UI باشند.");
+            Assert.IsTrue(farsi.Exists(value => value.Contains(Loc.Get("ui.action.build"))),
+                "برچسب «ساخت‌وساز» باید در نوار عملیات باشد.");
+
+            LocalizationManager.SetLanguage("en", false);
+            yield return null;
+
+            Assert.AreEqual("ltr", LocalizationManager.Direction);
+            List<string> english = VisibleLabels();
+            Assert.Greater(english.Count, 10, "پس از تغییر زبان باید رابط دوباره ساخته شود.");
+            Assert.IsTrue(english.Exists(value => value.Contains(Loc.Get("ui.action.build"))),
+                "دکمه‌ی Build باید متنِ انگلیسی را نشان دهد.");
+            for (int i = 0; i < english.Count; i++)
+            {
+                Assert.IsFalse(english[i].Contains("[loc:"), "متن حل‌نشده در UI: " + english[i]);
+                Assert.IsFalse(LooksLikeRawLocalizationKey(english[i]), "کلیدِ خام در UI: " + english[i]);
+            }
+
+            // اعداد هم با زبان عوض می‌شوند: در انگلیسی نباید رقم فارسی روی UI بماند.
+            for (int i = 0; i < english.Count; i++)
+            {
+                Assert.IsFalse(HasPersianDigit(english[i]), "رقم فارسی در زبان چپ‌به‌راست: " + english[i]);
+            }
+
+            LocalizationManager.SetLanguage("fa", false);
+            yield return null;
+            Assert.AreEqual("rtl", LocalizationManager.Direction);
+            Assert.IsTrue(VisibleLabels().Exists(value => value.Contains(Loc.Get("ui.action.build"))),
+                "بازگشت به فارسی باید دوباره رابط را بسازد.");
+        }
+
+        [UnityTest]
+        public IEnumerator Localization_SurvivorTasksAndQuests_UseTableText()
+        {
+            BootstrapGame();
+            yield return null;
+
+            System.Collections.Generic.IReadOnlyList<SurvivorAgent> survivors = GameManager.Instance.Survivors;
+            Assert.Greater(survivors.Count, 0);
+            for (int i = 0; i < survivors.Count; i++)
+            {
+                SurvivorAgent survivor = survivors[i];
+                if (survivor == null) continue;
+                Assert.IsFalse(string.IsNullOrEmpty(survivor.DisplayName), "نام بازمانده از جدول خوانده می‌شود.");
+                Assert.IsFalse(LocalizationManager.IsUnresolved(survivor.TaskDescription),
+                    "توضیح کار بازمانده کلیدِ خام است: " + survivor.TaskDescription);
+                Assert.IsFalse(survivor.DisplayName.StartsWith("survivor.name.", StringComparison.Ordinal));
+            }
+
+            QuestSystem quests = GameManager.Instance.Quests;
+            for (int i = 0; i < quests.Quests.Count; i++)
+            {
+                QuestDefinition definition = quests.Quests[i].Definition;
+                Assert.IsFalse(LocalizationManager.IsUnresolved(definition.Title), "عنوان مأموریت حل نشد: " + definition.TitleKey);
+                Assert.IsFalse(LocalizationManager.IsUnresolved(definition.Description), "توضیح مأموریت حل نشد: " + definition.DescriptionKey);
+            }
+            yield break;
+        }
+
+        private static bool HasPersianDigit(string value)
+        {
+            for (int i = 0; i < value.Length; i++)
+            {
+                char c = value[i];
+                if (c >= '\u06F0' && c <= '\u06F9') return true;
+            }
+            return false;
+        }
+
+        /// <summary>همه‌ی متن‌های قابل‌مشاهده‌ی روی بوم (TMP و لایه‌ی قدیمی) برای سنجش زبان.</summary>
+        private static List<string> VisibleLabels()
+        {
+            List<string> values = new List<string>();
+            TextMeshProUGUI[] tmpLabels = Object.FindObjectsOfType<TextMeshProUGUI>(true);
+            for (int i = 0; i < tmpLabels.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(tmpLabels[i].text)) values.Add(tmpLabels[i].text);
+            }
+            Text[] legacyLabels = Object.FindObjectsOfType<Text>(true);
+            for (int i = 0; i < legacyLabels.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(legacyLabels[i].text)) values.Add(legacyLabels[i].text);
+            }
+            return values;
+        }
+
         private static void BootstrapGame()
         {
             if (GameManager.Instance == null)

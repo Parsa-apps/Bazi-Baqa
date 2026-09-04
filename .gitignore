@@ -19,3 +19,7 @@ ExportedObj/
 *.apk
 *.aab
 *.unitypackage
+
+# پایتونِ ابزارهای داخل Tools/ (کشِ ایمپورت)
+__pycache__/
+*.pyc

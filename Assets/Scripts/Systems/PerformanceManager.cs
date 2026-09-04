@@ -32,7 +32,7 @@ namespace BaziBaqa
         {
             if (_currentLevel > 0) _currentLevel--;
             QualitySettings.SetQualityLevel(_currentLevel, true);
-            GameLogger.Info("هشدار حافظه: کیفیت به «" + QualitySettings.names[_currentLevel] + "» کاهش یافت و منابع آزاد شدند.");
+            GameLogger.Info(Loc.Get("log.low_memory", QualitySettings.names[_currentLevel]));
             Resources.UnloadUnusedAssets();
         }
 
@@ -59,13 +59,13 @@ namespace BaziBaqa
                 _currentLevel--;
                 QualitySettings.SetQualityLevel(_currentLevel, true);
                 _downgraded = true;
-                GameLogger.Info("برای روان‌تر شدن، کیفیت به «" + QualitySettings.names[_currentLevel] + "» کاهش یافت.");
+                GameLogger.Info(Loc.Get("log.quality_down", QualitySettings.names[_currentLevel]));
             }
             else if (high && !_downgraded && _currentLevel < QualitySettings.names.Length - 1)
             {
                 _currentLevel++;
                 QualitySettings.SetQualityLevel(_currentLevel, true);
-                GameLogger.Info("کیفیت به «" + QualitySettings.names[_currentLevel] + "» ارتقا یافت.");
+                GameLogger.Info(Loc.Get("log.quality_up", QualitySettings.names[_currentLevel]));
             }
         }
     }

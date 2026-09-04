@@ -11,7 +11,9 @@ namespace BaziBaqa
         public int versionCode = 1;
         public string bundleId = "com.parsaapps.bazibaqa";
         public string company = "Parsa Apps";
-        public string product = "سرزمین بقا";
+        /// <summary>نامِ محصول در اندروید/استور. مقدار واقعی از Assets/Resources/VersionConfig.json
+        /// خوانده می‌شود (و در ProjectSettings اعمال می‌گردد)؛ این فقط پیش‌فرضِ ASCII است.</summary>
+        public string product = "Bazi Baqa";
         public int minSdkVersion = 26;
         public int targetSdkVersion = 34;
     }
@@ -57,7 +59,7 @@ namespace BaziBaqa
             }
             catch (Exception exception)
             {
-                GameLogger.Info("خواندن پیکربندی نسخه ناموفق بود: " + exception.Message);
+                GameLogger.Info("Could not read the version configuration: " + exception.Message);
             }
         }
     }

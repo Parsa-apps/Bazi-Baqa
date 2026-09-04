@@ -1,25 +1,8 @@
 {
-  "_comment": "استثناهای دروازه‌ی «متن قابل‌مشاهده نباید در کد باشد». هر الگو فقط برای رشته‌هایی است که بازیکن آن‌ها را نمی‌بیند (نام گره در هیرارشی، برچسب لاگ، دلیل تحلیلی، جداول مکانیزمِ حروف/اعداد).",
-  "internal_contexts": [
-    "new GameObject\\(",
-    "CreateRectObject\\(",
-    "CreatePanel\\(",
-    "CreateRoot\\(",
-    "\\.name\\s*=\\s*",
-    "Debug\\.Log",
-    "GameLogger\\.",
-    "AddXp\\(",
-    "Resources\\.Add\\(",
-    "TrySpend\\(",
-    "AudioClip\\.Create\\(",
-    "CreateTone\\(",
-    "name: \"",
-    "GetOverlay\\(",
-    "AddComponent<AudioSource>"
-  ],
+  "_comment": "استثناهای دروازه‌ی «متن قابل‌مشاهده نباید در کد باشد». فاز ۲٫۵ همه‌ی متن‌ها را به جدول بومی‌سازی برد؛ فهرستِ internal_contexts عمداً خالی است تا هر رشته‌ی فارسیِ تازه در کد، خطا بگیرد. تنها مجوزها «مکانیزمِ متن» هستند: جدولِ تبدیل ارقام (نه متن). اگر لازم شد الگویی بیفزایید، دلیلش را همین‌جا بنویسید و در Docs/Localization.md مستندش کنید.",
+  "internal_contexts": [],
   "files": {
-    "Assets/Scripts/Utilities/PersianText.cs": ["ArabicForm(", "new ArabicForm", "IsArabic(", "const string"],
     "Assets/Scripts/Core/GameClock.cs": ["const string persian", "const string latin"],
-    "Assets/Scripts/Utilities/PersianNumbers.cs": ["*"]
+    "Assets/Scripts/Utilities/PersianText.cs": ["ArabicForm", "IsArabic"]
   }
 }
