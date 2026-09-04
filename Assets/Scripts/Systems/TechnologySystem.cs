@@ -13,6 +13,9 @@ namespace BaziBaqa
 
     public sealed class TechnologySystem : MonoBehaviour
     {
+        /// <summary>هزینه‌ی هر پژوهش (امتیاز فناوری).</summary>
+        public const int ResearchCost = 2;
+
         public int Points { get; private set; }
         public int UnlockedMask { get; private set; }
         public event Action StateChanged;
@@ -39,44 +42,50 @@ namespace BaziBaqa
             int index = (int)technology;
             if (IsUnlocked(technology))
             {
-                GameEvents.Notify("این فناوری قبلاً باز شده است.");
+                GameEvents.Notify(Loc.Get("toast.tech_already"));
                 return false;
             }
-            if (Points < 2)
+            if (Points < ResearchCost)
             {
-                GameEvents.Notify("برای پژوهش به دو امتیاز فناوری نیاز دارید.");
+                GameEvents.Notify(Loc.Get("toast.tech_points", Loc.Num(ResearchCost)));
                 return false;
             }
             if (technology == TechnologyType.WaterPurification && !IsUnlocked(TechnologyType.Cooperation))
             {
-                GameEvents.Notify("ابتدا فناوری همکاری را باز کنید.");
+                GameEvents.Notify(Loc.Get("toast.tech_need_prerequisite"));
                 return false;
             }
 
-            Points -= 2;
+            Points -= ResearchCost;
             UnlockedMask |= 1 << index;
             if (technology == TechnologyType.Cooperation)
             {
-                GameEvents.Notify("همکاری گروهی باز شد؛ بازمانده‌ها سریع‌تر کار می‌کنند.");
+                NotifyUnlocked(technology);
             }
             else if (technology == TechnologyType.WaterPurification)
             {
-                GameManager.Instance.Resources.Add(ResourceType.Water, 18, "پژوهش تصفیه آب");
-                GameEvents.Notify("تصفیه‌ی آب باز شد؛ ذخیره‌ی آب افزایش یافت.");
+                GameManager.Instance.Resources.Add(ResourceType.Water, 18, "research");
+                NotifyUnlocked(technology);
             }
             else if (technology == TechnologyType.ReinforcedWalls)
             {
-                GameEvents.Notify("دیوارهای تقویت‌شده، دفاع پایگاه را بیشتر کردند.");
+                NotifyUnlocked(technology);
             }
             else
             {
-                GameManager.Instance.Resources.Add(ResourceType.Food, 20, "پژوهش کشت چرخشی");
-                GameEvents.Notify("کشت چرخشی باز شد؛ مزرعه پربازده‌تر شد.");
+                GameManager.Instance.Resources.Add(ResourceType.Food, 20, "research");
+                NotifyUnlocked(technology);
             }
-            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(12, "پژوهش فناوری");
+            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(12, "research");
             StateChanged?.Invoke();
             GameManager.Instance.SaveSoon();
             return true;
+        }
+
+        /// <summary>پیام باز شدن فناوری؛ متن از کلیدِ همان فناوری خوانده می‌شود.</summary>
+        private void NotifyUnlocked(TechnologyType technology)
+        {
+            GameEvents.Notify(Loc.Get(GameText.TechnologyKey(technology) + ".unlocked"));
         }
 
         public void CopyTo(GameSaveData save)

@@ -47,7 +47,10 @@ namespace BaziBaqa
         {
             int hour = Mathf.FloorToInt(Hour);
             int minute = Mathf.FloorToInt((Hour - hour) * 60f);
-            return ToPersianDigits(hour.ToString("00")) + ":" + ToPersianDigits(minute.ToString("00"));
+            // ساعت با ارقامِ زبانِ فعال نمایش داده می‌شود (فارسی: ۱۴:۳۰ / انگلیسی: 14:30).
+            string clock = hour.ToString("00", System.Globalization.CultureInfo.InvariantCulture) + ":"
+                + minute.ToString("00", System.Globalization.CultureInfo.InvariantCulture);
+            return LocalizationManager.Number(clock);
         }
 
         public static string ToPersianDigits(string input)

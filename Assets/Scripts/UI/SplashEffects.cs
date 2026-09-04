@@ -18,7 +18,7 @@ namespace BaziBaqa
         {
             for (int i = 0; i < 20; i++)
             {
-                GameObject particleObject = new GameObject("ذره انرژی", typeof(RectTransform), typeof(Image));
+                GameObject particleObject = new GameObject(WorldParts.EnergyParticle, typeof(RectTransform), typeof(Image));
                 particleObject.transform.SetParent(transform, false);
                 RectTransform rect = particleObject.GetComponent<RectTransform>();
                 rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -32,7 +32,7 @@ namespace BaziBaqa
             }
             for (int i = 0; i < 3; i++)
             {
-                GameObject boltObject = new GameObject("رعد ظریف", typeof(RectTransform), typeof(Image));
+                GameObject boltObject = new GameObject(WorldParts.Lightning, typeof(RectTransform), typeof(Image));
                 boltObject.transform.SetParent(transform, false);
                 RectTransform rect = boltObject.GetComponent<RectTransform>();
                 rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);

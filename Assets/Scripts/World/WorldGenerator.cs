@@ -33,12 +33,12 @@ namespace BaziBaqa
 
         public void Initialize()
         {
-            WorldRoot = CreateRoot("جهان");
-            TerrainRoot = CreateRoot("زمین", WorldRoot);
-            ResourceRoot = CreateRoot("منابع", WorldRoot);
-            ActorRoot = CreateRoot("بازماندگان", WorldRoot);
-            BuildingRoot = CreateRoot("ساختمان‌ها", WorldRoot);
-            EffectRoot = CreateRoot("جلوه‌ها", WorldRoot);
+            WorldRoot = CreateRoot(WorldParts.WorldRoot);
+            TerrainRoot = CreateRoot(WorldParts.TerrainRoot, WorldRoot);
+            ResourceRoot = CreateRoot(WorldParts.ResourceRoot, WorldRoot);
+            ActorRoot = CreateRoot(WorldParts.ActorRoot, WorldRoot);
+            BuildingRoot = CreateRoot(WorldParts.BuildingRoot, WorldRoot);
+            EffectRoot = CreateRoot(WorldParts.EffectRoot, WorldRoot);
             _worldFont = GameFont.Persian;
             ConfigureMaterials();
             ConfigureEnvironment();
@@ -119,19 +119,19 @@ namespace BaziBaqa
 
         public GameObject CreateBuildingVisual(BuildingType type, Vector3 position, int level, Transform parent)
         {
-            GameObject root = new GameObject(GameText.BuildingName(type));
+            GameObject root = new GameObject(GameText.BuildingName(type)); // نام ریشه از بومی‌سازی می‌آید (فقط در هیرارشی دیده می‌شود)
             root.transform.SetParent(parent == null ? BuildingRoot : parent, false);
             root.transform.position = ClampToIsland(position);
             root.transform.localScale = Vector3.one * (1f + (level - 1) * 0.08f);
 
             Color main = BuildingColor(type);
-            GameObject body = CreatePrimitive(PrimitiveType.Cube, root.transform, "بدنه", root.transform.position + Vector3.up * 0.65f);
+            GameObject body = CreatePrimitive(PrimitiveType.Cube, root.transform, WorldParts.BuildingBody, root.transform.position + Vector3.up * 0.65f);
             body.transform.localScale = new Vector3(type == BuildingType.Wall ? 3.5f : 2.4f, 1.3f, type == BuildingType.Wall ? 0.45f : 2.1f);
             SetMaterial(body, CreateMaterial(main, 0.1f));
 
             if (type == BuildingType.Camp || type == BuildingType.House)
             {
-                GameObject roof = CreatePrimitive(PrimitiveType.Cylinder, root.transform, "سقف", root.transform.position + Vector3.up * 1.55f);
+                GameObject roof = CreatePrimitive(PrimitiveType.Cylinder, root.transform, WorldParts.BuildingRoof, root.transform.position + Vector3.up * 1.55f);
                 roof.transform.localScale = new Vector3(1.4f, 0.35f, 1.2f);
                 SetMaterial(roof, CreateMaterial(new Color(0.2f, 0.12f, 0.1f), 0.05f));
             }
@@ -139,7 +139,7 @@ namespace BaziBaqa
             {
                 body.transform.localScale = new Vector3(0.85f, 2.7f, 0.85f);
                 body.transform.position = root.transform.position + Vector3.up * 1.35f;
-                GameObject beacon = CreatePrimitive(PrimitiveType.Sphere, root.transform, "چراغ", root.transform.position + Vector3.up * 3f);
+                GameObject beacon = CreatePrimitive(PrimitiveType.Sphere, root.transform, WorldParts.BuildingBeacon, root.transform.position + Vector3.up * 3f);
                 beacon.transform.localScale = Vector3.one * 0.45f;
                 SetMaterial(beacon, CreateMaterial(new Color(1f, 0.72f, 0.18f), 0.8f));
             }
@@ -149,7 +149,7 @@ namespace BaziBaqa
                 body.transform.position = root.transform.position + Vector3.up * 0.35f;
                 body.transform.rotation = Quaternion.Euler(18f, 0f, 0f);
                 SetMaterial(body, CreateMaterial(new Color(0.08f, 0.22f, 0.35f), 0.45f));
-                GameObject mast = CreatePrimitive(PrimitiveType.Cylinder, root.transform, "دکل", root.transform.position + Vector3.up * 1f);
+                GameObject mast = CreatePrimitive(PrimitiveType.Cylinder, root.transform, WorldParts.BuildingMast, root.transform.position + Vector3.up * 1f);
                 mast.transform.localScale = new Vector3(0.08f, 0.9f, 0.08f);
                 SetMaterial(mast, CreateMaterial(new Color(0.62f, 0.67f, 0.72f), 0.25f));
             }
@@ -160,19 +160,19 @@ namespace BaziBaqa
                 SetMaterial(body, CreateMaterial(new Color(0.26f, 0.42f, 0.16f), 0f));
                 for (int i = 0; i < 5; i++)
                 {
-                    GameObject crop = CreatePrimitive(PrimitiveType.Capsule, root.transform, "بوته", root.transform.position + new Vector3(-1.1f + i * 0.55f, 0.38f, 0f));
+                    GameObject crop = CreatePrimitive(PrimitiveType.Capsule, root.transform, WorldParts.BuildingCrop, root.transform.position + new Vector3(-1.1f + i * 0.55f, 0.38f, 0f));
                     crop.transform.localScale = new Vector3(0.12f, 0.35f, 0.12f);
                     SetMaterial(crop, CreateMaterial(new Color(0.55f, 0.74f, 0.2f), 0.05f));
                 }
             }
             else if (type == BuildingType.Workshop)
             {
-                GameObject chimney = CreatePrimitive(PrimitiveType.Cylinder, root.transform, "دودکش", root.transform.position + new Vector3(0.7f, 1.5f, 0.4f));
+                GameObject chimney = CreatePrimitive(PrimitiveType.Cylinder, root.transform, WorldParts.BuildingChimney, root.transform.position + new Vector3(0.7f, 1.5f, 0.4f));
                 chimney.transform.localScale = new Vector3(0.25f, 0.7f, 0.25f);
                 SetMaterial(chimney, CreateMaterial(new Color(0.16f, 0.17f, 0.19f), 0.05f));
             }
 
-            TextMesh label = CreateWorldLabel(GameText.BuildingName(type) + "  «" + GameClock.ToPersianDigits(level.ToString()) + "»", root.transform, root.transform.position + Vector3.up * 2.7f);
+            TextMesh label = CreateWorldLabel(GameText.BuildingLabel(type, level), root.transform, root.transform.position + Vector3.up * 2.7f);
             label.color = Color.white;
             _generatedObjects.Add(root);
             return root;
@@ -184,10 +184,10 @@ namespace BaziBaqa
             root.transform.SetParent(ActorRoot, false);
             root.transform.position = ClampToIsland(data.position == null ? Vector3.zero : data.position.ToVector3());
 
-            GameObject body = CreatePrimitive(PrimitiveType.Capsule, root.transform, "بدن", root.transform.position + Vector3.up * 0.9f);
+            GameObject body = CreatePrimitive(PrimitiveType.Capsule, root.transform, WorldParts.ActorTorso, root.transform.position + Vector3.up * 0.9f);
             body.transform.localScale = new Vector3(0.5f, 0.85f, 0.5f);
             SetMaterial(body, CreateMaterial(RoleColor(data.role), 0.05f));
-            GameObject backpack = CreatePrimitive(PrimitiveType.Cube, root.transform, "کوله", root.transform.position + new Vector3(0f, 0.78f, -0.36f));
+            GameObject backpack = CreatePrimitive(PrimitiveType.Cube, root.transform, WorldParts.ActorBackpack, root.transform.position + new Vector3(0f, 0.78f, -0.36f));
             backpack.transform.localScale = new Vector3(0.32f, 0.4f, 0.18f);
             SetMaterial(backpack, CreateMaterial(new Color(0.12f, 0.16f, 0.2f), 0.05f));
 
@@ -200,13 +200,13 @@ namespace BaziBaqa
 
         public GameObject CreateEnemyVisual(Vector3 position, int number)
         {
-            GameObject root = new GameObject("دشمن_" + number);
+            GameObject root = new GameObject(WorldParts.Enemy + number);
             root.transform.SetParent(ActorRoot, false);
             root.transform.position = ClampToIsland(position);
-            GameObject body = CreatePrimitive(PrimitiveType.Capsule, root.transform, "بدن", root.transform.position + Vector3.up * 0.75f);
+            GameObject body = CreatePrimitive(PrimitiveType.Capsule, root.transform, WorldParts.ActorTorso, root.transform.position + Vector3.up * 0.75f);
             body.transform.localScale = new Vector3(0.6f, 0.75f, 0.6f);
             SetMaterial(body, CreateMaterial(new Color(0.38f, 0.04f, 0.08f), 0.15f));
-            GameObject eye = CreatePrimitive(PrimitiveType.Sphere, root.transform, "هشدار", root.transform.position + new Vector3(0f, 1.2f, 0.45f));
+            GameObject eye = CreatePrimitive(PrimitiveType.Sphere, root.transform, WorldParts.EnemyEye, root.transform.position + new Vector3(0f, 1.2f, 0.45f));
             eye.transform.localScale = Vector3.one * 0.16f;
             SetMaterial(eye, CreateMaterial(new Color(1f, 0.15f, 0.08f), 0.9f));
             EnemyAgent enemy = root.AddComponent<EnemyAgent>();
@@ -219,9 +219,10 @@ namespace BaziBaqa
         {
             int xSegments = 32;
             int zSegments = 22;
-            Mesh mesh = new Mesh { name = "جزیره‌ی رویه‌ای" };
+            Mesh mesh = new Mesh { name = WorldParts.GroundMesh };
             Vector3[] vertices = new Vector3[(xSegments + 1) * (zSegments + 1)];
             Vector2[] uv = new Vector2[vertices.Length];
+            Color[] biomeColors = new Color[vertices.Length];      // رنگِ زیست‌بوم (گام ۳)
             int[] triangles = new int[xSegments * zSegments * 6];
 
             for (int z = 0; z <= zSegments; z++)
@@ -235,6 +236,15 @@ namespace BaziBaqa
                     float noise = Mathf.PerlinNoise((px + 70f) * 0.08f + (_random.NextDouble() > 0.5 ? 1f : 0f), (pz + 40f) * 0.08f) * 0.8f;
                     vertices[index] = new Vector3(px, Mathf.Max(0f, edge * 1.9f + noise - 0.7f), pz);
                     uv[index] = new Vector2(x / (float)xSegments, z / (float)zSegments);
+
+                    // رنگِ رأس‌ها فقط از Perlin ساخته می‌شود، نه از _random ⇒ چیدمانِ منابع
+                    // که همین حلقه بعداً می‌خواند، ذره‌جا جابه‌جا نمی‌شود.
+                    float height01 = Mathf.Clamp01(vertices[index].y / 2.4f);
+                    float biome = Mathf.PerlinNoise((px + 11f) * 0.055f, (pz - 23f) * 0.055f);
+                    Color biomeColor = Color.Lerp(new Color(0.66f, 0.6f, 0.44f), new Color(0.5f, 0.8f, 0.44f), height01);
+                    biomeColor = Color.Lerp(biomeColor, new Color(0.82f, 0.74f, 0.5f), Mathf.Abs(biome - 0.5f) * 1.3f);
+                    biomeColor *= Mathf.Lerp(0.66f, 1f, edge);
+                    biomeColors[index] = biomeColor;
                 }
             }
 
@@ -255,9 +265,10 @@ namespace BaziBaqa
 
             mesh.vertices = vertices;
             mesh.uv = uv;
+            mesh.colors = biomeColors;
             mesh.triangles = triangles;
             mesh.RecalculateNormals();
-            GameObject ground = new GameObject("زمین");
+            GameObject ground = new GameObject(WorldParts.Ground);
             ground.transform.SetParent(TerrainRoot, false);
             MeshFilter filter = ground.AddComponent<MeshFilter>();
             filter.sharedMesh = mesh;
@@ -267,7 +278,7 @@ namespace BaziBaqa
             collider.sharedMesh = mesh;
             _generatedObjects.Add(ground);
 
-            GameObject water = CreatePrimitive(PrimitiveType.Cube, TerrainRoot, "آب پیرامون جزیره", new Vector3(0f, -1.25f, 0f));
+            GameObject water = CreatePrimitive(PrimitiveType.Cube, TerrainRoot, WorldParts.Water, new Vector3(0f, -1.25f, 0f));
             water.transform.localScale = new Vector3(WorldWidth * 1.7f, 1.5f, WorldDepth * 1.8f);
             SetMaterial(water, _waterMaterial);
             _generatedObjects.Add(water);
@@ -300,12 +311,12 @@ namespace BaziBaqa
         private void CreateResourceNode(ResourceType type, Vector3 position, int amount, int index)
         {
             PrimitiveType primitive = type == ResourceType.Stone ? PrimitiveType.Cube : PrimitiveType.Cylinder;
-            GameObject nodeObject = CreatePrimitive(primitive, ResourceRoot, "منبع_" + GameText.ResourceName(type) + "_" + index, position + Vector3.up * 0.45f);
+            GameObject nodeObject = CreatePrimitive(primitive, ResourceRoot, WorldParts.ResourceNode + type + "_" + index, position + Vector3.up * 0.45f);
             if (type == ResourceType.Wood)
             {
                 nodeObject.transform.localScale = new Vector3(0.7f, 1.4f, 0.7f);
                 SetMaterial(nodeObject, _treeMaterial);
-                GameObject leaves = CreatePrimitive(PrimitiveType.Sphere, nodeObject.transform, "تاج", nodeObject.transform.position + Vector3.up * 0.85f);
+                GameObject leaves = CreatePrimitive(PrimitiveType.Sphere, nodeObject.transform, WorldParts.TreeCanopy, nodeObject.transform.position + Vector3.up * 0.85f);
                 leaves.transform.localScale = Vector3.one * 1.4f;
                 SetMaterial(leaves, _leafMaterial);
             }
@@ -320,7 +331,7 @@ namespace BaziBaqa
                 SetMaterial(nodeObject, CreateMaterial(new Color(0.56f, 0.25f, 0.08f), 0.03f));
                 for (int i = 0; i < 3; i++)
                 {
-                    GameObject berry = CreatePrimitive(PrimitiveType.Sphere, nodeObject.transform, "میوه", nodeObject.transform.position + new Vector3(-0.35f + i * 0.35f, 0.45f, 0f));
+                    GameObject berry = CreatePrimitive(PrimitiveType.Sphere, nodeObject.transform, WorldParts.Berry, nodeObject.transform.position + new Vector3(-0.35f + i * 0.35f, 0.45f, 0f));
                     berry.transform.localScale = Vector3.one * 0.22f;
                     SetMaterial(berry, CreateMaterial(new Color(0.8f, 0.15f, 0.2f), 0.05f));
                 }
@@ -345,10 +356,10 @@ namespace BaziBaqa
                 Vector3 position = RandomIslandPosition(3f);
                 if (_random.NextDouble() > 0.35)
                 {
-                    GameObject tree = CreatePrimitive(PrimitiveType.Cylinder, TerrainRoot, "درخت", position + Vector3.up * 0.8f);
+                    GameObject tree = CreatePrimitive(PrimitiveType.Cylinder, TerrainRoot, WorldParts.Tree, position + Vector3.up * 0.8f);
                     tree.transform.localScale = new Vector3(0.22f, 1.25f, 0.22f);
                     SetMaterial(tree, _treeMaterial);
-                    GameObject leaves = CreatePrimitive(PrimitiveType.Sphere, tree.transform, "برگ", tree.transform.position + Vector3.up * 1.25f);
+                    GameObject leaves = CreatePrimitive(PrimitiveType.Sphere, tree.transform, WorldParts.TreeCanopy, tree.transform.position + Vector3.up * 1.25f);
                     leaves.transform.localScale = Vector3.one * 1.1f;
                     SetMaterial(leaves, _leafMaterial);
                     _generatedObjects.Add(tree);
@@ -356,7 +367,7 @@ namespace BaziBaqa
                 }
                 else
                 {
-                    GameObject rock = CreatePrimitive(PrimitiveType.Sphere, TerrainRoot, "سنگ کوچک", position + Vector3.up * 0.22f);
+                    GameObject rock = CreatePrimitive(PrimitiveType.Sphere, TerrainRoot, WorldParts.Rock, position + Vector3.up * 0.22f);
                     rock.transform.localScale = new Vector3(0.7f, 0.35f, 0.55f);
                     SetMaterial(rock, _rockMaterial);
                     _generatedObjects.Add(rock);
@@ -373,15 +384,14 @@ namespace BaziBaqa
             return ClampToIsland(result);
         }
 
+        /// <summary>
+        /// نورِ اصلیِ جهان این‌جا ساخته می‌شود (چون به WorldRoot وصل است و با Clear پاک می‌شود)،
+        /// اما رنگ/شدت/مه/آسمان را SkyLightingRig می‌نویسد؛ این‌جا فقط مقادیرِ اولیه‌ی امن گذاشته
+        /// می‌شود تا اگر لایه‌ی گرافیک نصب نبود، صحنه تاریک نماند.
+        /// </summary>
         private void ConfigureEnvironment()
         {
-            RenderSettings.fog = true;
-            RenderSettings.fogColor = new Color(0.18f, 0.28f, 0.31f);
-            RenderSettings.fogDensity = 0.012f;
-            RenderSettings.ambientLight = new Color(0.34f, 0.43f, 0.47f);
-            RenderSettings.skybox = null;
-
-            GameObject lightObject = new GameObject("نور خورشید");
+            GameObject lightObject = new GameObject(WorldParts.SunLight);
             lightObject.transform.SetParent(WorldRoot, false);
             lightObject.transform.rotation = Quaternion.Euler(48f, -32f, 0f);
             Light light = lightObject.AddComponent<Light>();
@@ -393,11 +403,21 @@ namespace BaziBaqa
 
         private void ConfigureMaterials()
         {
-            _groundMaterial = CreateMaterial(new Color(0.21f, 0.34f, 0.2f), 0f);
-            _waterMaterial = CreateMaterial(new Color(0.03f, 0.2f, 0.32f), 0.35f);
-            _treeMaterial = CreateMaterial(new Color(0.25f, 0.14f, 0.07f), 0.02f);
-            _leafMaterial = CreateMaterial(new Color(0.1f, 0.35f, 0.16f), 0.08f);
-            _rockMaterial = CreateMaterial(new Color(0.3f, 0.34f, 0.35f), 0.16f);
+            // گام ۳: زمین/تنه/برگ/سنگ بافت‌دار و بادخیز شدند (MaterialLibrary سبک‌ها را
+            // می‌شناسد و متریال‌ها کش سراسری دارند). آب هنوز Tinted است؛ شیدرِ اختصاصیِ آب
+            // در گام ۴ می‌آید. هیچ‌کدام از این مقادیر منطقِ بازی را عوض نمی‌کنند.
+            _groundMaterial = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Ground,
+                new Color(0.21f, 0.34f, 0.2f), 0f, 0.16f);
+            // گام ۴: آب شیدرِ اختصاصی گرفت (موج + fresnel + کف). زیرِ Built-in،
+            // MaterialLibrary.Water خودش به متریالِ Surface برمی‌گردد ⇒ هیچ‌وقت نمی‌شکند.
+            _waterMaterial = MaterialLibrary.Water(new Color(0.02f, 0.11f, 0.19f), new Color(0.1f, 0.34f, 0.4f),
+                new Color(0.42f, 0.56f, 0.68f), new Vector4(0.55f, 0.09f, 1.6f, 0.35f), 0.82f);
+            _treeMaterial = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Bark,
+                new Color(0.25f, 0.14f, 0.07f), 0.02f, 0.2f, true);
+            _leafMaterial = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Foliage,
+                new Color(0.1f, 0.35f, 0.16f), 0f, 0.22f, true);
+            _rockMaterial = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Rock,
+                new Color(0.3f, 0.34f, 0.35f), 0.16f, 0.3f);
         }
 
         private Transform CreateRoot(string name, Transform parent = null)
@@ -432,24 +452,20 @@ namespace BaziBaqa
             if (renderer != null) renderer.sharedMaterial = material;
         }
 
+        /// <summary>
+        /// متریالِ رنگیِ جهان. از فاز ۳ به بعد دیگر `Shader.Find(«Standard»)» نیست:
+        /// MaterialLibrary شیدر را بین URP/built-in حل می‌کند و متریال‌ها را مالکیت دارد،
+        /// پس با تعویض خطِ رندر هیچ سطحی ارغوانی نمی‌شود و متریالِ تکراری ساخته نمی‌شود.
+        /// </summary>
         private Material CreateMaterial(Color color, float metallic)
         {
-            string key = color.r.ToString("F3") + color.g.ToString("F3") + color.b.ToString("F3") + color.a.ToString("F3") + metallic.ToString("F3");
-            if (_materials.TryGetValue(key, out Material cached) && cached != null) return cached;
-            Shader shader = Shader.Find("Standard");
-            if (shader == null) shader = Shader.Find("Universal Render Pipeline/Lit");
-            if (shader == null) shader = Shader.Find("UI/Default");
-            Material material = new Material(shader);
-            material.color = color;
-            if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", metallic);
-            if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", 0.42f);
-            _materials[key] = material;
+            Material material = MaterialLibrary.Tinted(color, metallic);
             return material;
         }
 
         private TextMesh CreateWorldLabel(string value, Transform parent, Vector3 position)
         {
-            GameObject labelObject = new GameObject("برچسب");
+            GameObject labelObject = new GameObject(WorldParts.Label);
             labelObject.transform.SetParent(parent, true);
             labelObject.transform.position = position;
             labelObject.transform.rotation = Quaternion.Euler(55f, 0f, 0f);
@@ -481,10 +497,8 @@ namespace BaziBaqa
 
         private void OnDestroy()
         {
-            foreach (Material material in _materials.Values)
-            {
-                if (material != null) Destroy(material);
-            }
+            // متریال‌ها در MaterialLibrary زندگی می‌کنند (بینِ بازسازیِ جهان ها قابل‌استفاده‌ی دوباره‌اند)؛
+            // این‌جا فقط فهرستِ محلی پاک می‌شود تا چیزی نابود نشود که دیگری به آن ارجاع دارد.
             _materials.Clear();
         }
 

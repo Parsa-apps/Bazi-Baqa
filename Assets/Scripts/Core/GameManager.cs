@@ -18,6 +18,12 @@ namespace BaziBaqa
     {
         public static GameManager Instance { get; private set; }
 
+        /// <summary>امتیاز فناوری که هر روز تازه به گروه داده می‌شود.</summary>
+        public const int DailyTechnologyPoints = 1;
+
+        /// <summary>هدف بازی: زنده ماندن تا پایان این روز (UI هم همین را نمایش می‌دهد).</summary>
+        public const int VictoryDay = 7;
+
         public GamePhase Phase { get; private set; } = GamePhase.MainMenu;
         public bool IsPlaying { get { return Phase == GamePhase.Playing; } }
         public GameClock Clock { get; private set; } = new GameClock();
@@ -115,7 +121,7 @@ namespace BaziBaqa
         {
             int seed = Random.Range(10000, 999999);
             StartFromSave(GameSaveData.CreateNew(seed), false);
-            GameEvents.Notify("گروه شما به ساحل ناشناخته رسید؛ با هم بقا پیدا کنید.");
+            GameEvents.Notify(Loc.Get("toast.run_started"));
         }
 
         public void ContinueGame()
@@ -123,7 +129,7 @@ namespace BaziBaqa
             GameSaveData save = Save.Load();
             if (save == null)
             {
-                GameEvents.Notify("ذخیره‌ای پیدا نشد؛ یک سفر تازه آغاز می‌شود.");
+                GameEvents.Notify(Loc.Get("toast.no_save"));
                 StartNewGame();
                 return;
             }
@@ -193,7 +199,7 @@ namespace BaziBaqa
             Audio.SetDanger(Clock.IsNight);
             _initializing = false;
             UI.ShowGame(continuing);
-            GameEvents.StateChanged();
+            GameEvents.RaiseStateChanged();
             if (!_tutorialCompleted) UI.ShowTutorial();
             else if (DailyRewards != null && DailyRewards.Claimable) UI.ShowDailyReward();
             if (AliveSurvivorCount() == 0) LoseGame();
@@ -281,9 +287,8 @@ namespace BaziBaqa
 
         public bool RecruitSurvivor(SurvivorRole role)
         {
-            if (AliveSurvivorCount() >= (Training == null ? 10 : Training.MaximumGroupSize)) return false;
-            string[] names = { "رها", "بهرام", "مینا", "داریوش", "ترانه", "آرمان" };
-            string name = names[_survivors.Count % names.Length];
+            if (AliveSurvivorCount() >= TrainingSystem.MaximumGroupSize) return false;
+            string name = GameText.SurvivorNameAt(GameText.RecruitNameOffset + _survivors.Count);
             Vector3 home = Construction.GetHomePosition();
             SurvivorSaveData data = new SurvivorSaveData
             {
@@ -299,8 +304,8 @@ namespace BaziBaqa
                 position = new SerializableVector3(home + new Vector3(Random.Range(-2.5f, 2.5f), 0f, Random.Range(-2f, 2f)))
             };
             World.CreateSurvivorVisual(data);
-            GameEvents.Notify(name + " به گروه پیوست.");
-            if (Progression != null) Progression.AddXp(6, "تربیت نیرو");
+            GameEvents.Notify(Loc.Get("toast.joined", name));
+            if (Progression != null) Progression.AddXp(6, "training");
             UI.RefreshHud();
             SaveSoon();
             return true;
@@ -390,14 +395,14 @@ namespace BaziBaqa
 
         private void OnDayChanged(int day)
         {
-            Technology.AddPoints(1);
-            if (Progression != null) Progression.AddXp(8, "زنده ماندن در شب");
+            Technology.AddPoints(DailyTechnologyPoints);
+            if (Progression != null) Progression.AddXp(8, "night-survival");
             if (Achievements != null) Achievements.RegisterDay(day);
             if (Quests != null) Quests.TryComplete();
             if (Story != null) Story.OnDay(day);
-            GameEvents.Notify("روز " + GameClock.ToPersianDigits(day.ToString()) + " آغاز شد؛ یک امتیاز فناوری گرفتید.");
+            GameEvents.Notify(Loc.Get("toast.day_started", Loc.Num(day), Loc.Num(DailyTechnologyPoints)));
             SaveGame();
-            if (day >= 7 && Phase == GamePhase.Playing) WinGame();
+            if (day >= VictoryDay && Phase == GamePhase.Playing) WinGame();
         }
 
         private void WinGame()
@@ -419,7 +424,7 @@ namespace BaziBaqa
             Camera camera = Camera.main;
             if (camera == null)
             {
-                GameObject cameraObject = new GameObject("دوربین بازی");
+                GameObject cameraObject = new GameObject(WorldParts.GameCamera);
                 cameraObject.tag = "MainCamera";
                 camera = cameraObject.AddComponent<Camera>();
             }

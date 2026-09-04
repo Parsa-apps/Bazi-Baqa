@@ -76,7 +76,7 @@ namespace BaziBaqa
                 Vector3 position = new Vector3(x, 0f, z);
                 GameManager.Instance.World.CreateEnemyVisual(position, i + 1);
             }
-            GameEvents.Notify("موج شبانه رسید؛ " + GameClock.ToPersianDigits(count.ToString()) + " سایه از سمت " + (fromEast ? "شرق" : "غرب") + " نزدیک می‌شوند.");
+            GameEvents.Notify(Loc.Get("toast.night_wave", Loc.Num(count), Loc.Get(fromEast ? "label.east" : "label.west")));
             GameManager.Instance.Audio.PlayAlert();
         }
     }

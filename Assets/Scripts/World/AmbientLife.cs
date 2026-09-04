@@ -70,7 +70,7 @@ namespace BaziBaqa
             for (int i = 0; i < 4; i++)
             {
                 GameObject bird = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                bird.name = "پرنده_" + i;
+                bird.name = WorldParts.Bird + i;
                 bird.transform.SetParent(transform, false);
                 Renderer renderer = bird.GetComponent<Renderer>();
                 if (renderer != null) renderer.sharedMaterial = _birdMaterial;
@@ -83,12 +83,9 @@ namespace BaziBaqa
 
         private Material CreateBirdMaterial()
         {
-            Shader shader = Shader.Find("Standard");
-            if (shader == null) shader = Shader.Find("Universal Render Pipeline/Lit");
-            if (shader == null) shader = Shader.Find("UI/Default");
-            Material material = new Material(shader);
-            material.color = new Color(0.08f, 0.1f, 0.12f, 0.9f);
-            return material;
+            // پیش از این Shader.Find("Standard") بود؛ زیر URP ارغوانی می‌شد. حالا از
+            // MaterialLibrary می‌آید که هر دو خطِ رندر را می‌شناسد.
+            return MaterialLibrary.Tinted(new Color(0.08f, 0.1f, 0.13f), 0.1f);
         }
     }
 }

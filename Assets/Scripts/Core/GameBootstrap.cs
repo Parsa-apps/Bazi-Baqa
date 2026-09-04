@@ -57,7 +57,7 @@ namespace BaziBaqa
         private static void EnsureEventSystem()
         {
             if (EventSystem.current != null) return;
-            GameObject eventObject = new GameObject("سامانه لمس");
+            GameObject eventObject = new GameObject(WorldParts.InputEventSystem);
             eventObject.AddComponent<EventSystem>();
             eventObject.AddComponent<StandaloneInputModule>();
         }

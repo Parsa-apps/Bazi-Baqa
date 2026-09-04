@@ -32,6 +32,9 @@ namespace BaziBaqa
     {
         private EquipmentSaveState _state = new EquipmentSaveState();
 
+        /// <summary>بالاترین سطحِ هر بخش از تجهیزات.</summary>
+        public const int MaxLevel = 5;
+
         public int ToolLevel { get { return _state.tool; } }
         public int WeaponLevel { get { return _state.weapon; } }
         public int ArmorLevel { get { return _state.armor; } }
@@ -59,28 +62,24 @@ namespace BaziBaqa
             }
         }
 
+        /// <summary>نام تجهیزات از جدول بومی‌سازی خوانده می‌شود.</summary>
         public string Name(EquipmentType type)
         {
-            switch (type)
-            {
-                case EquipmentType.Tool: return "ابزار (کشاورزی/جمع‌آوری)";
-                case EquipmentType.Weapon: return "سلاح (دفاع/حمله)";
-                default: return "زره (کاهش آسیب)";
-            }
+            return GameText.EquipmentName(type);
         }
 
         public bool CanUpgrade(EquipmentType type, out string reason)
         {
             int level = Level(type);
-            if (level >= 5)
+            if (level >= MaxLevel)
             {
-                reason = "این تجهیزات به بالاترین سطح رسیده است.";
+                reason = Loc.Get("toast.equip_max");
                 return false;
             }
             int requiredLevel = level + 1;
             if (GameManager.Instance.Progression != null && GameManager.Instance.Progression.Level < requiredLevel)
             {
-                reason = "برای این ارتقا به مرحله‌ی گروه " + GameClock.ToPersianDigits(requiredLevel.ToString()) + " نیاز دارید.";
+                reason = Loc.Get("toast.equip_level_needed", Loc.Num(requiredLevel));
                 return false;
             }
             List<EquipmentUpgradeCost> costs = GetUpgradeCosts(type, level);
@@ -88,7 +87,7 @@ namespace BaziBaqa
             {
                 if (GameManager.Instance.Resources.Get(costs[i].type) < costs[i].amount)
                 {
-                    reason = "منابع کافی نیست؛ به " + GameText.ResourceName(costs[i].type) + " بیشتری نیاز دارید.";
+                    reason = Loc.Get("toast.equip_no_resources", GameText.ResourceName(costs[i].type));
                     return false;
                 }
             }
@@ -100,7 +99,7 @@ namespace BaziBaqa
         {
             if (!CanUpgrade(type, out string reason))
             {
-                GameEvents.Notify("ارتقا ممکن نیست: " + reason);
+                GameEvents.Notify(Loc.Get("toast.equip_blocked", reason));
                 return false;
             }
             int level = Level(type);
@@ -115,8 +114,8 @@ namespace BaziBaqa
                 case EquipmentType.Weapon: _state.weapon++; break;
                 default: _state.armor++; break;
             }
-            GameEvents.Notify(Name(type) + " به سطح " + GameClock.ToPersianDigits(Level(type).ToString()) + " ارتقا یافت.");
-            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(10, "ارتقای تجهیزات");
+            GameEvents.Notify(Loc.Get("toast.equip_upgraded", Name(type), Loc.Num(Level(type))));
+            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(10, "equipment");
             if (GameManager.Instance.Audio != null) GameManager.Instance.Audio.PlayBuild();
             GameManager.Instance.SaveSoon();
             return true;

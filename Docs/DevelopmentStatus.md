@@ -82,6 +82,75 @@ Splash برند Parsa Apps، منوی فارسی، شروع سفر، ادامه�
 - `RaidSystem`: یورش روزانه به اردوگاه دشمن با هزینه‌ی انرژی/طلا، شانس پیروزی وابسته به سلاح و نگهبانان، و غنیمت. آمار برد/باخت ثبت می‌شود.
 - نقشه‌ی جزیره (`ShowMap`): نمای بالا-پایین ساختمان‌ها، منابع، بازمانده‌ها و دشمنان.
 
+## فاز ۲٫۵ — پرداختِ پایه (پیش از ارتقای گرافیک AAA)
+
+### ۱) اعتبارسنجی زمان اجرا در Unity ✅
+- `Tools/unity_validation.sh`: ایمپورت/کامپایل + EditMode + PlayMode + ممیزی‌های Editor + پالایش کنسول (با `-batchmode`).
+- `Assets/Editor/RuntimeValidation.cs`: بارگذاری صحنه، جست‌وجوی Missing Script، رفت‌وبرگشت ذخیره، کلیکِ هدلس روی دکمه‌ها، ممیزی نسخه.
+- علت‌های ریشه‌ایِ خطاهای کنسول بسته شد: APIهای حذف‌شده‌ی `EditorUserBuildSettings`، `asmdef` بدون `UnityEngine.UI`/`Unity.TextMeshPro`، ۱۰ فایل بدون `.meta`، `includeFontData: 2` نامعتبر، و رویدادِ `GameEvents.StateChanged` که متد بود.
+
+### ۲) بومی‌سازی کامل فارسی ✅
+- **۴۲۱ رشته‌ی قابل‌مشاهده** از ۳۲ اسکریپت (از جمله ۱۴۶ رشته فقط در `UIManager`) به جدول منتقل شد؛ امروز در `Assets/Scripts` **صفر** متنِ قابل‌مشاهده‌ی سخت‌کدشده باقی است (تنها استثنا: جدول تبدیل ارقام در `GameClock`).
+- `LocalizationManager` بازنویسی شد: جدول مرکزی `Assets/Resources/Localization/LocalizationTable.json` با **۲۶۶ کلید × ۲ زبان (فارسی RTL + انگلیسی LTR)**، لایه‌های بازگشت، ثبت خطای `Debug.LogError` برای کلیدِ گمشده، رویداد `LanguageChanged`، و ذخیره‌ی زبان در `PlayerPrefs`.
+- نماینده‌ی `Loc` (+ `Loc.Num` برای ارقام محلی)، کامپوننت `LocalizedText` برای متن‌های چیده‌شده در Editor، و بازسازی خودکار UI در `UIManager` هنگام تغییر زبان.
+- داده‌ها «کلید» نگه می‌دارند نه متن: `QuestDefinition` (quest.&lt;id&gt;.title/description)، `StoryEvent`/`StoryChoice` (story.&lt;id&gt;.*)، استخرِ نام بازمانده‌ها (survivor.name.&lt;i&gt;)، و نامِ همه‌ی enumها.
+- نام‌های داخلی (گره‌های هیرارشی، برچسب لاگ توسعه‌دهنده، دلیل تحلیلی منابع) به ASCII رفت تا با متنِ بازی اشتباه نشوند و `transform.Find`ها نشکنند.
+- ابزارها و دروازه‌ها: `Tools/localization_table.py` (تولید/ممیزی جدول + پوشش enumها + گرفتن \ دوباره‌اسکیپ‌شده)، قوانین تازه در `Tools/project_lint.py` (کلید خام در برچسب UI، بی‌ربطیِ آرگومان و `{0}`ها، allowlist که عمداً خالی شد)، و ممیزی `BaziBaqa > Audit` در Editor. سند: `Docs/Localization.md`.
+- یک باگِ داده هم در همین مسیر درست شد: دو دستاوردِ «جمع‌آور» و «ثروتمند» هیچ‌وقت ارزیابی نمی‌شدند (اکنون با `RegisterGather`/`RegisterProsperity` باز می‌شوند) و باگِ نهفته‌ی «برچسبِ کارِ بازمانده» هم رفع شد: `TaskDescription` فقط نوشته می‌شد و هیچ‌جا خوانده نمی‌شد (اکنون کلید‌محور است و در ردیفِ گروه نمایش داده می‌شود).
+- تست‌ها: `Assets/Tests/EditMode/LocalizationTests.cs` (بازنویسی‌شده: ساختار جدول، جهت، رویداد، پوشش enum/مأموریت/داستان/نام‌ها، `LocalizedText`) و دو تستِ تازه در PlayMode برای تغییر زبان در زمان اجرا.
+### ۳) فونتِ فارسیِ TextMeshPro ✅
+- همه‌ی متن‌های رابط از لایه‌ی `UIText` می‌گذرند: اگر TMP آماده باشد `TextMeshProUGUI` با assetِ **Vazirmatn SDF** (atlasِ ۲۰۴۸، SDFAA، Dynamic، sampling ۹۰، padding ۹) و در غیر این صورت `Text` قدیمی با همان TTF — پس رابط در هیچ حالتی بی‌متن یا پُرخطا نمی‌شود.
+- شکل‌دهیِ حروف، bidi و کرنینگ به TMP سپرده شد (`PersianText.Process` فقط برای مسیرِ قدیمی و `TextMesh` جهان)؛ ارقام با `GameTextBackend.LocalizeDigits` محلی‌سازی می‌شوند؛ نسخه‌ی ضخیم از `Vazirmatn-Bold SDF` استفاده می‌کند.
+- `Assets/Editor/TypographyBaker.cs`: منوهای Bake / Validate / Repair Import + import خودکارِ TMP Essential Resources و ثبتِ فونتِ پیش‌فرضِ TMP. `Assets/Resources/Fonts/PersianGlyphs.txt` منبعِ واحدِ مجموعه‌حروف است و دروازه‌ی ایستا هر کاراکترِ غیرلاتینِ جدول را با آن می‌سنجد (یک خطای واقعی در همین مرحله گرفته شد: `٪`).
+- `RuntimeValidation.CheckTypography()` بیک و اعتبارسنجی را در خط فرمان هم اجرا می‌کند. تست‌ها: `Assets/Tests/EditMode/TypographyTests.cs` (۱۱ تست) + `Typography_EveryLabelIsDrivenByTheTextBackend` در PlayMode. سند: `Docs/Typography.md`.
+- وضعیتِ دروازه‌ها پس از این بخش: `Tools/project_lint.py` = **۰ خطا، ۰ هشدار** (خطای «هنوز از Text/Font قدیمی استفاده می‌کند» بسته شد).
+### ۴) مدیریت نسخه و هماهنگیِ بیلد Android ✅
+- منبعِ حقیقتِ واحد: `Assets/Resources/VersionConfig.json` → `0.2.0` / Build Number `2` / `com.parsaapps.bazibaqa` / minSdk 26 / targetSdk 34 / محصول «سرزمین بقا».
+- `VersionManager` عمومی شد: `Apply()` (+ منوهای Bump/Verify) و دو نقطه‌ی ورودِ خط فرمان `ApplyBatch` / `VerifyBatch` با کد خروجی؛ SDKها با `Enum.IsDefined` محافظت می‌شوند تا در Unity 2022.3 عضوِ ناموجود باعث خطای کامپایل نشود.
+- `AndroidBuild` هماهنگ شد: پیش از بیلد `Apply()` + `Verify()` (ناهماهنگ ⇒ توقف بیلد)، SDKها از همان فایل، نامِ خروجی با نسخه (`BaziBaqa-0.2.0.aab`)، keystore سفارشی از متغیرهایِ محیطی یا `Assets/Keystore/` و در غیر این صورت بیلدِ تستی بدون keystore نمی‌شکند.
+- `ProjectSettings/ProjectSettings.asset` دقیقاً مقدارِ اعمال‌شده را دارد (`bundleVersion: 0.2.0`, `AndroidBundleVersionCode: 2`, `AndroidMinSdkVersion: 26`, `AndroidTargetSdkVersion: 34`) و `activeInputHandler: 0` صریح شد (کد از `Input.*` کلاسیک استفاده می‌کند؛ پکیژ Input System نصب نیست).
+- شماره‌ی نسخه در بازی هم دیده می‌شود: کلیدهای `ui.about.version` و `ui.about.release_summary` به پنجره‌ی «درباره‌ی سازنده» اضافه شد (۲۶۸ کلید × ۲ زبان).
+- تست‌ها: `Assets/Tests/EditMode/VersionConsistencyTests.cs` (۷ تست: JSON↔YAML، Build Number، صحنه‌ی Build Settings، activeInputHandler، Display/Summary، کلیدهایِ «درباره»، fallback) — `QualityGateEditModeTests` هم مقدارِ زنده‌ی `PlayerSettings` را می‌سنجد. `Tools/unity_validation.sh` مرحله‌ی `version` گرفت. سند: `Docs/Versioning.md`.
+
+### ۵) نتیجه‌ی فاز
+پس از بخش ۴، `python3 Tools/project_lint.py` = **۰ خطا، ۰ هشدار**، `Tools/localization_table.py --check` سالم و `Tools/validate_project.py` موفق. تنها کاری که در این محیط نشد، اجرای خودِ Unity بود (بیلد/کامپایل/تست‌ها در Test Runner)؛ `Tools/unity_validation.sh` همان مراحل را روی ماشینِ دارای Unity اجرا می‌کند و در نبودِ Unity با کد ۱۲۷ می‌گوید «فقط بررسی‌های ایستا انجام شد».
+
 ## وضعیت انتشار
 
-برای خروجی باینری نهایی فقط باید Unity و Android SDK نصب‌شده، Keystore استودیو و Assetهای هنری/صوتی نهایی اضافه شوند؛ محیط این مخزن Unity نصب‌شده ندارد، بنابراین فایل APK/AAB در این مرحله تولید نشده اما مسیر ساخت به‌صورت خودکار آماده است. عبور گرافیکی کامل (URP، Bloom، Ambient Occlusion، آب واقعی، آتش و دود) نیازمند اعمال در Editor و بسته‌های PostProcessing است؛ در این مرحله نسخه‌ی مبتنی بر Primitive بدون Asset خارجی حفظ شده تا پروژه بدون خطا باز شود.
+برای خروجی باینری نهایی فقط باید Unity و Android SDK نصب‌شده، Keystore استودیو و Assetهای هنری/صوتی نهایی اضافه شوند؛ محیط این مخزن Unity نصب‌شده ندارد، بنابراین فایل APK/AAB در این مرحله تولید نشده اما مسیر ساخت به‌صورت خودکار آماده است. فاز ۳، لایه‌ی بصری را از «اعمالِ دستی در Editor» به «کد + یک منو» برد: URP با چهار سطحِ کیفیت، استکِ سینمایی (Bloom/Tonemap/Color/Vignette/DoF/AO)، شیدرهای رویه‌ای با مسیرِ پشتیبانِ Built-in و بافت‌های Albedo/Normal/Maskِ بی‌درز. بازی همچنان بدون Asset خارجی باز می‌شود و حتی اگر منوی `Install URP Assets` اجرا نشود، همان مسیرِ built-in با شیدرهای پروژه رندر می‌شود (بدون ارغوانی).
+
+| بخش | وضعیت | خروجی |
+|---|---|---|
+| ۱. خطِ رندر URP + Post Processing | ✅ انجام شد (گام ۱) | `Assets/Scripts/Graphics/*`، `Assets/Resources/Shaders/*`، `Assets/Editor/RenderingPipelineSetup.cs`، ۴ سطحِ کیفیت |
+| ۲. نورپردازی سینمایی (روز/شب) | ✅ انجام شد (گام ۲) | `Assets/Scripts/Graphics/SkyLightingRig.cs`، `BaziBaqa-Sky.shader`، `Docs/Lighting.md`، نمایه‌ی نسخه‌ی ۲ |
+| ۳. محیط زنده (باد، مه، باران، خاک) | ✅ انجام شد (گام ۳) | `WindField` + `FoliageScatter` + رنگِ زیست‌بومِ زمین + `Docs/Environment.md` |
+| ۴. آب، آتش، انفجار (VFX) | ✅ انجام شد (گام ۴) | `BaziBaqa-Water/Fire.shader` + `VfxDirector` (ObjectPool) + `Docs/Vfx.md` |
+| ۵. مدل/متریالِ باکیفیت (PBR، آسیب) | ✅ انجام شد (گام ۳ و ۵) | متریالِ PBR رویه‌ای + `_BaziDamage`ِ زنده روی ساختمان‌ها (MaterialPropertyBlock) |
+| ۶. انیمیشن حرفه‌ای | ✅ انجام شد (گام ۵) | `ActorMotion` (گام/دویدن/ضربه/افتادن) + `BuildingMotion` (رشد/ارتقا/فروپاشی) + `Docs/Animation.md` |
+| ۷. رابطِ AAA + اینتروی Parsa Apps | ✅ انجام شد (گام ۶) | `BaziBaqa-UIGlass` + `UIGlassPanel`/`WindowFx`/`UIIconLibrary`/`IntroFx` + `Docs/UIDesign.md` |
+| ۸. بهینه‌سازی | ✅ انجام شد (گام ۷) | `DistanceCuller` (بودجه‌ی دید) + `particleRaycastBudget`/`asyncUpload*` + `windScaleِ` واقعی + `Docs/Performance.md` |
+| ۹. آزمونِ نهایی | ✅ انجام شد (گام ۷) | ۴۷ تست EditMode + ۲۶ تست PlayMode گرافیکی + چک‌لیستِ ۱۲ مرحله‌ایِ دستی |
+
+نتیجه‌ی گام ۱ بر پروژه: بازی در هر دو حالت (با URP و بدون آن) رندر می‌شود، ارغوانی‌شدنِ
+متریال‌ها حذف شد، بافت‌های رویه‌ایِ بی‌درز و استکِ سینماییِ کامل اضافه شد و دروازه‌های ایستا
+گسترش یافتند. حجم تغییرات: ۷۱ فایل C# (۶ فایل تازه در `Graphics`)، ۳ شیدر + ۲ include،
+۱۵ بافت PNG (≈ ۰٫۹ مگابایت منبع)، یک ابزارِ تولید بافت و یک ابزارِ نصبِ ویرایشگر.
+
+نتیجه‌ی گام ۵ بر پروژه: شخصیت‌ها بی‌هیچ Asset انیمات (مشِ کپسولِ خودِ پروژه) اندام و راه‌رفتن
+گرفتند، ضربه‌خوردن و افتادنِ نرم دارند و ساختمان‌ها با رشد/پالس/دوده جواب می‌دهند.
+مالکیتِ ترنسفورم‌ها مرزبندی شد (ریشه‌ی شخصیت و مقیاسِ ریشه‌ی ساختمان دستِ Gameplay می‌ماند) و
+۷ تست EditMode + ۳ تست PlayMode تازه همین مرز را نگه می‌دارند. حجم تغییرات: ۳ فایل تازه در
+`Assets/Scripts/Graphics`، ۲۰ فایل تست/مستند ویرایش‌شده، صفر فایل Gameplay تغییر‌کرده.
+
+نتیجه‌ی گام ۶ بر پروژه: همه‌ی پنل‌ها و دکمه‌ها شیشه‌ایِ رویه‌ای شدند (یک متریالِ مشترک ⇒ همان
+batch قبل)، پنجره‌ها با EaseOutBack و محوشدگی باز می‌شوند، دکمه‌ها ریپلِ نور و لرزشِ دستگاه
+دارند، شش کارتِ منبع HUD آیکنِ وکتوریِ پخته‌درنجا گرفتند و اسپلشِ استودیو به یک اینتروی
+۲٫۶ ثانیه‌ای (جمع‌شدنِ انرژی، پرتوها، خطِ نئون، فلش و حلقه‌ی رونمایی) ارتقا یافت. متنِ رابط
+همچنان ۱۰۰٪ فارسی، راست‌به‌چپ و با Vazirmatn است و جدولِ بومی‌سازی بدونِ کلیدِ تازه ماند
+(هیچ رشته‌یِ نمایشیِ تازه‌ای اضافه نشد).
+
+نتیجه‌ی گام ۷ بر پروژه: بودجه‌ی دیدِ سه‌نواره (کامل/بی‌سایه/پنهان) با فاصله‌هایِ اختصاصیِ هر
+سطح اضافه شد، `particleRaycastBudget` و بارگذاریِ ناهمگامِ بافت به نمایه وصل شدند، ضریبِ
+بادِ هر سطح واقعاً به شیدر می‌رسد (حلقه‌ی بازِ گام ۳ بسته شد) و نمایه به نسخه‌ی ۴ رفت.
+۸ تست EditMode + ۴ تست PlayMode تازه، دروازه‌های ایستا (۰ خطا، ۰ هشدار) و چک‌لیستِ ۱۲
+مرحله‌ایِ آزمونِ نهایی در `Docs/Performance.md`. هیچ فایلِ Gameplay ای تغییر نکرد.

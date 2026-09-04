@@ -1,0 +1,560 @@
+using System.Collections;
+using System.Collections.Generic;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
+
+namespace BaziBaqa.Tests
+{
+    /// <summary>
+    /// تست‌هایِ زنده‌ی لایه‌ی گرافیک: آیا واقعاً در PlayMode متریال‌ها حل می‌شوند، Volume
+    /// ساخته می‌شود، تغییرِ کیفیت اثر می‌گذارد و بازتولیدِ جهان متریالِ تازه نمی‌سازد.
+    /// هیچ ادعایی روی متنِ کنسول نمی‌شود (یونیتی هر error را خودش شکست می‌شمارد) و همه‌ی
+    /// شاخه‌ها هم در حالت URP و هم Built-in پاس می‌شوند؛ چون نصبِ URP Asset یک انتخابِ کاربر است.
+    /// </summary>
+    public class GraphicsPlayModeTests
+    {
+        [UnityTest]
+        public IEnumerator GraphicsDirector_InstallsItselfAndReportsPipeline()
+        {
+            GraphicsDirector director = GraphicsDirector.Ensure();
+            Assert.IsNotNull(director, "مدیرِ گرافیک نصب نشد");
+            yield return null;
+
+            string report = director.Report();
+            Assert.IsFalse(string.IsNullOrEmpty(report), "گزارشِ وضعیت نباید خالی باشد");
+            StringAssert.Contains("pipeline=", report);
+            StringAssert.Contains("surface=", report);
+            Debug.Log("GraphicsPlayMode: " + report);
+        }
+
+        [UnityTest]
+        public IEnumerator VolumeStack_ActiveUnderUrp_OrCleanlySkipped()
+        {
+            GraphicsDirector director = GraphicsDirector.Ensure();
+            yield return null;
+
+            if (MaterialLibrary.IsUniversal)
+            {
+                Assert.IsNotNull(director.Volume, "با URP فعال، Rigِ حجم باید ساخته شود");
+                Assert.IsTrue(director.Volume.IsActive, "استکِ سینمایی فعال نیست (Volume/Profile ساخته نشده)");
+                Assert.IsNotNull(director.Volume.Profile.components, "پروفایلِ حجم بدون مؤلفه است");
+            }
+            else
+            {
+                // حالتِ پشتیبان: هیچ Volume ای نباید ساخته شود (کامپوننتِ بی‌مصرف روی Canvas صحنه)
+                Assert.IsTrue(director.Volume == null || !director.Volume.IsActive,
+                    "بی URP نباید Volume فعال باشد");
+                Debug.Log("GraphicsPlayMode: URP فعال نیست؛ مسیرِ پشتیبانِ Built-in بررسی شد.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator Materials_NeverResolveToErrorShader()
+        {
+            GraphicsProfile profile = GraphicsProfile.Load();
+            Assert.IsNotNull(profile);
+
+            Material tinted = MaterialLibrary.Tinted(new Color(0.4f, 0.5f, 0.6f), 0.2f);
+            Material ground = MaterialLibrary.Surface(GroundStyle(), new Color(0.3f, 0.4f, 0.25f), 0f);
+            Material emissive = MaterialLibrary.Emissive(new Color(1f, 0.6f, 0.2f), 2.4f);
+            Material particle = MaterialLibrary.Particle(new Color(1f, 0.4f, 0.1f, 0.9f), true, false);
+
+            yield return null;
+
+            Shader[] shaders = { tinted != null ? tinted.shader : null, ground != null ? ground.shader : null,
+                                 emissive != null ? emissive.shader : null, particle != null ? particle.shader : null };
+            string[] labels = { "tinted", "ground", "emissive", "particle" };
+            for (int i = 0; i < shaders.Length; i++)
+            {
+                Assert.IsNotNull(shaders[i], "متریال «" + labels[i] + "» شیدر ندارد ⇒ در صحنه ارغوانی می‌شود");
+                Assert.AreNotEqual("Hidden/InternalErrorShader", shaders[i].name,
+                    "متریال «" + labels[i] + "» به شیدرِ خطا افتاد: " + shaders[i].name);
+            }
+            Assert.Greater(tinted.renderQueue, 0, "renderQueue ست نشده");
+            Assert.GreaterOrEqual(particle.renderQueue, 3000, "ذرات باید در Transparent رندر شوند");
+            Assert.LessOrEqual(particle.renderQueue, 3200, "queueِ ذرات نباید وارد Overlay شود (روی UI می‌افتد)");
+        }
+
+        [UnityTest]
+        public IEnumerator WorldRebuild_ReusesMaterialCache()
+        {
+            GameManager game = GameManager.Instance;
+            Assert.IsNotNull(game, "این تست با صحنه‌ی Main اجرا می‌شود");
+            Assert.IsNotNull(game.World, "تولیدکننده‌ی جهان نصب نیست");
+
+            game.World.Generate(4242);
+            yield return null;
+            yield return null;
+            int afterFirst = MaterialLibrary.CachedMaterialCount;
+            Assert.Greater(afterFirst, 0, "جهان بدون متریالِ کش‌شده ساخته نشد");
+
+            game.World.Generate(9901);
+            yield return null;
+            yield return null;
+            int afterSecond = MaterialLibrary.CachedMaterialCount;
+            Assert.LessOrEqual(afterSecond, afterFirst,
+                "بازتولیدِ جهان متریالِ تازه ساخت (نشتیِ حافظه روی موبایل)؛ کش باید ضربه‌گیر باشد");
+
+            Renderer[] renderers = game.World.TerrainRoot.GetComponentsInChildren<Renderer>(true);
+            Assert.Greater(renderers.Length, 0, "زمین/آب رندرر ندارد");
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                Assert.IsNotNull(renderers[i].sharedMaterial, "رندرر بدون متریال: " + renderers[i].name);
+                Assert.IsNotNull(renderers[i].sharedMaterial.shader, "متریال بدون شیدر: " + renderers[i].sharedMaterial.name);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator QualityChange_ReappliesGraphicsTier()
+        {
+            GraphicsDirector director = GraphicsDirector.Ensure();
+            int before = RenderPipelineBridge.ApplyCount;
+            int original = QualitySettings.GetQualityLevel();
+            try
+            {
+                int target = original == 0 ? Mathf.Min(1, QualitySettings.names.Length - 1) : 0;
+                QualitySettings.SetQualityLevel(target, true);
+                yield return null;
+                yield return null;
+
+                Assert.AreEqual(target, RenderPipelineBridge.LastAppliedQuality,
+                    "مدیرِ گرافیک تغییرِ کیفیت را ندید ⇒ تنظیماتِ بصری کهنه می‌ماند");
+                Assert.Greater(RenderPipelineBridge.ApplyCount, before, "اعمالِ مجدد انجام نشد");
+            }
+            finally
+            {
+                QualitySettings.SetQualityLevel(original, true);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator WeatherAndTime_ChangeShaderGlobalsWithoutError()
+        {
+            GameManager game = GameManager.Instance;
+            Assert.IsNotNull(game);
+            WeatherSystem weather = game.Weather;
+            Assert.IsNotNull(weather, "سامانه‌ی هوا در GameManager نیست");
+
+            float ambientBefore = RenderSettings.ambientLight.grayscale;
+            weather.SetWeather(WeatherType.Rain, false);
+            yield return null;
+
+            Assert.AreEqual(WeatherType.Rain, weather.Current, "اگر هوا عوض نشود، مه و خیسی هم درست نمی‌شود");
+            Vector4 atmosphere = MaterialLibrary.AtmosphereState;
+            Assert.GreaterOrEqual(atmosphere.z, 0f, "رطوبتِ جهانی نباید منفی باشد");
+            Assert.LessOrEqual(atmosphere.z, 1f, "رطوبتِ جهانی نرمال‌سازی نشده");
+            Debug.Log("GraphicsPlayMode: ambient before=" + ambientBefore.ToString("F3") + " atmosphere=" + atmosphere);
+
+            weather.SetWeather(WeatherType.Clear, false);
+            game.Clock.Advance(60f);   // شب ⇒ درخششِ پنجره‌ها و فانوس‌ها باید بالا برود
+            yield return null;
+            Assert.GreaterOrEqual(game.Clock.NormalizedTime, 0f);
+            Assert.LessOrEqual(game.Clock.NormalizedTime, 1f);
+        }
+
+
+        // ============================== گام ۲: نورپردازیِ سینمایی ==============================
+
+        private static void Settle(SkyLightingRig rig, int steps)
+        {
+            for (int i = 0; i < steps; i++) rig.ApplyNow();
+        }
+
+        [UnityTest]
+        public IEnumerator SkyRig_NoonAndMidnight_FeelDifferent()
+        {
+            GraphicsDirector.Ensure();
+            yield return null;
+            SkyLightingRig rig = SkyLightingRig.Instance;
+            Assert.IsNotNull(rig, "مدیرِ گرافیک باید SkyLightingRig را نصب کند");
+
+            GameClock clock = GameManager.Instance != null ? GameManager.Instance.Clock : null;
+            if (clock == null)
+            {
+                // بیرون از بازی هم Rig کار می‌کند (زمانِ موتور)؛ فقط مقایسه‌ی دقیق لازم دارد
+                Assert.IsNotNull(rig.Report(), "گزارشِ Rig نباید null باشد");
+                Assert.Pass("SkyLightingRig بدون GameManager هم فعال است؛ مقایسه‌ی روز/شب انجام نشد");
+            }
+
+            clock.Initialize(3, 0.5f);
+            Settle(rig, 40);
+            float noonNight = rig.NightAmount;
+            float noonFog = rig.FogDensity;
+            Color noonAmbient = RenderSettings.ambientSkyColor;
+            float noonSun = RenderSettings.sun != null ? RenderSettings.sun.intensity : 0f;
+
+            clock.Initialize(3, 0.01f);
+            Settle(rig, 40);
+            float nightNight = rig.NightAmount;
+            float nightFog = rig.FogDensity;
+            Color nightAmbient = RenderSettings.ambientSkyColor;
+            float nightSun = RenderSettings.sun != null ? RenderSettings.sun.intensity : 0f;
+
+            Assert.Greater(nightNight, noonNight + 0.4f, "شب باید از ظهر تاریک‌تر باشد");
+            Assert.Greater(noonSun, nightSun, "نورِ خورشید در ظهر باید بیشتر از ماه باشد");
+            Assert.Greater(noonAmbient.grayscale, nightAmbient.grayscale, "نورِ محیطیِ ظهر باید روشن‌تر باشد");
+            Assert.Greater(nightFog, noonFog, "مه‌ِ شب غلیظ‌تر از ظهر است (حسِ سینمایی)");
+            Assert.AreEqual(UnityEngine.Rendering.AmbientMode.Trilight, RenderSettings.ambientMode,
+                "ambient باید Trilight باشد تا آسمان/افق/زمین رنگ‌هایِ جدا داشته باشند");
+            Assert.IsTrue(RenderSettings.fog, "مه‌ی صحنه روشن است تا آسمان به زمین برسد");
+            Assert.GreaterOrEqual(RenderSettings.fogDensity, 0f);
+            Assert.LessOrEqual(RenderSettings.fogDensity, 0.12f, "چگالیِ مه باید به‌اندازه‌ی clampِ خودِ Rig بماند");
+
+            // آسمان: یا شیدرِ رویه‌ای، یا رنگِ هم‌خانواده‌ی افق — هیچ‌وقت خالی/ارغوانی نه
+            if (rig.UsesProceduralSky)
+            {
+                Assert.IsNotNull(RenderSettings.skybox, "اگر UsesProceduralSky است، متریالِ آسمان باید وصل باشد");
+                Assert.AreEqual(UnityEngine.CameraClearFlags.Skybox, Camera.main != null ? Camera.main.clearFlags : UnityEngine.CameraClearFlags.Skybox);
+            }
+            else
+            {
+                Assert.IsNull(RenderSettings.skybox, "بدونِ شیدرِ آسمان نباید متریالِ شکسته‌ای وصل بماند");
+                Assert.AreNotEqual(UnityEngine.CameraClearFlags.Skybox, Camera.main != null ? Camera.main.clearFlags : UnityEngine.CameraClearFlags.SolidColor,
+                    "در حالتِ پشتیبان، پس‌زمینه SolidColor است");
+            }
+
+            // جهتِ خورشید باید واحد باشد (شیدرها با آن دیسک و هاله را می‌چرخانند)
+            Assert.GreaterOrEqual(rig.SunDirection.sqrMagnitude, 0.98f);
+            Assert.LessOrEqual(rig.SunDirection.sqrMagnitude, 1.02f);
+            Debug.Log("GraphicsPlayMode: " + rig.Report());
+
+            clock.Initialize(3, 0.5f);
+            Settle(rig, 12);
+        }
+
+        [UnityTest]
+        public IEnumerator SkyRig_WeatherResponseDimsSunAndThickensFog()
+        {
+            GraphicsDirector.Ensure();
+            yield return null;
+            SkyLightingRig rig = SkyLightingRig.Instance;
+            Assert.IsNotNull(rig);
+            GameManager game = GameManager.Instance;
+
+            if (game != null && game.Weather != null)
+            {
+                if (game.Clock != null) game.Clock.Initialize(4, 0.5f);
+                game.Weather.SetWeather(WeatherType.Clear, false);
+                Settle(rig, 30);
+                float clearFog = rig.FogDensity;
+                float clearSun = RenderSettings.sun != null ? RenderSettings.sun.intensity : 0f;
+
+                game.Weather.SetWeather(WeatherType.Storm, false);
+                Settle(rig, 30);
+                Assert.AreEqual(WeatherType.Storm, rig.Weather, "Rig باید از تغییرِ هوا باخبر شود");
+                Assert.Greater(rig.FogDensity, clearFog, "طوفان مه را غلیظ‌تر می‌کند");
+                Assert.LessOrEqual(RenderSettings.sun != null ? RenderSettings.sun.intensity : clearSun, clearSun,
+                    "طوفان نورِ خورشید را کم می‌کند");
+                Vector4 heightFog = MaterialLibrary.GetGlobalVector("_BaziHeightFog");
+                Assert.GreaterOrEqual(heightFog.y, 0f, "خیسیِ جهانی در محدوده است");
+                game.Weather.SetWeather(WeatherType.Clear, false);
+                Settle(rig, 20);
+            }
+            else
+            {
+                rig.NotifyWeather(WeatherType.Rain, 0.5f);
+                Settle(rig, 10);
+                Assert.AreEqual(WeatherType.Rain, rig.Weather);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator SkyRig_LampBudgetIsRespectedAtNight()
+        {
+            GraphicsDirector director = GraphicsDirector.Ensure();
+            yield return null;
+            SkyLightingRig rig = SkyLightingRig.Instance;
+            Assert.IsNotNull(rig);
+
+            GameManager game = GameManager.Instance;
+            if (game != null && game.Clock != null) game.Clock.Initialize(2, 0.02f);
+            for (int i = 0; i < 20; i++)
+            {
+                rig.ApplyNow();
+                yield return null;      // یک‌جا با زمانِ واقعی هم جلو می‌رویم تا بودجه بازسازی شود
+            }
+
+            int budget = GraphicsProfile.Load().Current.lampBudget;
+            Assert.GreaterOrEqual(rig.LampsActive, 0);
+            Assert.LessOrEqual(rig.LampsActive, budget,
+                "چراغ‌هایِ روشن نباید از بودجه‌ی سطحِ کیفیت بیشتر شوند (هزینه‌ی نورِ اضافه در URP)");
+            Assert.LessOrEqual(rig.LampCount, 32, "فهرستِ چراغ باید سقف داشته باشد تا allocation نکند");
+            Assert.IsNotNull(director.Sky, "مدیرِ گرافیک باید خودِ Rig را هم نگه دارد");
+        }
+
+
+        // ============================== گام ۳: محیط زنده ==============================
+
+        [UnityTest]
+        public IEnumerator WindField_WritesWindGlobalAndAnswersToWeather()
+        {
+            GraphicsDirector.Ensure();
+            yield return null;
+            WindField wind = WindField.Instance;
+            Assert.IsNotNull(wind, "مدیرِ گرافیک باید WindField را نصب کند");
+
+            GameManager game = GameManager.Instance;
+            if (game != null && game.Weather != null) game.Weather.SetWeather(WeatherType.Clear, false);
+            for (int i = 0; i < 25; i++) wind.ApplyNow();
+            Vector4 clearWind = WindField.GlobalState;
+            float clearStrength = wind.Strength;
+
+            Assert.Greater(clearWind.y, 0f, "ثابتِ جهانیِ باد باید نوشته شده باشد (وگرنه برگ‌ها میخی‌اند)");
+            Assert.GreaterOrEqual(clearWind.w, 0.5f);
+            Assert.LessOrEqual(clearWind.w, 8f);
+            Assert.GreaterOrEqual(clearWind.x, 0f);
+
+            if (game != null && game.Weather != null)
+            {
+                game.Weather.SetWeather(WeatherType.Storm, false);
+                for (int i = 0; i < 40; i++) wind.ApplyNow();
+                Assert.Greater(wind.Strength, clearStrength + 0.15f, "طوفان باید باد را محسوس‌تر کند");
+                Assert.AreEqual(WeatherType.Storm, wind.LastWeather);
+                game.Weather.SetWeather(WeatherType.Clear, false);
+                for (int i = 0; i < 40; i++) wind.ApplyNow();
+            }
+            Debug.Log("GraphicsPlayMode: " + wind.Report());
+        }
+
+        [UnityTest]
+        public IEnumerator FoliageScatter_BuildsOneMeshWithoutTouchingGameplayObjects()
+        {
+            GraphicsDirector.Ensure();
+            yield return null;
+            FoliageScatter scatter = FoliageScatter.Instance;
+            Assert.IsNotNull(scatter, "پراکندگیِ گیاهی نصب نشد");
+
+            GameManager game = GameManager.Instance;
+            if (game == null || game.World == null || game.World.TerrainRoot == null)
+            {
+                Assert.AreEqual(0, scatter.TuftCount, "بیرون از بازی نباید بوته‌ای ساخته شود");
+                Assert.Pass("جهازی ساخته نشده؛ فقط حالتِ idle بررسی شد");
+            }
+
+            int resourcesBefore = game.World.ResourceRoot != null ? game.World.ResourceRoot.childCount : 0;
+            int buildingsBefore = game.World.BuildingRoot != null ? game.World.BuildingRoot.childCount : 0;
+
+            scatter.Refresh();
+            yield return null;
+
+            int budget = GraphicsProfile.Load().Current.foliageCount;
+            Assert.GreaterOrEqual(scatter.TuftCount, 0);
+            Assert.LessOrEqual(scatter.TuftCount, budget, "بوته‌ها از بودجه‌ی سطحِ کیفیت نباید بیشتر شود");
+            Assert.LessOrEqual(scatter.DrawCalls, 1, "همه‌ی بوته‌ها در یک mesh/یک draw call هستند");
+            if (scatter.TuftCount > 0)
+            {
+                Assert.AreEqual(scatter.TuftCount * 8, scatter.VertexCount, "هر بوته هشت رأس دارد");
+            }
+
+            // مهم‌ترین ادعا: این «تزئینی» هیچ گره‌ی gameplay نساخته و یکی هم پاک نکرده
+            int resourcesAfter = game.World.ResourceRoot != null ? game.World.ResourceRoot.childCount : 0;
+            int buildingsAfter = game.World.BuildingRoot != null ? game.World.BuildingRoot.childCount : 0;
+            Assert.AreEqual(resourcesBefore, resourcesAfter, "پراکندگیِ چمن نباید منابع را جابه‌جا/کم/زیاد کند");
+            Assert.AreEqual(buildingsBefore, buildingsAfter, "ساختمان‌ها دست‌نخورده‌اند");
+            Debug.Log("GraphicsPlayMode: " + scatter.Report());
+        }
+
+        [UnityTest]
+        public IEnumerator GroundAndLeaves_UseTexturedSurfaceMaterials()
+        {
+            GameManager game = GameManager.Instance;
+            if (game == null || game.World == null)
+            {
+                Assert.Pass("جهازی ساخته نشده؛ متریال‌ها در همین حالت بررسی نمی‌شوند");
+            }
+            yield return null;
+
+            Material ground = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Ground, new Color(0.21f, 0.34f, 0.2f), 0f, 0.16f);
+            Assert.IsNotNull(ground);
+            Assert.AreNotEqual("Hidden/InternalErrorShader", ground.shader.name, "زمین نباید شیدرِ خطا بگیرد");
+            StringAssert.Contains("BaziBaqa/Surface", ground.shader.name);
+
+            int rendererCount = 0;
+            MeshRenderer[] renderers = game.World.TerrainRoot != null
+                ? game.World.TerrainRoot.GetComponentsInChildren<MeshRenderer>(false)
+                : new MeshRenderer[0];
+            bool groundUsesSurface = false;
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i].sharedMaterial != null && renderers[i].sharedMaterial.name.Contains("Ground"))
+                {
+                    groundUsesSurface = true;
+                }
+                rendererCount++;
+            }
+            Assert.Greater(rendererCount, 0, "صحنه باید دست‌کم یک رندرر داشته باشد");
+            Assert.IsTrue(groundUsesSurface || renderers.Length == 0,
+                "متریالِ زمین باید از MaterialLibrary بیاید (نامِ BaziSurface_Ground)");
+        }
+
+
+        // ============================== گام ۴: آب، آتش، انفجار ==============================
+
+        [UnityTest]
+        public IEnumerator VfxDirector_PlaysEffectsFromPoolWithoutGrowingMaterials()
+        {
+            GraphicsDirector.Ensure();
+            yield return null;
+            VfxDirector vfx = VfxDirector.Instance;
+            Assert.IsNotNull(vfx, "لایه‌ی گرافیک باید VfxDirector را نصب کند");
+
+            int materialsBefore = MaterialLibrary.CachedMaterialCount;
+            int poolBefore = vfx.PooledEffects;
+            Assert.GreaterOrEqual(poolBefore, 1, "استخر باید در Awake پر شده باشد");
+
+            Vector3 anchor = Camera.main != null ? Camera.main.transform.position + new Vector3(2f, 0.5f, 2f) : new Vector3(2f, 0.5f, 2f);
+            vfx.PlayExplosion(anchor, 3.2f);
+            vfx.PlayImpact(anchor + Vector3.right, new Color(1f, 0.8f, 0.4f));
+            vfx.PlaySplash(anchor + Vector3.back);
+            yield return null;
+
+            Assert.Greater(vfx.PlayedCount, 0, "هیچ افکتی پخش نشد (بودجه یا فاصله؟)");
+            Assert.LessOrEqual(vfx.ActiveEffects, vfx.PoolCapacity, "افکتِ هم‌زمان نباید از استخر بیشتر شود");
+            Assert.AreEqual(materialsBefore, MaterialLibrary.CachedMaterialCount,
+                "پخشِ افکت نباید متریالِ تازه بسازد (کشِ MaterialLibrary)");
+
+            for (int i = 0; i < 140; i++) yield return null;      // صبر تا همه آزاد شوند
+            Assert.AreEqual(0, vfx.ActiveEffects, "افکت‌ها باید به استخر برگردند");
+            Assert.GreaterOrEqual(vfx.PooledEffects, poolBefore, "استخر خلوت‌تر از قبل نشود");
+            Debug.Log("GraphicsPlayMode: " + vfx.Report());
+        }
+
+        [UnityTest]
+        public IEnumerator WaterAndFireMaterials_ResolveToProjectShaders()
+        {
+            GraphicsDirector.Ensure();
+            GameManager game = GameManager.Instance;
+
+            Material water = MaterialLibrary.Water(new Color(0.02f, 0.11f, 0.19f), new Color(0.1f, 0.34f, 0.4f),
+                new Color(0.42f, 0.56f, 0.68f), new Vector4(0.55f, 0.09f, 1.6f, 0.35f), 0.82f);
+            Assert.IsNotNull(water);
+            Assert.AreNotEqual("Hidden/InternalErrorShader", water.shader.name, "شیدرِ آب کامپایل نشده");
+            StringAssert.Contains("BaziBaqa", water.shader.name, "آب باید با شیدرِ خودِ پروژه رندر شود");
+
+            Material fire = MaterialLibrary.Fire(new Color(1f, 0.7f, 0.26f), new Color(1f, 0.3f, 0.07f), 0, 3.2f);
+            Assert.IsNotNull(fire);
+            Assert.AreNotEqual("Hidden/InternalErrorShader", fire.shader.name, "شیدرِ آتش کامپایل نشده");
+
+            if (game == null || game.World == null || game.World.TerrainRoot == null)
+            {
+                Assert.Pass("جهازی ساخته نشده؛ فقط حل‌شدنِ متریال‌ها سنجیده شد");
+            }
+
+            // آبِ صحنه باید همان متریالِ تازه را داشته باشد و هیچ رندررِ بی‌متریالی نمانده باشد
+            MeshRenderer[] renderers = game.World.TerrainRoot.GetComponentsInChildren<MeshRenderer>(false);
+            int unassigned = 0;
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i].sharedMaterial == null) unassigned++;
+            }
+            Assert.AreEqual(0, unassigned, "رندررِ بی‌متریال در صحنه هست ⇒ ارغوانی می‌شود");
+            Assert.Greater(renderers.Length, 0);
+        }
+
+        [UnityTest]
+        public IEnumerator ActorMotion_AnimatesLimbsWithoutTouchingGameplayTransforms()
+        {
+            GameObject root = new GameObject("MotionTestActor");
+            GameObject torso = new GameObject("Torso");
+            torso.transform.SetParent(root.transform, false);
+            torso.transform.localPosition = new Vector3(0f, 0.9f, 0f);
+            torso.transform.localScale = new Vector3(0.5f, 0.85f, 0.5f);
+            MeshFilter torsoFilter = torso.AddComponent<MeshFilter>();
+            torsoFilter.sharedMesh = Resources.GetBuiltinResource<Mesh>("Capsule.fbx");
+            torso.AddComponent<MeshRenderer>().sharedMaterial = MaterialLibrary.Tinted(new Color(0.4f, 0.45f, 0.5f));
+
+            ActorMotion motion = root.AddComponent<ActorMotion>();
+            motion.Configure(root);
+            yield return null;
+
+            Assert.AreEqual(4, torso.GetComponentsInChildren<MeshFilter>().Length - 1,
+                "چهار اندام باید به بدنه اضافه شده باشد");
+            Assert.AreEqual(0, root.GetComponentsInChildren<Collider>().Length,
+                "اندام‌ها نباید Collider بیاورند (انتخابِ لمسی نمی‌شکند)");
+
+            Vector3 baseRootScale = root.localScale;
+            Quaternion baseRootRotation = root.rotation;
+            Vector3 baseRootPosition = root.position;
+            Vector3 baseTorsoScale = torso.transform.localScale;
+            bool torsoMoved = false;
+
+            for (int frame = 0; frame < 12; frame++)
+            {
+                // حرکتِ دادنِ ریشه از بیرون، همان کاری است که SurvivorAgent می‌کند
+                root.transform.position += Vector3.right * 0.05f;
+                yield return null;
+                if ((torso.transform.localScale - baseTorsoScale).sqrMagnitude > 1e-8f) torsoMoved = true;
+            }
+
+            Assert.IsTrue(torsoMoved, "فرمِ بدن باید با گام‌ها تغییر کند");
+            Assert.AreEqual(baseRootScale, root.localScale, "مقیاسِ ریشه دست‌نخورده می‌ماند");
+            Assert.AreEqual(baseRootRotation, root.rotation, "چرخشِ ریشه مالِ خودِ Agent است");
+            StringAssert.Contains("speed=", motion.Report());
+            Assert.IsFalse(string.IsNullOrEmpty(motion.Report()));
+            UnityEngine.Object.Destroy(root);
+        }
+
+        [UnityTest]
+        public IEnumerator BuildingMotion_GrowsChildrenAndLeavesRootToLogic()
+        {
+            GameObject root = new GameObject("MotionTestBuilding");
+            root.transform.localScale = new Vector3(1f, 1f, 1f);
+            GameObject body = new GameObject("Body");
+            body.transform.SetParent(root.transform, false);
+            body.transform.localPosition = new Vector3(0f, 0.65f, 0f);
+            body.transform.localScale = new Vector3(2.4f, 1.3f, 2.1f);
+            MeshFilter bodyFilter = body.AddComponent<MeshFilter>();
+            bodyFilter.sharedMesh = Resources.GetBuiltinResource<Mesh>("Cube.fbx");
+            body.AddComponent<MeshRenderer>().sharedMaterial = MaterialLibrary.Tinted(new Color(0.5f, 0.4f, 0.3f));
+
+            BuildingMotion motion = root.AddComponent<BuildingMotion>();
+            motion.Configure(root);
+            motion.PlayConstruction();
+
+            Assert.IsTrue(motion.IsGrowing, "بلافاصله بعد از ساخت باید در حالِ رشد باشد");
+            Vector3 baseRootScale = root.localScale;
+            yield return null;                    // یک فریم تا بدنه واقعاً جمع شود
+            Vector3 smallBodyScale = body.transform.localScale;
+            Assert.Less(smallBodyScale.y, 1f, "در آغازِ رشد ساختمان تقریباً جمع است");
+
+            float waited = 0f;
+            while (motion.IsGrowing && waited < 2f)
+            {
+                waited += Time.deltaTime;
+                yield return null;
+            }
+
+            Assert.IsFalse(motion.IsGrowing, "رشد باید تمام شود");
+            Assert.Greater(body.transform.localScale.y, smallBodyScale.y * 1.5f,
+                "بدنه‌ی ساختمان باید باز شده باشد");
+            Assert.AreEqual(baseRootScale, root.localScale,
+                "مقیاسِ ریشه را BuildingController (نه انیماتور) تعیین می‌کند");
+            Assert.GreaterOrEqual(motion.Growth, 0.995f);
+            StringAssert.Contains("grow=", motion.Report());
+            UnityEngine.Object.Destroy(root);
+        }
+
+        [UnityTest]
+        public IEnumerator MotionDirector_RescansSafelyWithoutWorld()
+        {
+            GraphicsDirector director = GraphicsDirector.Ensure();
+            yield return null;
+            MotionDirector motion = director.Motion;
+            Assert.IsNotNull(motion, "لایه‌ی انیمیشن باید توسط مدیرِ گرافیک نصب شود");
+
+            // در صحنه‌ی خالیِ تست (بیِ جهان) نباید استثنا بدهد و نباید مؤلفه‌ای بسازد
+            motion.Refresh();
+            motion.ApplyTier();
+            yield return null;
+            Assert.GreaterOrEqual(motion.AnimatedActors, 0);
+            StringAssert.Contains("motion actors=", motion.Report());
+            StringAssert.Contains("stride=", motion.Report(), "گامِ به‌روزرسانیِ پله‌ای گزارش می‌شود");
+        }
+
+        private static MaterialLibrary.SurfaceStyle GroundStyle()
+        {
+            return MaterialLibrary.SurfaceStyle.Ground;
+        }
+    }
+}

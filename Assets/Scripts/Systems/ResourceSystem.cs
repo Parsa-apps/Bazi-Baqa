@@ -88,7 +88,7 @@ namespace BaziBaqa
 
         public override string ToString()
         {
-            return GameText.ResourceName(type) + " " + GameClock.ToPersianDigits(amount.ToString());
+            return GameText.ResourceAmount(type, amount);
         }
     }
 }

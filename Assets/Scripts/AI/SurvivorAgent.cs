@@ -13,7 +13,29 @@ namespace BaziBaqa
         public float Thirst { get; private set; }
         public float Morale { get; private set; }
         public bool IsAlive { get; private set; }
-        public string TaskDescription { get; private set; }
+        /// <summary>
+        /// وضعیت/کار فعلی بازمانده. خودِ رشته در کد نگه داشته نمی‌شود؛ فقط کلیدِ جدول،
+        /// تا با تغییر زبان متن تازه شود. برای پیامدهای قالب‌دار آرگومان هم نگه می‌داریم.
+        /// </summary>
+        private string _taskKey = "status.preparing";
+        private object[] _taskArgs;
+
+        public string TaskKey { get { return _taskKey; } }
+
+        /// <summary>متن قابل‌مشاهده‌ی کار فعلی (از جدول بومی‌سازی).</summary>
+        public string TaskDescription
+        {
+            get
+            {
+                return _taskArgs != null && _taskArgs.Length > 0 ? Loc.Get(_taskKey, _taskArgs) : Loc.Get(_taskKey);
+            }
+        }
+
+        public void SetTask(string key, params object[] args)
+        {
+            _taskKey = key;
+            _taskArgs = args;
+        }
 
         private SurvivorBrain _brain;
         private ResourceNode _targetNode;
@@ -28,7 +50,7 @@ namespace BaziBaqa
         public void Initialize(SurvivorSaveData data)
         {
             Id = data.id;
-            DisplayName = string.IsNullOrEmpty(data.displayName) ? "بازمانده" : data.displayName;
+            DisplayName = string.IsNullOrEmpty(data.displayName) ? Loc.Get("label.survivor") : data.displayName;
             Role = data.role;
             _brain = new SurvivorBrain(Role);
             State = data.state;
@@ -37,10 +59,10 @@ namespace BaziBaqa
             Thirst = Mathf.Clamp(data.thirst, 0f, 100f);
             Morale = Mathf.Clamp(data.morale, 0f, 100f);
             IsAlive = data.alive && Health > 0f;
-            TaskDescription = "در حال آماده‌سازی";
+            SetTask("status.preparing");
             _nameLabel = GetComponentInChildren<TextMesh>();
             if (_nameLabel != null) _nameLabel.text = PersianText.Process(DisplayName);
-            _body = transform.Find("بدن");
+            _body = transform.Find(WorldParts.ActorTorso);
             if (GameManager.Instance != null) GameManager.Instance.RegisterSurvivor(this);
             if (!IsAlive) Fall();
         }
@@ -77,7 +99,7 @@ namespace BaziBaqa
             if (!IsAlive) return;
             Health = Mathf.Min(100f, Health + Mathf.Max(0f, amount));
             State = SurvivorState.Healing;
-            TaskDescription = "در حال درمان";
+            SetTask("status.healing");
         }
 
         public void BoostMorale(float amount)
@@ -126,13 +148,13 @@ namespace BaziBaqa
             {
                 Hunger = Mathf.Min(100f, Hunger + 38f);
                 State = SurvivorState.Eating;
-                TaskDescription = "در حال خوردن غذا";
+                SetTask("status.eating");
                 GameManager.Instance.Audio.PlayClick();
             }
             if (Thirst < 30f && GameManager.Instance.Resources.TrySpend(ResourceType.Water, 2))
             {
                 Thirst = Mathf.Min(100f, Thirst + 45f);
-                TaskDescription = "در حال نوشیدن آب";
+                SetTask("status.drinking");
             }
         }
 
@@ -142,7 +164,7 @@ namespace BaziBaqa
             if (Hunger < 25f || Thirst < 25f)
             {
                 State = SurvivorState.Resting;
-                TaskDescription = "در حال استراحت";
+                SetTask("status.resting");
                 _targetNode = null;
                 return;
             }
@@ -156,7 +178,7 @@ namespace BaziBaqa
                     Vector3 home = GameManager.Instance.Construction.GetHomePosition();
                     _patrolTarget = home + (transform.position - home).normalized * -6f + new Vector3(Random.Range(-2f, 2f), 0f, Random.Range(-2f, 2f));
                     State = SurvivorState.Fleeing;
-                    TaskDescription = "فرار از خطر";
+                    SetTask("status.fleeing");
                     _targetNode = null;
                     return;
                 }
@@ -169,14 +191,14 @@ namespace BaziBaqa
                 {
                     _patrolTarget = patient.transform.position;
                     State = SurvivorState.Healing;
-                    TaskDescription = "کمک به زخمی‌ها";
+                    SetTask("status.aid");
                     return;
                 }
                 if (patient != null)
                 {
                     patient.Heal(3.5f);
                     State = SurvivorState.Healing;
-                    TaskDescription = "درمان یک هم‌گروهی";
+                    SetTask("status.healing_ally");
                     return;
                 }
             }
@@ -185,7 +207,7 @@ namespace BaziBaqa
             {
                 _targetNode = null;
                 State = SurvivorState.Guarding;
-                TaskDescription = "گشت‌زنی اطراف اردوگاه";
+                SetTask("status.patrol");
                 Vector3 home = GameManager.Instance.Construction.GetHomePosition();
                 _patrolTarget = home + new Vector3(Random.Range(-5f, 5f), 0f, Random.Range(-4f, 4f));
                 return;
@@ -197,12 +219,12 @@ namespace BaziBaqa
             if (_targetNode != null)
             {
                 State = SurvivorState.Gathering;
-                TaskDescription = "جمع‌آوری " + GameText.ResourceName(_targetNode.type);
+                SetTask("status.gathering", GameText.ResourceName(_targetNode.type));
             }
             else
             {
                 State = SurvivorState.Idle;
-                TaskDescription = "در انتظار فرمان";
+                SetTask("status.idle");
             }
         }
 
@@ -229,8 +251,9 @@ namespace BaziBaqa
                             int amount = _targetNode.Gather(Mathf.CeilToInt(baseAmount * (_brain == null ? 1f : _brain.GatheringMultiplier()) * (1f + toolBonus)));
                             if (amount > 0)
                             {
-                                GameManager.Instance.Resources.Add(_targetNode.type, amount, "جمع‌آوری توسط " + DisplayName);
-                                if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(1, "جمع‌آوری");
+                                GameManager.Instance.Resources.Add(_targetNode.type, amount, "gathering");
+                                if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(1, "gathering");
+                                if (GameManager.Instance.Achievements != null) GameManager.Instance.Achievements.RegisterGather(amount);
                                 if (GameManager.Instance.Quests != null) GameManager.Instance.Quests.TryComplete();
                             }
                         }
@@ -297,9 +320,9 @@ namespace BaziBaqa
         {
             IsAlive = false;
             State = SurvivorState.Injured;
-            TaskDescription = "از دست رفته";
+            SetTask("status.lost");
             transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-            GameEvents.Notify(DisplayName + " دیگر توان ادامه ندارد.");
+            GameEvents.Notify(Loc.Get("toast.survivor_lost", DisplayName));
             GameManager.Instance.OnSurvivorLost(this);
         }
     }

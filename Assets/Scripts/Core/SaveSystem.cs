@@ -38,12 +38,12 @@ namespace BaziBaqa
                     File.Delete(SavePath);
                 }
                 File.Move(TemporaryPath, SavePath);
-                GameLogger.Info("ذخیره‌سازی انجام شد (نسخه‌ی " + CurrentSaveVersion + ").");
+                GameLogger.Info(Loc.Get("log.save_done", Loc.Num(CurrentSaveVersion)));
                 return true;
             }
             catch (Exception exception)
             {
-                GameLogger.Error("خطا در ذخیره‌سازی", exception);
+                GameLogger.Error(Loc.Get("log.save_failed"), exception);
                 TryDelete(TemporaryPath);
                 return false;
             }
@@ -57,7 +57,7 @@ namespace BaziBaqa
             data = TryLoad(BackupPath);
             if (data != null)
             {
-                GameLogger.Warn("ذخیره‌ی اصلی آسیب دیده بود؛ نسخه‌ی پشتیبان بارگذاری شد.");
+                GameLogger.Warn(Loc.Get("log.backup_loaded"));
             }
             return data;
         }
@@ -82,7 +82,7 @@ namespace BaziBaqa
             }
             catch (Exception exception)
             {
-                GameLogger.Error("خواندن ذخیره ناموفق بود", exception);
+                GameLogger.Error(Loc.Get("log.load_failed"), exception);
                 return null;
             }
         }
@@ -113,7 +113,7 @@ namespace BaziBaqa
             }
             catch (Exception exception)
             {
-                GameLogger.Warn("پاک‌کردن فایل ذخیره ناموفق بود: " + exception.Message);
+                GameLogger.Warn(Loc.Get("log.delete_failed", exception.Message));
             }
         }
     }

@@ -45,13 +45,13 @@ namespace BaziBaqa
 
             if (GameManager.Instance.Resources.Get(ResourceType.Food) < alive * 2)
             {
-                if (!_warnedFood) GameEvents.Notify("ذخیره‌ی غذا کم است؛ جمع‌آور و کشاورز را فعال نگه دارید.");
+                if (!_warnedFood) GameEvents.Notify(Loc.Get("toast.low_food"));
                 _warnedFood = true;
             }
             else _warnedFood = false;
             if (GameManager.Instance.Resources.Get(ResourceType.Water) < alive * 2)
             {
-                if (!_warnedWater) GameEvents.Notify("آب گروه رو به پایان است؛ پیشاهنگ را به چشمه بفرستید.");
+                if (!_warnedWater) GameEvents.Notify(Loc.Get("toast.low_water"));
                 _warnedWater = true;
             }
             else _warnedWater = false;

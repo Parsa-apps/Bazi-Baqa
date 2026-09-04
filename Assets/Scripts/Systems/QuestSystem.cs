@@ -123,9 +123,10 @@ namespace BaziBaqa
         private static void GrantReward(QuestRuntime quest)
         {
             QuestDefinition definition = quest.Definition;
-            GameManager.Instance.Resources.Add(definition.rewardResource, definition.rewardAmount, "پاداش مأموریت");
-            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(definition.rewardXp, "مأموریت");
-            GameEvents.Notify("مأموریت «" + definition.title + "» انجام شد؛ " + definition.rewardAmount + " " + GameText.ResourceName(definition.rewardResource) + " گرفتید.");
+            GameManager.Instance.Resources.Add(definition.rewardResource, definition.rewardAmount, "quest-reward");
+            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(definition.rewardXp, "quest");
+            GameEvents.Notify(Loc.Get("toast.quest_done", definition.Title,
+                GameText.ResourceAmount(definition.rewardResource, definition.rewardAmount)));
             if (GameManager.Instance.Audio != null) GameManager.Instance.Audio.PlayQuest();
         }
     }
@@ -138,12 +139,14 @@ namespace BaziBaqa
         Survive
     }
 
+    /// <summary>
+    /// تعریف یک مأموریت. نکته‌ی مهم برای بومی‌سازی: عنوان و توضیح در کد نوشته نمی‌شوند،
+    /// بلکه از جدول با کلیدهای quest.&lt;id&gt;.title / quest.&lt;id&gt;.description خوانده می‌شوند.
+    /// </summary>
     [Serializable]
     public class QuestDefinition
     {
         public string id;
-        public string title;
-        public string description;
         public QuestKind kind;
         public BuildingType targetBuilding;
         public ResourceType targetResource;
@@ -152,12 +155,18 @@ namespace BaziBaqa
         public int rewardAmount;
         public int rewardXp;
 
-        public QuestDefinition(string idValue, string titleValue, string descriptionValue, QuestKind kindValue,
+        /// <summary>کلیدهای متن در جدول بومی‌سازی.</summary>
+        public string TitleKey { get { return GameText.QuestKey(id, "title"); } }
+        public string DescriptionKey { get { return GameText.QuestKey(id, "description"); } }
+
+        /// <summary>متن‌ها هنگام نمایش از جدول خوانده می‌شوند تا تغییر زبان زنده اعمال شود.</summary>
+        public string Title { get { return Loc.Get(TitleKey); } }
+        public string Description { get { return Loc.Get(DescriptionKey); } }
+
+        public QuestDefinition(string idValue, QuestKind kindValue,
             BuildingType building, ResourceType resource, int count, ResourceType reward, int amount, int xp)
         {
             id = idValue;
-            title = titleValue;
-            description = descriptionValue;
             kind = kindValue;
             targetBuilding = building;
             targetResource = resource;
@@ -183,20 +192,22 @@ namespace BaziBaqa
     }
 
     /// <summary>
-    /// تعریف مأموریت‌های بازی. در محصول نهایی این فهرست می‌تواند از فایل JSON یا Addressables خوانده شود.
+    /// فهرست مأموریت‌های بازی. داده‌ی عددی این‌جاست و متن‌ها از جدول بومی‌سازی خوانده می‌شوند
+    /// (کلید: quest.&lt;id&gt;.title و quest.&lt;id&gt;.description). در محصول نهایی می‌توان کلِ این فهرست را
+    /// از فایل JSON یا Addressables بارگذاری کرد.
     /// </summary>
     public static class QuestsDefinition
     {
         private static readonly List<QuestDefinition> _data = new List<QuestDefinition>
         {
-            new QuestDefinition("q_house", "اولین پناهگاه", "یک خانه برای گروه بسازید.", QuestKind.Build, BuildingType.House, ResourceType.Wood, 1, ResourceType.Food, 15, 6),
-            new QuestDefinition("q_wood", "تأمین چوب", "ذخیره‌ی چوب را به ۱۲۰ برسانید.", QuestKind.Collect, BuildingType.Camp, ResourceType.Wood, 120, ResourceType.Gold, 4, 5),
-            new QuestDefinition("q_storage", "انبار امن", "یک انبار بسازید تا منابع در امان بمانند.", QuestKind.Build, BuildingType.Storage, ResourceType.Wood, 1, ResourceType.Wood, 20, 6),
-            new QuestDefinition("q_guard", "نگهبان تازه", "گروه را به ۷ نفر برسانید.", QuestKind.Train, BuildingType.Camp, ResourceType.Food, 7, ResourceType.Water, 20, 8),
-            new QuestDefinition("q_tower", "برج دیده‌بانی", "برای دفاع شبانه یک برج بسازید.", QuestKind.Build, BuildingType.WatchTower, ResourceType.Wood, 1, ResourceType.Gold, 8, 8),
-            new QuestDefinition("q_day3", "سه روز مقاومت", "تا روز سوم زنده بمانید.", QuestKind.Survive, BuildingType.Camp, ResourceType.Food, 3, ResourceType.Food, 30, 10),
-            new QuestDefinition("q_farm", "مزرعه‌ی نو", "یک مزرعه راه‌اندازی کنید.", QuestKind.Build, BuildingType.Farm, ResourceType.Wood, 1, ResourceType.Energy, 10, 6),
-            new QuestDefinition("q_workshop", "کارگاه تولید", "کارگاه را فعال کنید.", QuestKind.Build, BuildingType.Workshop, ResourceType.Wood, 1, ResourceType.Gold, 6, 7)
+            new QuestDefinition("q_house", QuestKind.Build, BuildingType.House, ResourceType.Wood, 1, ResourceType.Food, 15, 6),
+            new QuestDefinition("q_wood", QuestKind.Collect, BuildingType.Camp, ResourceType.Wood, 120, ResourceType.Gold, 4, 5),
+            new QuestDefinition("q_storage", QuestKind.Build, BuildingType.Storage, ResourceType.Wood, 1, ResourceType.Wood, 20, 6),
+            new QuestDefinition("q_guard", QuestKind.Train, BuildingType.Camp, ResourceType.Food, 7, ResourceType.Water, 20, 8),
+            new QuestDefinition("q_tower", QuestKind.Build, BuildingType.WatchTower, ResourceType.Wood, 1, ResourceType.Gold, 8, 8),
+            new QuestDefinition("q_day3", QuestKind.Survive, BuildingType.Camp, ResourceType.Food, 3, ResourceType.Food, 30, 10),
+            new QuestDefinition("q_farm", QuestKind.Build, BuildingType.Farm, ResourceType.Wood, 1, ResourceType.Energy, 10, 6),
+            new QuestDefinition("q_workshop", QuestKind.Build, BuildingType.Workshop, ResourceType.Wood, 1, ResourceType.Gold, 6, 7)
         };
 
         public static int Count { get { return _data.Count; } }

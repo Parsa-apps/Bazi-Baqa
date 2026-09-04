@@ -5,8 +5,9 @@ namespace BaziBaqa
 {
     /// <summary>
     /// افکت‌های بصری رویه‌ای که بدون Asset خارجی کار می‌کنند: آتش اردوگاه، دود، زبانه‌ی جرقّه و
-    /// درخشش آب. این مؤلفه در Built-in Render Pipeline هم به‌درستی اجرا می‌شود و سطح گرافیکی را
-    /// بدون هزینه‌ی سنگین بالا می‌برد. (پاس Bloom/AO در Editor با URP تکمیل می‌شود.)
+    /// درخشش آب. متریال هر Emitter از <see cref="MaterialLibrary"/> گرفته می‌شود، پس هم در
+    /// Built-in و هم زیر URP درست دیده می‌شود؛ پارامترهای نورِ صحنه (Bloom/AO) از
+    /// GraphicsDirector روی همان متریال‌ها اعمال می‌شود.
     ///
     /// برای جلوگیری از نشتی حافظه هنگام «بازی جدید» یا بازتولید جهان، همه‌ی Emitterها در فهرستی
     /// نگه‌داری می‌شوند و با Clear() نابود می‌شوند تا هیچ آبجکت اضافه‌ای در WorldRoot باقی نماند.
@@ -19,10 +20,10 @@ namespace BaziBaqa
         {
             // اگر درخواست بازتولید شد، ابتدا Emitterهای قبلی را آزاد می‌کنیم تا انباشته نشوند.
             Clear();
-            CreateEmitter("آتش", homePosition + new Vector3(0f, 0.9f, 0f), new Color(1f, 0.55f, 0.12f, 0.9f), 14f, 0.12f, 18f, 0.9f, 0.5f);
-            CreateEmitter("دود", homePosition + new Vector3(0f, 1.4f, 0f), new Color(0.32f, 0.32f, 0.34f, 0.5f), 5f, 0.4f, 0.9f, 0.7f, 0.3f);
-            CreateEmitter("جرقه", homePosition + new Vector3(0f, 1.1f, 0f), new Color(1f, 0.8f, 0.3f, 0.8f), 3f, 0.05f, 22f, 1.6f, 0.1f);
-            CreateEmitter("درخشش آب", homePosition + new Vector3(0f, 6f, 0f), new Color(0.6f, 0.85f, 1f, 0.35f), 6f, 0.02f, 0.2f, 14f, 0.15f);
+            CreateEmitter(WorldParts.Fire, homePosition + new Vector3(0f, 0.9f, 0f), new Color(1f, 0.55f, 0.12f, 0.9f), 14f, 0.12f, 18f, 0.9f, 0.5f);
+            CreateEmitter(WorldParts.Smoke, homePosition + new Vector3(0f, 1.4f, 0f), new Color(0.32f, 0.32f, 0.34f, 0.5f), 5f, 0.4f, 0.9f, 0.7f, 0.3f);
+            CreateEmitter(WorldParts.Spark, homePosition + new Vector3(0f, 1.1f, 0f), new Color(1f, 0.8f, 0.3f, 0.8f), 3f, 0.05f, 22f, 1.6f, 0.1f);
+            CreateEmitter(WorldParts.WaterShimmer, homePosition + new Vector3(0f, 6f, 0f), new Color(0.6f, 0.85f, 1f, 0.35f), 6f, 0.02f, 0.2f, 14f, 0.15f);
         }
 
         /// <summary>همه‌ی Emitterها را نابود می‌کند و حافظه را آزاد می‌سازد.</summary>
@@ -65,6 +66,18 @@ namespace BaziBaqa
                 new[] { new GradientColorKey(color, 0f), new GradientColorKey(Color.white, 0.4f), new GradientColorKey(new Color(color.r, color.g, color.b, 0f), 1f) },
                 new[] { new GradientAlphaKey(color.a * 0.6f, 0f), new GradientAlphaKey(0f, 1f) });
             colorLife.color = grad;
+
+            // متریال و تنظیماتِ رندرر؛ پیش از این renderer هیچ متریالی نداشت (ذره‌ی ارغوانی).
+            ParticleSystemRenderer renderer = go.GetComponent<ParticleSystemRenderer>();
+            if (renderer == null) renderer = go.AddComponent<ParticleSystemRenderer>();
+            bool additive = name != WorldParts.Smoke;
+            Material material = MaterialLibrary.Particle(color, additive, false);
+            renderer.sharedMaterial = material;
+            renderer.renderMode = ParticleSystemRenderMode.Billboard;
+            renderer.sortingFudge = additive ? 0.4f : 0f;   // جرقه/آتش روی دود بنشیند
+            MaterialLibrary.SetParticleFlicker(material, name == WorldParts.Fire ? 0.28f : (name == WorldParts.Spark ? 0.5f : 0f),
+                                                name == WorldParts.Fire ? 5.2f : 8.5f);
+
             ps.Play();
             _emitters.Add(go);
         }

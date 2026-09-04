@@ -25,32 +25,37 @@ namespace BaziBaqa
             _state = save != null && save.raid != null ? save.raid : new RaidSaveState();
         }
 
+        /// <summary>هزینه‌ها و شرایط یورش؛ یک منبع برای منطق و رابط کاربری.</summary>
+        public const int EnergyCost = 8;
+        public const int GoldCost = 3;
+        public const int MinGuards = 2;
+
         public bool CanRaid(out string reason)
         {
             if (GameManager.Instance.Clock.IsNight)
             {
-                reason = "در شب نمی‌توان یورش برد؛ شب متعلق به سایه‌هاست.";
+                reason = Loc.Get("toast.raid_night");
                 return false;
             }
             if (HasRaidedToday)
             {
-                reason = "امروز یک‌بار یورش رفتید؛ فردا دوباره تلاش کنید.";
+                reason = Loc.Get("toast.raid_today");
                 return false;
             }
             int guards = AliveGuards();
-            if (guards < 2)
+            if (guards < MinGuards)
             {
-                reason = "برای یورش به دست‌کم دو نگهبان نیاز دارید.";
+                reason = Loc.Get("toast.raid_guards", Loc.Num(MinGuards));
                 return false;
             }
-            if (GameManager.Instance.Resources.Get(ResourceType.Energy) < 8)
+            if (GameManager.Instance.Resources.Get(ResourceType.Energy) < EnergyCost)
             {
-                reason = "برای یورش ۸ انرژی لازم است.";
+                reason = Loc.Get("toast.raid_energy", Loc.Num(EnergyCost));
                 return false;
             }
-            if (GameManager.Instance.Resources.Get(ResourceType.Gold) < 3)
+            if (GameManager.Instance.Resources.Get(ResourceType.Gold) < GoldCost)
             {
-                reason = "برای آماده‌سازی یورش ۳ طلا لازم است.";
+                reason = Loc.Get("toast.raid_gold", Loc.Num(GoldCost));
                 return false;
             }
             reason = null;
@@ -61,12 +66,12 @@ namespace BaziBaqa
         {
             if (!CanRaid(out string reason))
             {
-                GameEvents.Notify("یورش ممکن نیست: " + reason);
+                GameEvents.Notify(Loc.Get("toast.raid_blocked", reason));
                 return;
             }
 
-            GameManager.Instance.Resources.TrySpend(ResourceType.Energy, 8, "آماده‌سازی یورش");
-            GameManager.Instance.Resources.TrySpend(ResourceType.Gold, 3, "آماده‌سازی یورش");
+            GameManager.Instance.Resources.TrySpend(ResourceType.Energy, EnergyCost, "raid-prepare");
+            GameManager.Instance.Resources.TrySpend(ResourceType.Gold, GoldCost, "raid-prepare");
 
             float weaponBonus = GameManager.Instance.Equipment != null ? GameManager.Instance.Equipment.WeaponDamageBonus : 0f;
             float guardPower = AliveGuards() * 0.06f;
@@ -80,18 +85,21 @@ namespace BaziBaqa
                 int wood = 16 + UnityEngine.Random.Range(0, 9);
                 int stone = 14 + UnityEngine.Random.Range(0, 7);
                 int gold = 8 + UnityEngine.Random.Range(0, 6);
-                GameManager.Instance.Resources.Add(ResourceType.Wood, wood, "غنیمت یورش");
-                GameManager.Instance.Resources.Add(ResourceType.Stone, stone, "غنیمت یورش");
-                GameManager.Instance.Resources.Add(ResourceType.Gold, gold, "غنیمت یورش");
+                GameManager.Instance.Resources.Add(ResourceType.Wood, wood, "raid-loot");
+                GameManager.Instance.Resources.Add(ResourceType.Stone, stone, "raid-loot");
+                GameManager.Instance.Resources.Add(ResourceType.Gold, gold, "raid-loot");
                 _state.wins++;
-                GameEvents.Notify("یورش پیروز شد! " + wood + " چوب، " + stone + " سنگ و " + gold + " طلا غنیمت گرفتید.");
-                if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(10, "یورش پیروز");
+                GameEvents.Notify(Loc.Get("toast.raid_won", GameText.Join(
+                    GameText.ResourceAmount(ResourceType.Wood, wood),
+                    GameText.ResourceAmount(ResourceType.Stone, stone),
+                    GameText.ResourceAmount(ResourceType.Gold, gold))));
+                if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(10, "raid");
             }
             else
             {
                 _state.losses++;
                 PlayerDamage(18f);
-                GameEvents.Notify("یورش شکست خورد و خسارت دیدید؛ روحیه‌ی گروه پایین آمد.");
+                GameEvents.Notify(Loc.Get("toast.raid_lost"));
                 for (int i = 0; i < GameManager.Instance.Survivors.Count; i++)
                 {
                     SurvivorAgent survivor = GameManager.Instance.Survivors[i];

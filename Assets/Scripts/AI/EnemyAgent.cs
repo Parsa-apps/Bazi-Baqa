@@ -84,9 +84,9 @@ namespace BaziBaqa
             Health = Mathf.Max(0f, Health - Mathf.Max(0f, amount));
             if (Health <= 0f)
             {
-                GameEvents.Notify("یک سایه شکست خورد.");
+                GameEvents.Notify(Loc.Get("toast.enemy_defeated"));
                 if (GameManager.Instance.Achievements != null) GameManager.Instance.Achievements.RegisterDefeat();
-                if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(4, "دفاع از اردوگاه");
+                if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(4, "defense");
                 GameManager.Instance.OnEnemyLost(this);
                 Destroy(gameObject);
             }

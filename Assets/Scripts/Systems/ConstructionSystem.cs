@@ -53,13 +53,13 @@ namespace BaziBaqa
             _placing = true;
             // نشانگرِ ساخت از استخر گرفته می‌شود تا ساخت/نابودیِ مکرر و تخصیصِ حافظه اتفاق نیفتد.
             _ghost = _ghostPool.Get();
-            _ghost.name = "نشانگر ساخت";
+            _ghost.name = WorldParts.BuildGhost;
             _ghost.transform.localScale = new Vector3(1.7f, 0.04f, 1.5f);
             _ghost.transform.position = GameManager.Instance.World.ClampToIsland(Vector3.zero);
             _ghost.SetActive(true);
             Renderer renderer = _ghost.GetComponent<Renderer>();
             renderer.sharedMaterial = EnsureGhostMaterial();
-            GameEvents.Notify("محل ساخت «" + GameText.BuildingName(type) + "» را روی زمین لمس کنید.");
+            GameEvents.Notify(Loc.Get("toast.place_spot", GameText.BuildingName(type)));
         }
 
         public void CancelPlacement()
@@ -94,12 +94,12 @@ namespace BaziBaqa
             List<ResourceCost> costs = GetUpgradeCosts(building.Type, building.Level);
             if (!GameManager.Instance.Resources.TrySpend(costs))
             {
-                GameEvents.Notify("منابع کافی برای ارتقا وجود ندارد.");
+                GameEvents.Notify(Loc.Get("toast.upgrade_no_resources"));
                 return;
             }
             building.ApplyUpgrade();
-            GameEvents.Notify(GameText.BuildingName(building.Type) + " ارتقا یافت.");
-            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(3, "ارتقای ساختمان");
+            GameEvents.Notify(Loc.Get("toast.upgraded", GameText.BuildingName(building.Type)));
+            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(3, "upgrade");
             GameManager.Instance.SaveSoon();
         }
 
@@ -180,14 +180,14 @@ namespace BaziBaqa
         {
             if (!CanPlace(position))
             {
-                GameEvents.Notify("این محل برای ساخت مناسب نیست.");
+                GameEvents.Notify(Loc.Get("toast.bad_spot"));
                 return;
             }
 
             List<ResourceCost> costs = GetBuildCosts(_placingType);
             if (!GameManager.Instance.Resources.TrySpend(costs))
             {
-                GameEvents.Notify("منابع کافی برای ساخت وجود ندارد.");
+                GameEvents.Notify(Loc.Get("toast.build_no_resources"));
                 return;
             }
 
@@ -200,8 +200,8 @@ namespace BaziBaqa
                 position = new SerializableVector3(position)
             };
             CreateFromSave(data);
-            GameEvents.Notify(GameText.BuildingName(_placingType) + " ساخته شد.");
-            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(4, "ساخت ساختمان");
+            GameEvents.Notify(Loc.Get("toast.built", GameText.BuildingName(_placingType)));
+            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(4, "build");
             if (GameManager.Instance.Achievements != null) GameManager.Instance.Achievements.RegisterBuild();
             if (GameManager.Instance.Quests != null) GameManager.Instance.Quests.TryComplete();
             GameManager.Instance.Audio.PlayBuild();
@@ -275,25 +275,18 @@ namespace BaziBaqa
                 _ghost = null;
             }
             _ghostPool.Clear(go => { if (go != null) Destroy(go); });
-            if (_ghostMaterial != null) Destroy(_ghostMaterial);
+            // متریالِ نشانگر در MaterialLibrary کش سراسری است؛ اینجا فقط ارجاع رها می‌شود
+            // تا بازسازیِ جهان، متریالِ در‌استفاده‌ی جایِ دیگر را نابود نکند.
             _ghostMaterial = null;
         }
 
+        /// <summary>
+        /// متریال نشانگرِ ساخت. حلِ شیدر و ست‌کردنِ حالتِ شفاف به <see cref="MaterialLibrary"/>
+        /// سپرده شده تا زیر URP هم درست دیده شود (منطقِ ساخت تغییری نکرده است).
+        /// </summary>
         private static Material CreateGhostMaterial()
         {
-            Shader shader = Shader.Find("Standard");
-            if (shader == null) shader = Shader.Find("Universal Render Pipeline/Lit");
-            if (shader == null) shader = Shader.Find("UI/Default");
-            Material material = new Material(shader);
-            material.color = new Color(0.2f, 0.85f, 0.7f, 0.48f);
-            material.SetFloat("_Mode", 2f);
-            material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            material.SetInt("_ZWrite", 0);
-            material.DisableKeyword("_ALPHATEST_ON");
-            material.EnableKeyword("_ALPHABLEND_ON");
-            material.renderQueue = 3000;
-            return material;
+            return MaterialLibrary.Ghost(new Color(0.2f, 0.85f, 0.7f, 0.48f), 0.48f);
         }
 
         private static bool IsPointerOverUi(int fingerId)
