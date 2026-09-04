@@ -1,7 +1,10 @@
 {
   "name": "BaziBaqa.Runtime",
   "rootNamespace": "BaziBaqa",
-  "references": [],
+  "references": [
+    "UnityEngine.UI",
+    "Unity.TextMeshPro"
+  ],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

@@ -53,7 +53,7 @@ namespace BaziBaqa
             _placing = true;
             // نشانگرِ ساخت از استخر گرفته می‌شود تا ساخت/نابودیِ مکرر و تخصیصِ حافظه اتفاق نیفتد.
             _ghost = _ghostPool.Get();
-            _ghost.name = "نشانگر ساخت";
+            _ghost.name = WorldParts.BuildGhost;
             _ghost.transform.localScale = new Vector3(1.7f, 0.04f, 1.5f);
             _ghost.transform.position = GameManager.Instance.World.ClampToIsland(Vector3.zero);
             _ghost.SetActive(true);

@@ -193,7 +193,7 @@ namespace BaziBaqa
             Audio.SetDanger(Clock.IsNight);
             _initializing = false;
             UI.ShowGame(continuing);
-            GameEvents.StateChanged();
+            GameEvents.RaiseStateChanged();
             if (!_tutorialCompleted) UI.ShowTutorial();
             else if (DailyRewards != null && DailyRewards.Claimable) UI.ShowDailyReward();
             if (AliveSurvivorCount() == 0) LoseGame();
@@ -419,7 +419,7 @@ namespace BaziBaqa
             Camera camera = Camera.main;
             if (camera == null)
             {
-                GameObject cameraObject = new GameObject("دوربین بازی");
+                GameObject cameraObject = new GameObject(WorldParts.GameCamera);
                 cameraObject.tag = "MainCamera";
                 camera = cameraObject.AddComponent<Camera>();
             }

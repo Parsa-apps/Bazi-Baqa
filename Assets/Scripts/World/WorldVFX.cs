@@ -19,10 +19,10 @@ namespace BaziBaqa
         {
             // اگر درخواست بازتولید شد، ابتدا Emitterهای قبلی را آزاد می‌کنیم تا انباشته نشوند.
             Clear();
-            CreateEmitter("آتش", homePosition + new Vector3(0f, 0.9f, 0f), new Color(1f, 0.55f, 0.12f, 0.9f), 14f, 0.12f, 18f, 0.9f, 0.5f);
-            CreateEmitter("دود", homePosition + new Vector3(0f, 1.4f, 0f), new Color(0.32f, 0.32f, 0.34f, 0.5f), 5f, 0.4f, 0.9f, 0.7f, 0.3f);
-            CreateEmitter("جرقه", homePosition + new Vector3(0f, 1.1f, 0f), new Color(1f, 0.8f, 0.3f, 0.8f), 3f, 0.05f, 22f, 1.6f, 0.1f);
-            CreateEmitter("درخشش آب", homePosition + new Vector3(0f, 6f, 0f), new Color(0.6f, 0.85f, 1f, 0.35f), 6f, 0.02f, 0.2f, 14f, 0.15f);
+            CreateEmitter(WorldParts.Fire, homePosition + new Vector3(0f, 0.9f, 0f), new Color(1f, 0.55f, 0.12f, 0.9f), 14f, 0.12f, 18f, 0.9f, 0.5f);
+            CreateEmitter(WorldParts.Smoke, homePosition + new Vector3(0f, 1.4f, 0f), new Color(0.32f, 0.32f, 0.34f, 0.5f), 5f, 0.4f, 0.9f, 0.7f, 0.3f);
+            CreateEmitter(WorldParts.Spark, homePosition + new Vector3(0f, 1.1f, 0f), new Color(1f, 0.8f, 0.3f, 0.8f), 3f, 0.05f, 22f, 1.6f, 0.1f);
+            CreateEmitter(WorldParts.WaterShimmer, homePosition + new Vector3(0f, 6f, 0f), new Color(0.6f, 0.85f, 1f, 0.35f), 6f, 0.02f, 0.2f, 14f, 0.15f);
         }
 
         /// <summary>همه‌ی Emitterها را نابود می‌کند و حافظه را آزاد می‌سازد.</summary>

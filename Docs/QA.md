@@ -3,6 +3,17 @@
 > این چک‌لیست در Unity و روی دستگاه از طریق `Window > General > Test Runner` اجرا می‌شود.
 > سطح منطقی بازی با تست‌های EditMode در `Assets/Tests/EditMode` و سطح ساختار/انتشار با
 > `python3 Tools/validate_project.py` به‌صورت خودکار بررسی می‌شود.
+> ممیزی ایستای کامل (ارجاع‌ها، asmdef، بومی‌سازی، TMP، نسخه): `python3 Tools/project_lint.py`.
+> اجرای واقعی در Unity (کامپایل + EditMode + PlayMode + ممیزی Editor): `Tools/unity_validation.sh`
+> یا منوی `BaziBaqa > Validation > Run Runtime Validation` — راهنما: `Docs/RuntimeValidation.md`.
+
+## زیرساخت فاز ۲٫۵
+
+- [ ] `Tools/unity_validation.sh` بدون `error CS` و بدون تست شکست‌خورده پایان می‌یابد.
+- [ ] `python3 Tools/project_lint.py` صفر خطا می‌دهد (بومی‌سازی، TMP، نسخه، متاها).
+- [ ] کنسول Unity پس از باز کردن پروژه، بدون Error و بدون «Missing Script» است.
+- [ ] `BaziBaqa > Validation > Run Runtime Validation` نتیجه PASS می‌دهد (`Logs/UnityValidationReport.txt`).
+- [ ] `VersionConfig.json` و `ProjectSettings.asset` هم‌خوان‌اند (`BaziBaqa > Version`).
 
 ## دودویی
 

@@ -27,7 +27,11 @@ required_files = [
     "Assets/Scripts/UI/ButtonFx.cs", "Assets/Scripts/UI/CrownPulse.cs",
     "Assets/Scripts/Utilities/ObjectPool.cs", "Assets/Editor/AndroidBuild.cs",
     "ProjectSettings/ProjectVersion.txt", "Packages/manifest.json",
-    "Assets/Resources/Localization/LocalizationTable.json"
+    "Assets/Resources/Localization/LocalizationTable.json",
+    "Assets/Scripts/World/WorldParts.cs", "Assets/Editor/RuntimeValidation.cs",
+    "Assets/Tests/EditMode/QualityGateEditModeTests.cs", "Assets/Tests/PlayMode/RuntimeValidationPlayModeTests.cs",
+    "Docs/RuntimeValidation.md", "Tools/project_lint.py", "Tools/unity_validation.sh",
+    "Tools/localization_allowlist.json"
 ]
 
 errors = []
@@ -75,11 +79,14 @@ total_persian = sum(1 for path in all_scripts if path.suffix == ".cs" and re.sea
 if total_persian < 10:
     errors.append(f"too few Persian-annotated scripts: {total_persian}")
 
-# بررسی تنظیمات انتشار Android (IL2CPP / ARM64 / minSdk / شناسه‌ی بسته)
+# تنظیمات انتشار Android (IL2CPP / ARM64 / minSdk / شناسه‌ی بسته)
 settings = (ROOT / "ProjectSettings/ProjectSettings.asset").read_text(encoding="utf-8")
+
+
 def yaml_has(section, key, value):
     pattern = re.compile(rf"^\s*{re.escape(key)}:\s*{re.escape(value)}\s*$", re.MULTILINE)
     return pattern.search(section) is not None
+
 
 if "com.parsaapps.bazibaqa" not in settings:
     errors.append("project package identifier is not com.parsaapps.bazibaqa")
@@ -89,6 +96,39 @@ if not yaml_has(settings, "AndroidTargetArchitectures", "2"):
     errors.append("Android target architecture is not ARM64 (2)")
 if not re.search(r"scriptingBackend:\s*\n\s*Standalone: 1\n\s*Android: 1", settings):
     errors.append("Android scripting backend is not IL2CPP")
+
+# فایل‌های Assets باید .meta داشته باشند تا GUID ها پایدار بمانند (بدون آن، ارجاع صحنه شکننده می‌شود).
+for path in (ROOT / "Assets").rglob("*"):
+    if ".git" in path.parts or path.suffix == ".meta":
+        continue
+    if not path.with_suffix(path.suffix + ".meta").exists():
+        errors.append(f"missing .meta for {path.relative_to(ROOT).as_posix()}")
+
+# فونت‌های فارسی باید داده‌ی فونت را در بیلد بگنجانند (Dynamic) تا TextMeshPro و Text کار کنند.
+for font_meta in (ROOT / "Assets").rglob("*.ttf.meta"):
+    text = font_meta.read_text(encoding="utf-8")
+    if "includeFontData: 1" not in text:
+        errors.append(f"{font_meta.relative_to(ROOT).as_posix()}: includeFontData باید ۱ (Dynamic) باشد")
+
+# اسمبل‌دیفinition ها باید بسته‌هایی که کد استفاده می‌کند را صریحاً referenced کنند.
+runtime_asmdef = json.loads((ROOT / "Assets/Scripts/BaziBaqa.Runtime.asmdef").read_text(encoding="utf-8"))
+runtime_references = set(runtime_asmdef.get("references", []))
+runtime_code = "\n".join(path.read_text(encoding="utf-8") for path in (ROOT / "Assets/Scripts").rglob("*.cs"))
+if "using TMPro;" in runtime_code and "Unity.TextMeshPro" not in runtime_references:
+    errors.append("BaziBaqa.Runtime.asmdef باید Unity.TextMeshPro را reference کند (استفاده از TMPro)")
+if ("UnityEngine.UI" in runtime_code or "UnityEngine.EventSystems" in runtime_code) and "UnityEngine.UI" not in runtime_references:
+    errors.append("BaziBaqa.Runtime.asmdef باید UnityEngine.UI را reference کند (استفاده از UGUI)")
+
+# منبع واحد حقیقت نسخه باید با ProjectSettings هم‌خوان باشد (VersionManager.Apply اجرا شده باشد).
+version_config = json.loads((ROOT / "Assets/Resources/VersionConfig.json").read_text(encoding="utf-8"))
+for key, expected in (
+    ("bundleVersion", str(version_config["versionName"])),
+    ("AndroidBundleVersionCode", str(version_config["versionCode"])),
+    ("AndroidMinSdkVersion", str(version_config["minSdkVersion"])),
+    ("AndroidTargetSdkVersion", str(version_config["targetSdkVersion"])),
+):
+    if not yaml_has(settings, key, expected):
+        errors.append(f"ProjectSettings.{key} با VersionConfig.json هماهنگ نیست (انتظار {expected}) — VersionManager.Apply() را اجرا کنید")
 
 if errors:
     print("اعتبارسنج ناموفق:")

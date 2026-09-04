@@ -40,7 +40,7 @@ namespace BaziBaqa
             TaskDescription = "در حال آماده‌سازی";
             _nameLabel = GetComponentInChildren<TextMesh>();
             if (_nameLabel != null) _nameLabel.text = PersianText.Process(DisplayName);
-            _body = transform.Find("بدن");
+            _body = transform.Find(WorldParts.ActorTorso);
             if (GameManager.Instance != null) GameManager.Instance.RegisterSurvivor(this);
             if (!IsAlive) Fall();
         }
