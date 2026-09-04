@@ -39,7 +39,7 @@ namespace BaziBaqa
             ActorRoot = CreateRoot("بازماندگان", WorldRoot);
             BuildingRoot = CreateRoot("ساختمان‌ها", WorldRoot);
             EffectRoot = CreateRoot("جلوه‌ها", WorldRoot);
-            _worldFont = Resources.Load<Font>("Fonts/DejaVuSans");
+            _worldFont = GameFont.Persian;
             ConfigureMaterials();
             ConfigureEnvironment();
             _ambientLife = WorldRoot.gameObject.AddComponent<AmbientLife>();

@@ -45,8 +45,7 @@ namespace BaziBaqa
         public void Initialize(GameManager game)
         {
             _game = game;
-            _font = Resources.Load<Font>("Fonts/DejaVuSans");
-            if (_font == null) _font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            _font = GameFont.Persian;
             CreateCanvas();
             GameEvents.Notification += OnNotification;
             GameEvents.StateChanged += RefreshHud;

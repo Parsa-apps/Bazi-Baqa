@@ -64,7 +64,8 @@ namespace BaziBaqa
                 if (i > 0) result.Append(' ');
                 result.Append(ProcessWord(words[i]));
             }
-            return result.ToString();
+            // اعداد لاتین را به اعداد فارسی تبدیل می‌کنیم تا خوانایی بالا بماند.
+            return GameClock.ToPersianDigits(result.ToString());
         }
 
         private static string ProcessWord(string word)

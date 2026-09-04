@@ -74,6 +74,15 @@ namespace BaziBaqa.Tests
         }
 
         [Test]
+        public void PersianTextConvertsLatinDigitsToFarsi()
+        {
+            // با فونت Vazirmatn اعداد فارسی به شکل ۰-۹ نمایش داده می‌شوند.
+            Assert.AreEqual("۱۲", PersianText.Process("12"));
+            Assert.AreEqual("۱۲۳", PersianText.Process("123"));
+            Assert.AreEqual("۰۵", PersianText.Process("05"));
+        }
+
+        [Test]
         public void ResourceNamesArePersian()
         {
             Assert.AreEqual("چوب", GameText.ResourceName(ResourceType.Wood));
