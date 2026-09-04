@@ -4,15 +4,13 @@
 GraphicsSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 14
-  m_AlwaysIncludedShaders:
-  - {fileID: 4800000, guid: 0000000000000000f000000000000000, type: 0}
+  m_AlwaysIncludedShaders: []
   m_PreloadedShaders: []
   m_PreloadShadersBatchTimeLimit: 60
   m_LightsUseLinearIntensity: 0
   m_LightsUseColorTemperature: 0
   m_AllowEnlightenSupportForUpgradedProject: 0
-  m_LightsUseColorTemperature: 0
-  m_FallbackScreenResolution: {serializedVersion: 0, x: 0, y: 0, z: 0, w: 0}
+  m_AllowHDRDisplaySupport: 0
   m_DeferredRenderingPath: {fileID: 0}
   m_DeferredCompute: {fileID: 0}
   m_DeferredReflections: {fileID: 0}
@@ -26,9 +24,11 @@ GraphicsSettings:
   m_SpritesDefaultMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_CustomRenderTextureDefaultMaterial: {fileID: 0}
   m_TransparentRenderTextureDefaultMaterial: {fileID: 0}
-  m_GraphicsAPIs:  {Android: 1}
+  m_BuildTargetGraphicsAPIs:
+    Android: 1
+  m_BuildTargetGraphicsJobs:
+    Android: 0
   m_LightmapStripping: 0
   m_FogStripping: 0
   m_InstancingStripping: 0
   m_LightmapKeepLoadedShaders: 0
-  m_AllowHDRDisplaySupport: 0
