@@ -1,0 +1,31 @@
+# خروجی Android
+
+## تنظیمات پیشنهادی
+
+- Unity: 2022.3 LTS
+- Platform: Android
+- Scripting Backend: IL2CPP
+- API Compatibility: .NET Standard 2.1
+- Minimum API: Android 8.0 / API 26
+- Target API: آخرین API نصب‌شده
+- Architecture: ARM64
+- Texture Compression: ASTC در دستگاه‌های جدید، ETC2 برای سازگاری
+- Managed Stripping: Medium
+
+## خروجی آزمایشی
+
+از مسیر `File > Build Settings` پلتفرم Android را انتخاب کنید. صحنه‌ی `Assets/Scenes/Main.unity` را به Scenes In Build اضافه کنید، سپس:
+
+- برای نصب مستقیم: `Build > Build APK`
+- برای انتشار مارکت: `Build App Bundle (Google Play)` و خروجی `.aab`
+
+شناسه‌ی بسته‌ی پیش‌فرض `com.parsaapps.bazibaqa` است. پیش از انتشار، Keystore اختصاصی استودیو را در خارج از مخزن تنظیم کنید.
+
+## کنترل کیفیت قبل از انتشار
+
+- اجرای سرد و بازگشت از پس‌زمینه
+- دکمه‌ی برگشت Android در منو و بازی
+- چرخش یا نسبت‌های 16:9، 19.5:9 و تبلت
+- ذخیره در حالت بدون دسترسی موقت به فضای ذخیره‌سازی
+- تست 30 دقیقه‌ای با روشنایی و نرخ فریم دستگاه متوسط
+- بررسی متن فارسی، بریدگی دوربین و ناحیه‌ی امن
