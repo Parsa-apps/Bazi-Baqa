@@ -914,5 +914,13 @@
  "toast.save_restored": {
   "fa": "سفر قبلی با موفقیت بازیابی شد.",
   "en": "Your previous journey was restored."
+ },
+ "ui.about.version": {
+  "fa": "نسخه {0}",
+  "en": "Version {0}"
+ },
+ "ui.about.release_summary": {
+  "fa": "بسته: {0}   •   SDK: {1}–{2}",
+  "en": "Package: {0}   •   SDK: {1}–{2}"
  }
 }

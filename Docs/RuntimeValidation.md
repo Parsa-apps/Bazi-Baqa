@@ -26,11 +26,16 @@ Tools/unity_validation.sh skip-playmode
 
 اسکریپت این کارها را انجام می‌دهد و در صورت بروز خطا کد خروجی غیرصفر می‌دهد:
 
+0. پیش‌بررسی ایستا (بدون Unity): `project_lint.py` + `localization_table.py --check` + `validate_project.py`.
 1. کامپایل کامل پروژه (`error CS…` در لاگ = شکست).
-2. اجرای تست‌های **EditMode** و **PlayMode** با `-runTests` و تجزیه‌ی XML نتیجه.
-3. اجرای `BaziBaqa.EditorTools.TypographyBaker.BakeBatch` (بیک assetِ فونتِ TMP + پوششِ حروف).
-4. اجرای `BaziBaqa.EditorTools.RuntimeValidation.ValidateBatch` (ممیزی صحنه، Save/Load، UI، تایپوگرافی، نسخه، بومی‌سازی).
-4. پالایش لاگ‌ها برای `Missing Script/Reference`، API های منسوخ‌شده و اخطارهای مهم.
+2. اجرای `BaziBaqa.EditorTools.TypographyBaker.BakeBatch` (بیک assetِ فونتِ TMP + پوششِ حروف).
+3. اجرای `BaziBaqa.EditorTools.VersionManager.VerifyBatch` (هماهنگی VersionConfig ↔ PlayerSettings).
+4. اجرای تست‌های **EditMode** و **PlayMode** با `-runTests` و تجزیه‌ی XML نتیجه.
+5. اجرای `BaziBaqa.EditorTools.RuntimeValidation.ValidateBatch` (ممیزی صحنه، Save/Load، UI، تایپوگرافی، نسخه، بومی‌سازی).
+6. پالایش لاگ‌ها برای `Missing Script/Reference`، APIهای منسوخ‌شده، «Unable to load font face» و اخطارهای مهم.
+
+کد خروجی: `0` = همه‌چیز پاس، `1` = مشکل در بررسی‌ها، `127` = بررسی‌های ایستا پاس شد ولی Unity در این محیط نیست
+(پس مراحلِ ۱ تا ۶ اجرا نشده‌اند).
 
 همه‌ی لاگ‌ها در `Logs/` نوشته می‌شوند (این پوشه در `.gitignore` است).
 

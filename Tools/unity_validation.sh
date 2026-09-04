@@ -8,10 +8,11 @@
 #        Tools/validate_project.py        → سلامت کلی پروژه و آماده‌سازی Android
 #   ۱) ایمپورت کامل پروژه (کامپایل اسکریپت‌ها) → خطاهای CS کنسول
 #   ۲) فونتِ فارسیِ TMP: BaziBaqa.EditorTools.TypographyBaker.BakeBatch (بیک + پوششِ حروف)
-#   ۳) اجرای تست‌های EditMode  (Assets/Tests/EditMode)
-#   ۴) اجرای تست‌های PlayMode   (Assets/Tests/PlayMode → بارگذاری صحنه، Save/Load، تعامل UI)
-#   ۵) اجرای BaziBaqa.EditorTools.RuntimeValidation.ValidateBatch (ممیزی + صحت نسخه + بومی‌سازی)
-#   ۶) پالایش لاگ‌ها برای error / warning / Missing Reference و چاپ خلاصه
+#   ۳) هماهنگیِ نسخه: BaziBaqa.EditorTools.VersionManager.VerifyBatch (فایل ↔ PlayerSettings)
+#   ۴) اجرای تست‌های EditMode  (Assets/Tests/EditMode)
+#   ۵) اجرای تست‌های PlayMode   (Assets/Tests/PlayMode → بارگذاری صحنه، Save/Load، تعامل UI)
+#   ۶) اجرای BaziBaqa.EditorTools.RuntimeValidation.ValidateBatch (ممیزی + صحت نسخه + بومی‌سازی)
+#   ۷) پالایش لاگ‌ها برای error / warning / Missing Reference و چاپ خلاصه
 #
 # usage:
 #   Tools/unity_validation.sh                 # خودکار (UNITY_BIN یا Unity Hub)
@@ -97,7 +98,10 @@ run_step compile "$UNITY"
 # ۲) فونتِ فارسیِ TextMeshPro: بیک asset و اعتبارسنجیِ پوششِ حروف
 run_step typography "$UNITY" -executeMethod BaziBaqa.EditorTools.TypographyBaker.BakeBatch
 
-# ۳) تست‌های EditMode و PlayMode
+# ۳) هماهنگیِ نسخه (VersionConfig ↔ PlayerSettings)
+run_step version "$UNITY" -executeMethod BaziBaqa.EditorTools.VersionManager.VerifyBatch
+
+# ۴) تست‌های EditMode و PlayMode
 run_tests() {
   local platform="$1"
   local log="$LOGS/tests-${platform}.log"
@@ -141,7 +145,7 @@ PY
 run_tests editmode
 if [[ "$MODE" != "skip-playmode" ]]; then run_tests playmode; fi
 
-# ۴) ممیزی‌های داخل Editor (صحنه، Save/Load، UI، بومی‌سازی، نسخه)
+# ۵) ممیزی‌های داخل Editor (صحنه، Save/Load، UI، بومی‌سازی، نسخه)
 echo "→ editor validation"
 "$UNITY" -batchmode -nographics -projectPath "$PROJECT" -logFile "$LOGS/validation.log" \
   -executeMethod BaziBaqa.EditorTools.RuntimeValidation.ValidateBatch >/dev/null 2>&1
@@ -153,7 +157,7 @@ else
   echo "  ✓ RuntimeValidation پاس شد"
 fi
 
-# ۵) هشدارهای مهمِ کنسول در همه‌ی لاگ‌ها
+# ۶) هشدارهای مهمِ کنسول در همه‌ی لاگ‌ها
 echo "→ console triage"
 grep -h -E "Missing (Script|Reference|Component)|The referenced script|cannot be loaded|Unassigned reference|Default Execution Order|is deprecated|Unable to load font face|missing characters|TMP Settings" "$LOGS"/*.log 2>/dev/null | sort -u | head -25 | sed 's/^/  W  /'
 if grep -qhE "Missing (Script|Reference|Component)|The referenced script" "$LOGS"/*.log 2>/dev/null; then STATUS=1; fi

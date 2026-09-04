@@ -783,6 +783,14 @@
           "value": "هوا تغییر کرد: {0}"
         },
         {
+          "key": "ui.about.release_summary",
+          "value": "بسته: {0}   •   SDK: {1}–{2}"
+        },
+        {
+          "key": "ui.about.version",
+          "value": "نسخه {0}"
+        },
+        {
           "key": "ui.about.website",
           "value": "باز کردن وب‌سایت"
         },
@@ -1851,6 +1859,14 @@
         {
           "key": "toast.weather_changed",
           "value": "The weather changed: {0}"
+        },
+        {
+          "key": "ui.about.release_summary",
+          "value": "Package: {0}   •   SDK: {1}–{2}"
+        },
+        {
+          "key": "ui.about.version",
+          "value": "Version {0}"
         },
         {
           "key": "ui.about.website",

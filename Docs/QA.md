@@ -53,6 +53,19 @@
 - [ ] تست‌های `TypographyTests` و `RuntimeValidationPlayModeTests` سبز باشند (کنسول بدون Warning).
 - [ ] متن‌های چیده‌شده در Editor با `LocalizedText` پس از تغییر زبان خودکار تازه شوند.
 
+## نسخه و انتشار (فاز ۲٫۵ — بخش ۴)
+
+- [ ] `python3 Tools/project_lint.py` بدون خطا باشد (دروازه‌ی هماهنگی نسخه، از جمله VersionConfig ↔ ProjectSettings).
+- [ ] `Assets/Resources/VersionConfig.json` = `0.2.0` و Build Number `2`؛ `ProjectSettings.asset` همان مقادیر را دارد.
+- [ ] در Unity: `BaziBaqa > Version > Verify Version Consistency` پیام «منسجم» بدهد.
+- [ ] پس از `Bump Patch/Minor/Major` دوباره Verify بگیرید و `versionName` در Inspectorِ Player هم عوض شده باشد.
+- [ ] پنجره‌ی «درباره‌ی سازنده» در بازی، `نسخه 0.2.0 (2)` و شناسه‌ی بسته را نشان دهد.
+- [ ] `Prepare Android Settings`: IL2CPP + ARM64 + ASTC + minSdk 26 + targetSdk 34 و `activeInputHandler: 0`.
+- [ ] `Build AAB (Google Play)` فایل `Builds/Android/BaziBaqa-0.2.0.aab` بسازد (نام با نسخه).
+- [ ] اگر keystore گذاشته نشده بیلدِ تستی موفق باشد؛ برای انتشار `BAZIBAAQA_KEYSTORE*` ست شود.
+- [ ] `SaveSystem.CurrentSaveVersion` (۳) دست نخورده باشد — فقط با تغییرِ ساختارِ سیو بالا می‌رود.
+
+
 ## سیستم‌ها
 
 - [ ] جمع‌آوری منابع مقدار انبار را افزایش می‌دهد.

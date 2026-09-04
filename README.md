@@ -15,7 +15,8 @@
 - صحنه‌ی اصلی: `Assets/Scenes/Main.unity`
 - راهنمای معماری: `Docs/Architecture.md`
 - راهنمای خروجی Android: `Docs/AndroidBuild.md`
-- راهنمای بومی‌سازی: `Docs/Localization.md` — راهنمای فونت و TextMeshPro: `Docs/Typography.md` — اعتبارسنجی زمان اجرا: `Docs/RuntimeValidation.md`
+- راهنمای بومی‌سازی: `Docs/Localization.md` — راهنمای فونت و TextMeshPro: `Docs/Typography.md`
+- مدیریت نسخه: `Docs/Versioning.md` — اعتبارسنجی زمان اجرا: `Docs/RuntimeValidation.md`
 
 ## اجرای پروژه
 

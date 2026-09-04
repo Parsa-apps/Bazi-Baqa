@@ -30,6 +30,14 @@
 - برای نصب مستقیم: `Build > Build APK`
 - برای انتشار مارکت: `Build App Bundle (Google Play)` و خروجی `.aab`
 
+## نسخه و Build Number
+
+شماره‌ها فقط در `Assets/Resources/VersionConfig.json` نوشته می‌شوند و `VersionManager.Apply()` آن‌ها را
+روی `PlayerSettings` می‌نشاند؛ `AndroidBuild` پیش از هر بیلد خودش Apply + Verify می‌کند و اگر نسخه
+ناهماهنگ باشد بیلد را متوقف می‌کند. نامِ فایل خروجی هم با نسخه برچسب می‌خورد (`BaziBaqa-0.2.0.aab`).
+برای keystore سفارشی: `BAZIBAAQA_KEYSTORE`، `BAZIBAAQA_KEYSTORE_PASS`، `BAZIBAAQA_KEYALIAS`،
+`BAZIBAAQA_KEYALIAS_PASS` (یا یک فایل در `Assets/Keystore/`). جزئیات و قراردادِ افزایش نسخه: `Docs/Versioning.md`.
+
 ## کنترل کیفیت قبل از انتشار
 
 - اجرای سرد و بازگشت از پس‌زمینه

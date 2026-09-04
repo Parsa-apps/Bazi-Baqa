@@ -38,6 +38,12 @@ namespace BaziBaqa
         /// <summary>نام + کد، مثل «0.1.0 (1)».</summary>
         public static string Display { get { return VersionName + " (" + VersionCode + ")"; } }
 
+        /// <summary>خلاصه‌ی کاملِ انتشار؛ در پنجره‌ی «درباره» و لاگِ شروع استفاده می‌شود.</summary>
+        public static string Summary
+        {
+            get { return Display + "  •  " + BundleId + "  •  minSdk " + MinSdkVersion + "  •  targetSdk " + TargetSdkVersion; }
+        }
+
         public static void LoadFromTextAsset(TextAsset asset)
         {
             if (asset == null) return;

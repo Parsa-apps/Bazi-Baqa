@@ -721,7 +721,12 @@ _goalLabel.Set(Loc.Get("hud.objective_line", Loc.Num(GameManager.VictoryDay)) + 
             {
                 UIText body = CreateText(modal.transform, Loc.Get("game.credits"), 18, Color.white, TextAnchor.MiddleCenter);
                 SetRect(body.Rect, new Vector2(0.08f, 0.3f), new Vector2(0.92f, 0.78f), Vector2.zero, Vector2.zero);
-                CreateButton(modal.transform, Loc.Get("ui.about.website"), Teal, () => Application.OpenURL("https://Parsa-apps.github.io"), new Vector2(0.2f, 0.14f), new Vector2(0.8f, 0.25f), 16);
+                UIText version = CreateText(modal.transform, Loc.Get("ui.about.version", GameVersion.Display), 14, Teal, TextAnchor.MiddleCenter);
+                SetRect(version.Rect, new Vector2(0.08f, 0.26f), new Vector2(0.92f, 0.31f), Vector2.zero, Vector2.zero);
+                UIText release = CreateText(modal.transform, Loc.Get("ui.about.release_summary", GameVersion.BundleId,
+                    Loc.Num(GameVersion.MinSdkVersion), Loc.Num(GameVersion.TargetSdkVersion)), 11, Muted, TextAnchor.MiddleCenter);
+                SetRect(release.Rect, new Vector2(0.06f, 0.03f), new Vector2(0.94f, 0.12f), Vector2.zero, Vector2.zero);
+                CreateButton(modal.transform, Loc.Get("ui.about.website"), Teal, () => Application.OpenURL("https://Parsa-apps.github.io"), new Vector2(0.2f, 0.13f), new Vector2(0.8f, 0.24f), 16);
             });
         }
 

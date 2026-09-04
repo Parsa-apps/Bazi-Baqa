@@ -104,6 +104,16 @@ Splash برند Parsa Apps، منوی فارسی، شروع سفر، ادامه�
 - `Assets/Editor/TypographyBaker.cs`: منوهای Bake / Validate / Repair Import + import خودکارِ TMP Essential Resources و ثبتِ فونتِ پیش‌فرضِ TMP. `Assets/Resources/Fonts/PersianGlyphs.txt` منبعِ واحدِ مجموعه‌حروف است و دروازه‌ی ایستا هر کاراکترِ غیرلاتینِ جدول را با آن می‌سنجد (یک خطای واقعی در همین مرحله گرفته شد: `٪`).
 - `RuntimeValidation.CheckTypography()` بیک و اعتبارسنجی را در خط فرمان هم اجرا می‌کند. تست‌ها: `Assets/Tests/EditMode/TypographyTests.cs` (۱۱ تست) + `Typography_EveryLabelIsDrivenByTheTextBackend` در PlayMode. سند: `Docs/Typography.md`.
 - وضعیتِ دروازه‌ها پس از این بخش: `Tools/project_lint.py` = **۰ خطا، ۰ هشدار** (خطای «هنوز از Text/Font قدیمی استفاده می‌کند» بسته شد).
+### ۴) مدیریت نسخه و هماهنگیِ بیلد Android ✅
+- منبعِ حقیقتِ واحد: `Assets/Resources/VersionConfig.json` → `0.2.0` / Build Number `2` / `com.parsaapps.bazibaqa` / minSdk 26 / targetSdk 34 / محصول «سرزمین بقا».
+- `VersionManager` عمومی شد: `Apply()` (+ منوهای Bump/Verify) و دو نقطه‌ی ورودِ خط فرمان `ApplyBatch` / `VerifyBatch` با کد خروجی؛ SDKها با `Enum.IsDefined` محافظت می‌شوند تا در Unity 2022.3 عضوِ ناموجود باعث خطای کامپایل نشود.
+- `AndroidBuild` هماهنگ شد: پیش از بیلد `Apply()` + `Verify()` (ناهماهنگ ⇒ توقف بیلد)، SDKها از همان فایل، نامِ خروجی با نسخه (`BaziBaqa-0.2.0.aab`)، keystore سفارشی از متغیرهایِ محیطی یا `Assets/Keystore/` و در غیر این صورت بیلدِ تستی بدون keystore نمی‌شکند.
+- `ProjectSettings/ProjectSettings.asset` دقیقاً مقدارِ اعمال‌شده را دارد (`bundleVersion: 0.2.0`, `AndroidBundleVersionCode: 2`, `AndroidMinSdkVersion: 26`, `AndroidTargetSdkVersion: 34`) و `activeInputHandler: 0` صریح شد (کد از `Input.*` کلاسیک استفاده می‌کند؛ پکیژ Input System نصب نیست).
+- شماره‌ی نسخه در بازی هم دیده می‌شود: کلیدهای `ui.about.version` و `ui.about.release_summary` به پنجره‌ی «درباره‌ی سازنده» اضافه شد (۲۶۸ کلید × ۲ زبان).
+- تست‌ها: `Assets/Tests/EditMode/VersionConsistencyTests.cs` (۷ تست: JSON↔YAML، Build Number، صحنه‌ی Build Settings، activeInputHandler، Display/Summary، کلیدهایِ «درباره»، fallback) — `QualityGateEditModeTests` هم مقدارِ زنده‌ی `PlayerSettings` را می‌سنجد. `Tools/unity_validation.sh` مرحله‌ی `version` گرفت. سند: `Docs/Versioning.md`.
+
+### ۵) نتیجه‌ی فاز
+پس از بخش ۴، `python3 Tools/project_lint.py` = **۰ خطا، ۰ هشدار**، `Tools/localization_table.py --check` سالم و `Tools/validate_project.py` موفق. تنها کاری که در این محیط نشد، اجرای خودِ Unity بود (بیلد/کامپایل/تست‌ها در Test Runner)؛ `Tools/unity_validation.sh` همان مراحل را روی ماشینِ دارای Unity اجرا می‌کند و در نبودِ Unity با کد ۱۲۷ می‌گوید «فقط بررسی‌های ایستا انجام شد».
 
 ## وضعیت انتشار
 
