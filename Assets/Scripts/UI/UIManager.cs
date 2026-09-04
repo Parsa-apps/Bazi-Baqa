@@ -262,10 +262,11 @@ namespace BaziBaqa
             SetRect(_technologyLabel.rectTransform, new Vector2(0.04f, 0.03f), new Vector2(0.96f, 0.5f), Vector2.zero, Vector2.zero);
 
             GameObject bottom = CreatePanel("نوار عملیات", _hudRoot.transform, new Color(0.02f, 0.07f, 0.11f, 0.97f), new Vector2(0f, 0f), new Vector2(1f, 0.17f));
-            CreateButton(bottom.transform, "ساخت‌وساز", Teal, ToggleBuildPanel, new Vector2(0.29f, 0.2f), new Vector2(0.46f, 0.82f), 17);
-            CreateButton(bottom.transform, "فناوری", new Color(0.38f, 0.55f, 0.85f), ToggleTechnologyPanel, new Vector2(0.48f, 0.2f), new Vector2(0.63f, 0.82f), 17);
-            CreateButton(bottom.transform, "ذخیره", new Color(0.36f, 0.45f, 0.5f), _game.SaveGame, new Vector2(0.65f, 0.2f), new Vector2(0.78f, 0.82f), 16);
-            CreateButton(bottom.transform, "مکث", new Color(0.28f, 0.34f, 0.4f), _game.TogglePause, new Vector2(0.8f, 0.2f), new Vector2(0.94f, 0.82f), 16);
+            CreateButton(bottom.transform, "ساخت‌وساز", Teal, ToggleBuildPanel, new Vector2(0.28f, 0.2f), new Vector2(0.41f, 0.82f), 15);
+            CreateButton(bottom.transform, "فناوری", new Color(0.38f, 0.55f, 0.85f), ToggleTechnologyPanel, new Vector2(0.425f, 0.2f), new Vector2(0.55f, 0.82f), 15);
+            CreateButton(bottom.transform, "تربیت نیرو", new Color(0.55f, 0.38f, 0.68f), ShowTrainingPanel, new Vector2(0.565f, 0.2f), new Vector2(0.69f, 0.82f), 14);
+            CreateButton(bottom.transform, "ذخیره", new Color(0.36f, 0.45f, 0.5f), _game.SaveGame, new Vector2(0.705f, 0.2f), new Vector2(0.815f, 0.82f), 14);
+            CreateButton(bottom.transform, "مکث", new Color(0.28f, 0.34f, 0.4f), _game.TogglePause, new Vector2(0.83f, 0.2f), new Vector2(0.94f, 0.82f), 14);
             _goalLabel = CreateText(bottom.transform, "", 13, Muted, TextAnchor.MiddleLeft);
             SetRect(_goalLabel.rectTransform, new Vector2(0.02f, 0.08f), new Vector2(0.26f, 0.9f), Vector2.zero, Vector2.zero);
 
@@ -344,6 +345,26 @@ namespace BaziBaqa
             _game.Construction.SelectForPlacement(type);
             if (_buildPanel != null) Destroy(_buildPanel);
             _buildPanel = null;
+        }
+
+        private void ShowTrainingPanel()
+        {
+            if (_buildPanel != null) Destroy(_buildPanel);
+            if (_technologyPanel != null) Destroy(_technologyPanel);
+            CreateModal("مرکز تربیت نیرو", (modal) =>
+            {
+                Text body = CreateText(modal.transform, "کارگاه، محل آموزش نیروهای تازه است.\n\nهزینه‌ی هر نیروی نگهبان:\nغذا ۱۲  •  انرژی ۵  •  طلا ۳\n\nظرفیت گروه: " + GameClock.ToPersianDigits(_game.AliveSurvivorCount().ToString()) + " / ۱۰", 16, Color.white, TextAnchor.MiddleCenter);
+                SetRect(body.rectTransform, new Vector2(0.08f, 0.4f), new Vector2(0.92f, 0.79f), Vector2.zero, Vector2.zero);
+                CreateButton(modal.transform, "تربیت نگهبان", Teal, TrainGuard, new Vector2(0.16f, 0.23f), new Vector2(0.84f, 0.35f), 17);
+            });
+        }
+
+        private void TrainGuard()
+        {
+            _game.Training.TrainGuard();
+            if (_modalLayer != null) Destroy(_modalLayer);
+            _modalLayer = null;
+            RefreshHud();
         }
 
         private void ToggleTechnologyPanel()

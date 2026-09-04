@@ -19,6 +19,7 @@ GameBootstrap
     └── UIManager          رابط فارسی و راست‌چین
 
 SurvivorAgent ── SurvivorBrain ── ResourceNode / BuildingController
+TrainingSystem ── Workshop ── GameManager.RecruitSurvivor
 CameraController ── ConstructionSystem
 AudioManager ── UIManager / GameManager
 ```

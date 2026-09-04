@@ -27,6 +27,7 @@ namespace BaziBaqa
         public EnemyDirector EnemyDirector { get; private set; }
         public TechnologySystem Technology { get; private set; }
         public SurvivalSystem Survival { get; private set; }
+        public TrainingSystem Training { get; private set; }
         public AudioManager Audio { get; private set; }
         public UIManager UI { get; private set; }
         public CameraController CameraController { get; private set; }
@@ -65,6 +66,7 @@ namespace BaziBaqa
             EnemyDirector = gameObject.AddComponent<EnemyDirector>();
             Technology = gameObject.AddComponent<TechnologySystem>();
             Survival = gameObject.AddComponent<SurvivalSystem>();
+            Training = gameObject.AddComponent<TrainingSystem>();
             Audio = gameObject.AddComponent<AudioManager>();
             World.Initialize();
             Clock.DayChanged += OnDayChanged;
@@ -128,6 +130,7 @@ namespace BaziBaqa
             Clock.Initialize(save.day, save.dayTime);
             Technology.Initialize(save);
             Survival.Initialize();
+            Training.Initialize();
             Weather.Initialize();
             EnemyDirector.Clear();
             Construction.Initialize(save.buildings);
@@ -223,6 +226,32 @@ namespace BaziBaqa
             save.settings.vibrationEnabled = Audio == null || Audio.VibrationEnabled;
             save.settings.tutorialCompleted = _tutorialCompleted;
             Save.Save(save);
+        }
+
+        public bool RecruitSurvivor(SurvivorRole role)
+        {
+            if (AliveSurvivorCount() >= (Training == null ? 10 : Training.MaximumGroupSize)) return false;
+            string[] names = { "رها", "بهرام", "مینا", "داریوش", "ترانه", "آرمان" };
+            string name = names[_survivors.Count % names.Length];
+            Vector3 home = Construction.GetHomePosition();
+            SurvivorSaveData data = new SurvivorSaveData
+            {
+                id = System.Guid.NewGuid().ToString("N"),
+                displayName = name,
+                role = role,
+                state = SurvivorState.Idle,
+                health = 100f,
+                hunger = 100f,
+                thirst = 100f,
+                morale = 80f,
+                alive = true,
+                position = new SerializableVector3(home + new Vector3(Random.Range(-2.5f, 2.5f), 0f, Random.Range(-2f, 2f)))
+            };
+            World.CreateSurvivorVisual(data);
+            GameEvents.Notify(name + " به گروه پیوست.");
+            UI.RefreshHud();
+            SaveSoon();
+            return true;
         }
 
         public void OnSurvivorLost(SurvivorAgent survivor)
