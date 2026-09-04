@@ -21,31 +21,31 @@ namespace BaziBaqa.EditorTools
         [MenuItem("BaziBaqa/Build Options/Prepare Android Settings")]
         public static void PrepareAndroidSettings()
         {
-            ConfigureAndroidPlayer();
+            ConfigureAndroidPlayer(false);
             Debug.Log("[BaziBaqa] تنظیمات Android آماده شد: IL2CPP، ARM64، minSdk 26، بسته‌ی " + BundleId);
         }
 
         [MenuItem("BaziBaqa/Build/Build APK (تست)")]
         public static void BuildApkDebug()
         {
-            Build(BuildPlayerOptions, "BaziBaqa_Debug.apk", BuildOptions.None);
+            Build(BuildPlayerOptions, "BaziBaqa_Debug.apk", BuildOptions.None, BuildAppBundle: false);
         }
 
         [MenuItem("BaziBaqa/Build/Build APK (Release)")]
         public static void BuildApkRelease()
         {
-            Build(BuildPlayerOptions, "BaziBaqa.apk", BuildOptions.None);
+            Build(BuildPlayerOptions, "BaziBaqa.apk", BuildOptions.None, BuildAppBundle: false);
         }
 
         [MenuItem("BaziBaqa/Build/Build AAB (Google Play)")]
         public static void BuildAppBundle()
         {
-            Build(BuildPlayerOptions, "BaziBaqa.aab", BuildOptions.None);
+            Build(BuildPlayerOptions, "BaziBaqa.aab", BuildOptions.None, BuildAppBundle: true);
         }
 
-        private static void Build(string[] scenes, string outputFile, BuildOptions options)
+        private static void Build(string[] scenes, string outputFile, BuildOptions options, bool BuildAppBundle)
         {
-            if (!ConfigureAndroidPlayer())
+            if (!ConfigureAndroidPlayer(BuildAppBundle))
             {
                 Debug.LogError("[BaziBaqa] پیکربندی Android ناموفق بود؛ خروجی ساخته نشد.");
                 return;
@@ -67,7 +67,7 @@ namespace BaziBaqa.EditorTools
             BuildResult result = report.summary.result;
             if (result == BuildResult.Succeeded)
             {
-                Debug.Log("[BaziBaqa] خروجی با موفقیت ساخته شد: " + outputPath);
+                Debug.Log("[BaziBaqa] خروجی " + (BuildAppBundle ? "AAB" : "APK") + " با موفقیت ساخته شد: " + outputPath);
             }
             else
             {
@@ -80,7 +80,8 @@ namespace BaziBaqa.EditorTools
             get { return new[] { ScenePath }; }
         }
 
-        private static bool ConfigureAndroidPlayer()
+        /// <summary>پیکربندی Player برای Android. اگر buildAppBundle درست باشد خروجی AAB وگرنه APK می‌شود.</summary>
+        private static bool ConfigureAndroidPlayer(bool buildAppBundle)
         {
             if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
             {
@@ -100,7 +101,8 @@ namespace BaziBaqa.EditorTools
             PlayerSettings.Android.useCustomKeystore = false;
             PlayerSettings.stripEngineCode = true;
             PlayerSettings.SetIl2CppCompilerConfiguration(BuildTargetGroup.Android, Il2CppCompilerConfiguration.Release);
-            EditorUserBuildSettings.buildAppBundle = false;
+            // دو حالت متمایز: AAB برای گوگل‌پلی، APK برای نصب مستقیم.
+            EditorUserBuildSettings.buildAppBundle = buildAppBundle;
             EditorUserBuildSettings.androidBuildType = AndroidBuildType.Release;
             EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
             EditorUserBuildSettings.androidETC2Fallback = AndroidETC2Fallback.Quality32;
