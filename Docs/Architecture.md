@@ -15,13 +15,16 @@ GameBootstrap
     ├── ConstructionSystem ساخت، ارتقا و جانمایی لمسی
     ├── WeatherSystem      باران، مه و نور
     ├── EnemyDirector      حمله‌های شبانه
+    ├── ProgressionSystem  تجربه و «مرحله‌ی گروه»
     ├── SaveSystem         ذخیره‌ی اتمیک و نسخه‌ی پشتیبان
     └── UIManager          رابط فارسی و راست‌چین
 
 SurvivorAgent ── SurvivorBrain ── ResourceNode / BuildingController
 TrainingSystem ── Workshop ── GameManager.RecruitSurvivor
+ProgressionSystem ── GameEvents / SurvivingActions (جمع‌آوری، ساخت، ارتقا، تربیت، فناوری، دفاع)
 CameraController ── ConstructionSystem
 AudioManager ── UIManager / GameManager
+AndroidBuild (Assets/Editor) ── BuildPipeline ── APK / AAB
 ```
 
 ## جریان شروع
@@ -40,6 +43,10 @@ AudioManager ── UIManager / GameManager
 - ذخیره ابتدا در فایل موقت نوشته و سپس با نسخه‌ی پشتیبان جابه‌جا می‌شود تا قطع برق فایل اصلی را خراب نکند.
 - سیستم‌ها به جای `FindObjectOfType`، از مرجع `GameManager.Instance` استفاده می‌کنند.
 - ساخت‌وساز از طریق `ConstructionSystem` انجام می‌شود؛ UI فقط فرمان انتخاب ساختمان را صادر می‌کند.
+- پیشرفت گروه از `ProgressionSystem` انجام می‌شود؛ منطق ریاضی آن در `ProgressionMath` مستقل و قابل تست است و
+  فقط در بازیکردن، سطح بالا می‌رود و پاداش می‌دهد.
+- خروجی اندروید از اسکریپت `Assets/Editor/AndroidBuild` (منوی `BaziBaqa > Build`) ساخته می‌شود و پس از پیکربندی
+  خودکار IL2CPP/ARM64، APK یا AAB تولید می‌کند.
 
 ## مسیرهای توسعه‌ی بعدی
 

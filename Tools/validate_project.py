@@ -11,14 +11,15 @@ required_dirs = [
     "Assets/Scripts/World", "Assets/Scripts/AI", "Assets/Scripts/UI",
     "Assets/Scripts/Audio", "Assets/Scenes", "Assets/Prefabs",
     "Assets/Materials", "Assets/Textures", "Assets/Animations", "Assets/Localization",
-    "Assets/Resources/Fonts", "ProjectSettings", "Packages"
+    "Assets/Resources/Fonts", "Assets/Editor", "ProjectSettings", "Packages"
 ]
 required_files = [
     "Assets/Scenes/Main.unity", "Assets/Scripts/Core/GameBootstrap.cs",
     "Assets/Scripts/Core/GameManager.cs", "Assets/Scripts/Core/SaveSystem.cs",
     "Assets/Scripts/Systems/ResourceSystem.cs", "Assets/Scripts/Systems/ConstructionSystem.cs",
-    "Assets/Scripts/AI/SurvivorAgent.cs", "Assets/Scripts/AI/EnemyAgent.cs",
-    "Assets/Scripts/UI/UIManager.cs", "ProjectSettings/ProjectVersion.txt",
+    "Assets/Scripts/Systems/ProgressionSystem.cs", "Assets/Scripts/AI/SurvivorAgent.cs",
+    "Assets/Scripts/AI/EnemyAgent.cs", "Assets/Scripts/UI/UIManager.cs",
+    "Assets/Editor/AndroidBuild.cs", "ProjectSettings/ProjectVersion.txt",
     "Packages/manifest.json", "Assets/Localization/LocalizationTable.json"
 ]
 
@@ -44,17 +45,37 @@ if "Assets/Scenes/Main.unity" not in (ROOT / "ProjectSettings/EditorBuildSetting
     errors.append("Main scene is not in build settings")
 
 scripts = list((ROOT / "Assets/Scripts").rglob("*.cs"))
+editor_scripts = list((ROOT / "Assets/Editor").rglob("*.cs"))
+all_scripts = scripts + editor_scripts
 if len(scripts) < 15:
     errors.append(f"expected layered C# implementation, found {len(scripts)} scripts")
-for path in scripts:
+if not editor_scripts:
+    errors.append("missing Android build automation in Assets/Editor")
+for path in all_scripts:
     content = path.read_text(encoding="utf-8")
     if content.count("{") != content.count("}"):
         errors.append(f"unbalanced braces: {path.relative_to(ROOT)}")
     if not re.search(r"\b(class|struct|enum)\s+\w+", content):
         errors.append(f"no type declaration: {path.relative_to(ROOT)}")
 
+# بررسی تنظیمات انتشار Android (IL2CPP / ARM64 / minSdk / شناسه‌ی بسته)
+settings = (ROOT / "ProjectSettings/ProjectSettings.asset").read_text(encoding="utf-8")
+def yaml_has(section, key, value):
+    pattern = re.compile(rf"^\s*{re.escape(key)}:\s*{re.escape(value)}\s*$", re.MULTILINE)
+    match = pattern.search(section)
+    return match is not None
+
+if "com.parsaapps.bazibaqa" not in settings:
+    errors.append("project package identifier is not com.parsaapps.bazibaqa")
+if not yaml_has(settings, "AndroidMinSdkVersion", "26"):
+    errors.append("Android minSdk is not API 26")
+if not yaml_has(settings, "AndroidTargetArchitectures", "2"):
+    errors.append("Android target architecture is not ARM64 (2)")
+if not re.search(r"scriptingBackend:\s*\n\s*Standalone: 1\n\s*Android: 1", settings):
+    errors.append("Android scripting backend is not IL2CPP")
+
 if errors:
     print("اعتبارسنج ناموفق:")
     print("\n".join(f"- {error}" for error in errors))
     sys.exit(1)
-print(f"اعتبارسنج موفق: {len(scripts)} اسکریپت، صحنه‌ی اصلی و تنظیمات Android آماده هستند.")
+print(f"اعتبارسنج موفق: {len(all_scripts)} اسکریپت، صحنه‌ی اصلی، سیستم‌ها و تنظیمات انتشار Android آماده هستند.")

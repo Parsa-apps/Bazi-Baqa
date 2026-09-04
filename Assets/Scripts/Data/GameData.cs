@@ -178,6 +178,7 @@ namespace BaziBaqa
         public int day = 1;
         public float dayTime = 0.28f;
         public int playerLevel = 1;
+        public int playerXp;
         public int technologyPoints;
         public int unlockedTechnologyMask;
         public ResourceState resources = new ResourceState();

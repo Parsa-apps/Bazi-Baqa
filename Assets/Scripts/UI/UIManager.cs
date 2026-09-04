@@ -20,6 +20,7 @@ namespace BaziBaqa
         private GameObject _technologyPanel;
         private GameObject _modalLayer;
         private Transform _survivorList;
+        private Text _groupTitleLabel;
         private Text _clockLabel;
         private Text _weatherLabel;
         private Text _populationLabel;
@@ -220,6 +221,11 @@ namespace BaziBaqa
             if (_clockLabel != null) PersianText.Set(_clockLabel, "روز " + GameClock.ToPersianDigits(_game.Clock.Day.ToString()) + "  •  " + _game.Clock.GetClockText());
             if (_weatherLabel != null) PersianText.Set(_weatherLabel, "☁  " + GameText.WeatherName(_game.Weather.Current));
             if (_populationLabel != null) PersianText.Set(_populationLabel, "گروه: " + GameClock.ToPersianDigits(_game.AliveSurvivorCount().ToString()) + " / " + GameClock.ToPersianDigits(_game.Survivors.Count.ToString()));
+            if (_groupTitleLabel != null)
+            {
+                int level = _game.Progression == null ? 1 : _game.Progression.Level;
+                PersianText.Set(_groupTitleLabel, "همراهان  •  مرحله‌ی گروه: " + GameClock.ToPersianDigits(level.ToString()));
+            }
             if (_technologyLabel != null) PersianText.Set(_technologyLabel, "فناوری  " + GameClock.ToPersianDigits(_game.Technology.Points.ToString()));
             if (_goalLabel != null)
             {
@@ -250,8 +256,8 @@ namespace BaziBaqa
             SetRect(_weatherLabel.rectTransform, new Vector2(0.02f, 0.03f), new Vector2(0.4f, 0.32f), Vector2.zero, Vector2.zero);
 
             GameObject leftPanel = CreatePanel("گروه", _hudRoot.transform, new Color(0.025f, 0.09f, 0.13f, 0.92f), new Vector2(0.015f, 0.2f), new Vector2(0.275f, 0.82f));
-            Text groupTitle = CreateText(leftPanel.transform, "همراهان", 19, Teal, TextAnchor.MiddleRight);
-            SetRect(groupTitle.rectTransform, new Vector2(0.06f, 0.91f), new Vector2(0.94f, 0.99f), Vector2.zero, Vector2.zero);
+            _groupTitleLabel = CreateText(leftPanel.transform, "همراهان", 19, Teal, TextAnchor.MiddleRight);
+            SetRect(_groupTitleLabel.rectTransform, new Vector2(0.06f, 0.91f), new Vector2(0.94f, 0.99f), Vector2.zero, Vector2.zero);
             _survivorList = CreateRectObject("فهرست بازمانده‌ها", leftPanel.transform).transform;
             SetRect((RectTransform)_survivorList, new Vector2(0.02f, 0.04f), new Vector2(0.98f, 0.9f), Vector2.zero, Vector2.zero);
 
@@ -548,6 +554,7 @@ namespace BaziBaqa
             _modalLayer = null;
             _resourceLabels.Clear();
             _survivorList = null;
+            _groupTitleLabel = null;
             _clockLabel = null;
             _weatherLabel = null;
             _populationLabel = null;

@@ -75,6 +75,12 @@ namespace BaziBaqa
             TaskDescription = "در حال درمان";
         }
 
+        public void BoostMorale(float amount)
+        {
+            if (!IsAlive) return;
+            Morale = Mathf.Clamp(Morale + Mathf.Max(0f, amount), 0f, 100f);
+        }
+
         public SurvivorSaveData ToSaveData()
         {
             return new SurvivorSaveData
@@ -200,7 +206,11 @@ namespace BaziBaqa
                             _workTimer = 1.2f;
                             int baseAmount = Role == SurvivorRole.Farmer ? 3 : 2;
                             int amount = _targetNode.Gather(Mathf.CeilToInt(baseAmount * (_brain == null ? 1f : _brain.GatheringMultiplier())));
-                            if (amount > 0) GameManager.Instance.Resources.Add(_targetNode.type, amount, "جمع‌آوری توسط " + DisplayName);
+                            if (amount > 0)
+                            {
+                                GameManager.Instance.Resources.Add(_targetNode.type, amount, "جمع‌آوری توسط " + DisplayName);
+                                if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(1, "جمع‌آوری");
+                            }
                         }
                     }
                     break;

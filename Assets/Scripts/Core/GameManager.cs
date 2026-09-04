@@ -28,6 +28,7 @@ namespace BaziBaqa
         public TechnologySystem Technology { get; private set; }
         public SurvivalSystem Survival { get; private set; }
         public TrainingSystem Training { get; private set; }
+        public ProgressionSystem Progression { get; private set; }
         public AudioManager Audio { get; private set; }
         public UIManager UI { get; private set; }
         public CameraController CameraController { get; private set; }
@@ -67,6 +68,7 @@ namespace BaziBaqa
             Technology = gameObject.AddComponent<TechnologySystem>();
             Survival = gameObject.AddComponent<SurvivalSystem>();
             Training = gameObject.AddComponent<TrainingSystem>();
+            Progression = gameObject.AddComponent<ProgressionSystem>();
             Audio = gameObject.AddComponent<AudioManager>();
             World.Initialize();
             Clock.DayChanged += OnDayChanged;
@@ -130,6 +132,9 @@ namespace BaziBaqa
             Technology.Initialize(save);
             Survival.Initialize();
             Training.Initialize();
+            if (Progression == null) Progression = gameObject.GetComponent<ProgressionSystem>();
+            if (Progression == null) Progression = gameObject.AddComponent<ProgressionSystem>();
+            Progression.Initialize(save);
             Weather.Initialize();
             EnemyDirector.Clear();
             Construction.Initialize(save.buildings);
@@ -221,6 +226,7 @@ namespace BaziBaqa
                 if (_survivors[i] != null) save.survivors.Add(_survivors[i].ToSaveData());
             }
             Technology.CopyTo(save);
+            if (Progression != null) Progression.CopyTo(save);
             save.settings.soundEnabled = Audio == null || Audio.SoundEnabled;
             save.settings.vibrationEnabled = Audio == null || Audio.VibrationEnabled;
             save.settings.tutorialCompleted = _tutorialCompleted;
@@ -248,6 +254,7 @@ namespace BaziBaqa
             };
             World.CreateSurvivorVisual(data);
             GameEvents.Notify(name + " به گروه پیوست.");
+            if (Progression != null) Progression.AddXp(6, "تربیت نیرو");
             UI.RefreshHud();
             SaveSoon();
             return true;
@@ -338,6 +345,7 @@ namespace BaziBaqa
         private void OnDayChanged(int day)
         {
             Technology.AddPoints(1);
+            if (Progression != null) Progression.AddXp(8, "زنده ماندن در شب");
             GameEvents.Notify("روز " + GameClock.ToPersianDigits(day.ToString()) + " آغاز شد؛ یک امتیاز فناوری گرفتید.");
             SaveGame();
             if (day >= 7 && Phase == GamePhase.Playing) WinGame();

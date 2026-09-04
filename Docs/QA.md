@@ -1,5 +1,9 @@
 # چک‌لیست QA
 
+> این چک‌لیست در Unity و روی دستگاه از طریق `Window > General > Test Runner` اجرا می‌شود.
+> سطح منطقی بازی با تست‌های EditMode در `Assets/Tests/EditMode` و سطح ساختار/انتشار با
+> `python3 Tools/validate_project.py` به‌صورت خودکار بررسی می‌شود.
+
 ## دودویی
 
 - [ ] Splash بدون خطا نمایش داده می‌شود.

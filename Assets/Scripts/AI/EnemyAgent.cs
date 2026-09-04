@@ -58,6 +58,7 @@ namespace BaziBaqa
             if (Health <= 0f)
             {
                 GameEvents.Notify("یک سایه شکست خورد.");
+                if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(4, "دفاع از اردوگاه");
                 GameManager.Instance.OnEnemyLost(this);
                 Destroy(gameObject);
             }
