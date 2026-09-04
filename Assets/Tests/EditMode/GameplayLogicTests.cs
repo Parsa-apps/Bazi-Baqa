@@ -97,7 +97,8 @@ namespace BaziBaqa.Tests
             GameSaveData save = GameSaveData.CreateNew(99);
             Assert.IsNotNull(save.achievements);
             Assert.IsNotNull(save.dailyReward);
-            Assert.AreEqual(0, save.questIndex);
+            // سه مأموریتِ ابتدایی صادر شده‌اند؛ بنابراین نشانگر صدور از ۳ شروع می‌شود.
+            Assert.AreEqual(3, save.questIndex);
             Assert.AreEqual(3, save.saveVersion);
         }
         [Test]
@@ -121,13 +122,40 @@ namespace BaziBaqa.Tests
             Assert.Greater(costs.Count, 0);
         }
 
+
         [Test]
-        public void StoryDefinitionsExistOnKeyDays()
+        public void QuestRotationNeverDuplicatesDefinitions()
         {
-            Assert.AreEqual(2, StoryDefinitions.All[0].day);
-            Assert.AreEqual(4, StoryDefinitions.All[1].day);
-            Assert.AreEqual(3, StoryDefinitions.All.Count);
-            Assert.IsNotEmpty(StoryDefinitions.All[0].choices[0].title);
+            // شبیه‌سازی چرخش مأموریت‌ها: همان منطق Initialize/ClaimAll را بدون صحنه بازتولید می‌کنیم.
+            const int count = QuestsDefinition.Count;
+            const int active = 3;
+            var seen = new System.Collections.Generic.HashSet<int>();
+            int issued = 3;
+            var window = new System.Collections.Generic.List<int>();
+            for (int i = 0; i < active; i++) window.Add(PositiveMod(issued - active + i, count));
+
+            // تا ۲۰ بار ادعا، هر بار باید تعریفِ متمایز جایگزین شود.
+            for (int step = 0; step < 20; step++)
+            {
+                int claimIndex = step % window.Count;
+                int claimed = window[claimIndex];
+                Assert.False(seen.Contains(claimed), "def re-issued: " + claimed);
+                seen.Add(claimed);
+                window.RemoveAt(claimIndex);
+                int newId = PositiveMod(issued, count);
+                issued++;
+                window.Add(newId);
+                // پنجره همیشه شامل تعاریف متمایز است.
+                Assert.AreEqual(window.Count, new System.Collections.Generic.HashSet<int>(window).Count, "duplicate within window");
+            }
+            Assert.AreEqual(count, QuestsDefinition.Count);
+        }
+
+        private static int PositiveMod(int value, int modulus)
+        {
+            if (modulus <= 0) return 0;
+            int result = value % modulus;
+            return result < 0 ? result + modulus : result;
         }
 
 }

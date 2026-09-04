@@ -29,15 +29,18 @@ namespace BaziBaqa
         private readonly List<QuestRuntime> _quests = new List<QuestRuntime>();
         public IReadOnlyList<QuestRuntime> Quests { get { return _quests; } }
 
-        private int _nextIndex;
+        /// <summary>تعداد مأموریت‌هایی که تا امروز صادر شده‌اند (شاخصِ تعریف بعدی برای صدور).</summary>
+        private int _issued;
 
         public void Initialize(GameSaveData save)
         {
-            _nextIndex = save == null ? 0 : Mathf.Max(0, save.questIndex);
+            // «تعداد صادرشده» را نگه می‌داریم تا بعد از گرفتن پاداش، مأموریتِ تکراری صادر نشود.
+            _issued = save == null ? ActiveQuests : Mathf.Max(ActiveQuests, save.questIndex);
             _quests.Clear();
+            // پنجره‌ی فعال = چند مأموریتِ آخرِ صادرشده؛ همه‌ی آن‌ها تعاریف متمایز هستند.
             for (int i = 0; i < ActiveQuests; i++)
             {
-                int questId = (_nextIndex + i) % QuestsDefinition.Count;
+                int questId = PositiveMod(_issued - ActiveQuests + i, QuestsDefinition.Count);
                 QuestRuntime quest = new QuestRuntime(QuestsDefinition.Data(questId), questId);
                 _quests.Add(quest);
             }
@@ -45,7 +48,7 @@ namespace BaziBaqa
 
         public void Refresh(GameSaveData save)
         {
-            save.questIndex = _nextIndex;
+            save.questIndex = _issued;
         }
 
         public bool TryComplete()
@@ -72,12 +75,21 @@ namespace BaziBaqa
                 GrantReward(quest);
                 quest.Status = QuestStatus.Claimed;
                 _quests.RemoveAt(i);
-                _nextIndex++;
-                int questId = (_nextIndex % QuestsDefinition.Count + QuestsDefinition.Count - 1) % QuestsDefinition.Count;
+                // همیشه از «نشانگرِ صدور» یک تعریفِ تازه و متمایز صادر می‌کنیم تا پاداش تکراری
+                // (farm) ممکن نباشد و مأموریتِ ادعاشده دوباره ظاهر نشود.
+                int questId = PositiveMod(_issued, QuestsDefinition.Count);
+                _issued++;
                 _quests.Add(new QuestRuntime(QuestsDefinition.Data(questId), questId));
             }
             if (GameManager.Instance.UI != null) GameManager.Instance.UI.RefreshHud();
             GameManager.Instance.SaveSoon();
+        }
+
+        private static int PositiveMod(int value, int modulus)
+        {
+            if (modulus <= 0) return 0;
+            int result = value % modulus;
+            return result < 0 ? result + modulus : result;
         }
 
         private bool IsSatisfied(QuestRuntime quest)

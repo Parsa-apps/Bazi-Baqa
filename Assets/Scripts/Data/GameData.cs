@@ -218,6 +218,8 @@ namespace BaziBaqa
         {
             GameSaveData data = new GameSaveData();
             data.seed = newSeed;
+            // سه مأموریتِ اول به‌عنوان پنجره‌ی شروعِ متمایز صادر شده‌اند (شاخص‌های ۰،۱،۲).
+            data.questIndex = 3;
             data.survivors.Add(CreateSurvivor("سارا", SurvivorRole.Gatherer, new Vector3(-2f, 0f, -1f)));
             data.survivors.Add(CreateSurvivor("یونس", SurvivorRole.Builder, new Vector3(2f, 0f, -1f)));
             data.survivors.Add(CreateSurvivor("آوا", SurvivorRole.Medic, new Vector3(-1f, 0f, 2f)));
