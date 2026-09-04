@@ -17,7 +17,8 @@ CBUFFER_START(BaziGlobals)
     // x = چگالی، y = افتِ ارتفاعی، z = سقفِ ارتفاع مه، w = ارتفاعِ کفِ زمین
     float4 _BaziHeightFog;
     float4 _BaziFogTint;
-    // x = ضریب درخشش شب (چراغ پنجره‌ها/فالس)، y = شدت بازتاب آب، z = ضخامت مه افقی، w = زمانِ هوا
+    // x = ضریب درخشش شب (پنجره/فالس/آب)، y = مقیاس نور محیطی، z = خیسیِ سطح‌ها (باران)،
+    // w = غبارِ معلق. نویسنده‌ی این چهار عدد فقط SkyLightingRig است.
     float4 _BaziAtmosphere;
 CBUFFER_END
 

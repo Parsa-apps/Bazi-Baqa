@@ -106,6 +106,9 @@
 | محیط زنده (باد/چمن/زیست‌بوم) | Test Runner → EditMode → `EnvironmentVisualsEditModeTests` | ۶ تست سبز (تک‌نویسنده‌ی باد، بذرِ جدا، یک draw call) |
 | بی‌خطر‌بودنِ پراکندگی روی Gameplay | PlayMode → `FoliageScatter_BuildsOneMeshWithoutTouchingGameplayObjects` | `childCount` منابع/ساختمان‌ها عوض نمی‌شود |
 | پاسخِ باد به هوا | PlayMode → `WindField_WritesWindGlobalAndAnswersToWeather` | طوفان، شدتِ `_BaziWindState` را بالا می‌برد |
+| لایه‌ی VFX | Test Runner → EditMode → `VfxLayerEditModeTests` | ۴ تست سبز (قراردادِ شیدرها، استخر، نبودِ وابستگیِ معکوس) |
+| استخرِ افکت‌ها | PlayMode → `VfxDirector_PlaysEffectsFromPoolWithoutGrowingMaterials` | `ActiveEffects ≤ PoolCapacity`، بدونِ متریالِ تازه، بازگشتِ کامل به استخر |
+| شیدرهایِ آب/آتش | PlayMode → `WaterAndFireMaterials_ResolveToProjectShaders` | هیچ رندررِ بی‌متریالی در صحنه نیست |
 | رگرسیونِ Gameplay | `Tools/unity_validation.sh` + تست‌های موجود | هیچ تستِ منطق/ذخیره/رابطی نباید قرمز شود |
 
 یادآوری: در محفظه‌ی توسعه‌ی این مخزن، Unity نصب نیست؛ لذا «بیلد» به‌صورت ایستا + ابزارهای

@@ -39,6 +39,10 @@ namespace BaziBaqa
         private const string EmissiveShaderResource = "Shaders/BaziBaqa-Emissive";
         private const string SkyShaderName = "Hidden/BaziBaqa/Sky";
         private const string SkyShaderResource = "Shaders/BaziBaqa-Sky";
+        private const string WaterShaderName = "BaziBaqa/Water";
+        private const string WaterShaderResource = "Shaders/BaziBaqa-Water";
+        private const string FireShaderName = "Hidden/BaziBaqa/Fire";
+        private const string FireShaderResource = "Shaders/BaziBaqa-Fire";
 
         private static readonly Dictionary<string, Material> _materials = new Dictionary<string, Material>();
         private static readonly Dictionary<string, Shader> _shaderCache = new Dictionary<string, Shader>();
@@ -521,6 +525,63 @@ namespace BaziBaqa
                 name = "BaziBaqa Sky",
                 hideFlags = HideFlags.HideAndDontSave
             };
+            _materials[key] = material;
+            return material;
+        }
+
+        /// <summary>
+        /// متریالِ آب. زیرِ URP شیدرِ اختصاصیِ پروژه را می‌گیرد (موج + fresnel + کف) و زیرِ
+        /// Built-in به همان متریالِ Surface برمی‌گردد: موج را از دست می‌دهیم، ولی صحنه هرگز
+        /// ارغوانی نمی‌شود. پارامترها را <c>VfxDirector</c>/<c>WaterTint</c> با نور و هوا ست می‌کند.
+        /// </summary>
+        public static Material Water(Color deep, Color shallow, Color sky, Vector4 wave, float smoothness = 0.82f)
+        {
+            if (!IsUniversal)
+            {
+                return Surface(SurfaceStyle.Metal, deep, 0.42f, Mathf.Clamp01(smoothness));
+            }
+            string key = "water|" + ColorKey(deep) + "|" + ColorKey(shallow) + "|" + ColorKey(sky)
+                + "|" + wave.ToString("F2", CultureInfo.InvariantCulture) + "|" + smoothness.ToString("F2", CultureInfo.InvariantCulture);
+            Material material;
+            if (_materials.TryGetValue(key, out material) && material != null) return material;
+
+            Shader shader = ResolveShader(WaterShaderName, "res:" + WaterShaderResource);
+            material = new Material(shader) { name = "BaziWater" };
+            material.SetColor("_BaziWaterDeep", deep);
+            material.SetColor("_BaziWaterShallow", shallow);
+            material.SetColor("_BaziWaterSky", sky);
+            material.SetVector("_BaziWaterWave", wave);
+            material.SetVector("_BaziWaterScroll", new Vector4(0.03f, -0.021f, 1f, 0.6f));
+            material.SetFloat("_BaziWaterSmoothness", Mathf.Clamp01(smoothness));
+            Texture detail = Texture("DetailNoise", false);
+            if (detail != null) material.SetTexture("_BaziWaterDetail", detail);
+            _materials[key] = material;
+            return material;
+        }
+
+        /// <summary>
+        /// متریالِ شعله/دود/جرقه (ذرات). mode: 0=آتش، 1=دود، 2=جرقه. اگر شیدرِ آتش نبود،
+        /// از متریالِ ذراتِ معمولی استفاده می‌کنیم تا هیچ افکتی ناپدید نشود.
+        /// </summary>
+        public static Material Fire(Color hot, Color cold, int mode, float intensity = 3.2f)
+        {
+            string key = "fire|" + ColorKey(hot) + "|" + ColorKey(cold) + "|" + mode + "|" + intensity.ToString("F2", CultureInfo.InvariantCulture);
+            Material material;
+            if (_materials.TryGetValue(key, out material) && material != null) return material;
+
+            Shader shader = ResolveShader(FireShaderName, "res:" + FireShaderResource);
+            if (shader == null || shader.name != FireShaderName)
+            {
+                material = Particle(hot, true);
+                _materials[key] = material;
+                return material;
+            }
+            material = new Material(shader) { name = "BaziFire" + mode };
+            material.SetColor("_BaziFireHot", hot);
+            material.SetColor("_BaziFireCold", cold);
+            material.SetColor("_BaziFireSmoke", new Color(cold.r * 0.22f, cold.g * 0.2f, cold.b * 0.2f, 1f));
+            material.SetFloat("_BaziFireMode", Mathf.Clamp(mode, 0, 2));
+            material.SetVector("_BaziFireParams", new Vector4(1.1f + mode * 0.2f, 0.65f, 1.45f, Mathf.Max(0.05f, intensity)));
             _materials[key] = material;
             return material;
         }

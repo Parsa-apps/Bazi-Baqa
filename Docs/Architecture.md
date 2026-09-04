@@ -27,7 +27,8 @@ GameBootstrap
         ├── CinematicVolumeRig          استک Volume: Bloom/Tonemap/Color/Vignette/DoF/Grain
         ├── SkyLightingRig              چرخه‌ی شب/روز، آسمان رویه‌ای، مه، بودجه‌ی چراغ‌ها
         ├── WindField                   تک‌نویسنده‌ی _BaziWindState (بادِ بَرگشت‌دار، هوامحور)
-        └── FoliageScatter              بوته‌هایِ رویه‌ای در یک mesh (بذرِ جدا از RNGِ بازی)
+        ├── FoliageScatter              بوته‌هایِ رویه‌ای در یک mesh (بذرِ جدا از RNGِ بازی)
+        └── VfxDirector                 آب/آتش/دود/جرقه/موجِ ضربه با ObjectPool (Shuriken، بدونِ Instantiate)
         ├── RenderPipelineBridge        اعمالِ سطحِ کیفیت روی موتور (تک‌نویسنده)
         ├── MaterialLibrary             حلِ شیدر URP/built-in + کشِ متریال + ثابت‌های جهانی
         └── ScreenSpaceAmbientOcclusionFeature  (داخل Renderer Data یِ URP)

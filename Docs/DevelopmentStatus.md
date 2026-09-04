@@ -124,7 +124,7 @@ Splash برند Parsa Apps، منوی فارسی، شروع سفر، ادامه�
 | ۱. خطِ رندر URP + Post Processing | ✅ انجام شد (گام ۱) | `Assets/Scripts/Graphics/*`، `Assets/Resources/Shaders/*`، `Assets/Editor/RenderingPipelineSetup.cs`، ۴ سطحِ کیفیت |
 | ۲. نورپردازی سینمایی (روز/شب) | ✅ انجام شد (گام ۲) | `Assets/Scripts/Graphics/SkyLightingRig.cs`، `BaziBaqa-Sky.shader`، `Docs/Lighting.md`، نمایه‌ی نسخه‌ی ۲ |
 | ۳. محیط زنده (باد، مه، باران، خاک) | ✅ انجام شد (گام ۳) | `WindField` + `FoliageScatter` + رنگِ زیست‌بومِ زمین + `Docs/Environment.md` |
-| ۴. آب، آتش، انفجار (VFX) | در انتظار گام ۴ | Shuriken با متریالِ پروژه + Object Pool |
+| ۴. آب، آتش، انفجار (VFX) | ✅ انجام شد (گام ۴) | `BaziBaqa-Water/Fire.shader` + `VfxDirector` (ObjectPool) + `Docs/Vfx.md` |
 | ۵. مدل/متریالِ باکیفیت (PBR، آسیب) | پایه‌اش آماده (گام ۱) | شیدرِ Surface با ماسکِ ۴کاناله و `_BaziDamage` |
 | ۶. انیمیشن حرفه‌ای | در انتظار گام ۵ | راه‌رفتن/دویدن و ضربه‌ی رویه‌ای، انیمیشنِ ساختمان |
 | ۷. رابطِ AAA + اینتروی Parsa Apps | در انتظار گام ۶ | شیشه‌ای/RTL/آیکنِ رویه‌ای + Intro |

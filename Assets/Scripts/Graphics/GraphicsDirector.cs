@@ -36,6 +36,7 @@ namespace BaziBaqa
         public SkyLightingRig Sky { get; private set; }
         public WindField Wind { get; private set; }
         public FoliageScatter Foliage { get; private set; }
+        public VfxDirector Vfx { get; private set; }
         public bool IsInstalled { get { return Instance == this; } }
 
         /// <summary>نصبِ خودکار در اولین فریمِ هر صحنه (شاملِ صحنه‌های تست).</summary>
@@ -101,6 +102,9 @@ namespace BaziBaqa
             Foliage = GetOrAdd<FoliageScatter>();
             if (Foliage != null) _children.Add(Foliage);
 
+            Vfx = GetOrAdd<VfxDirector>();
+            if (Vfx != null) _children.Add(Vfx);
+
             // فازهای بعدیِ گرافیک همین‌جا اضافه می‌شوند (محیط زنده، VFX، کیفیت)
             GraphicsProfile profile = GraphicsProfile.Load();
             List<string> issues = new List<string>();
@@ -149,6 +153,7 @@ namespace BaziBaqa
                 }
                 if (Wind != null) Wind.ApplyTier();
                 if (Foliage != null) Foliage.Refresh();
+                if (Vfx != null) Vfx.Refresh();
             }
 
             // ۳) بازسازیِ جهان: نورِ اصلی و ریشه‌ها تازه‌اند ⇒ Rigِ نور باید دوباره پیدا کند
@@ -159,6 +164,7 @@ namespace BaziBaqa
                 _lastWorldGeneration = generation;
                 if (Sky != null) Sky.Refresh();
                 if (Foliage != null) Foliage.Refresh();
+                if (Vfx != null) Vfx.Refresh();
             }
 
             // ۴) اولین باری که جهان ساخته شد، یک گزارشِ کامل می‌نویسیم (برای ممیزیِ صحنه)
@@ -179,6 +185,7 @@ namespace BaziBaqa
             builder.Append(" | ").Append(Sky != null ? Sky.Report() : "sky=absent");
             builder.Append(" | ").Append(Wind != null ? Wind.Report() : "wind=absent");
             builder.Append(" | ").Append(Foliage != null ? Foliage.Report() : "foliage=absent");
+            builder.Append(" | ").Append(Vfx != null ? Vfx.Report() : "vfx=absent");
             return builder.ToString();
         }
 
@@ -190,6 +197,7 @@ namespace BaziBaqa
             if (Sky != null) { Sky.Refresh(); Sky.ApplyNow(); }
             if (Wind != null) { Wind.ApplyTier(); Wind.ApplyNow(); }
             if (Foliage != null) Foliage.Refresh();
+            if (Vfx != null) Vfx.Refresh();
             RenderPipelineBridge.ApplyCurrentQuality(true);
         }
 

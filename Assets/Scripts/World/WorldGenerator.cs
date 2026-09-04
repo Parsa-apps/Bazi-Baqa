@@ -408,7 +408,10 @@ namespace BaziBaqa
             // در گام ۴ می‌آید. هیچ‌کدام از این مقادیر منطقِ بازی را عوض نمی‌کنند.
             _groundMaterial = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Ground,
                 new Color(0.21f, 0.34f, 0.2f), 0f, 0.16f);
-            _waterMaterial = CreateMaterial(new Color(0.03f, 0.2f, 0.32f), 0.35f);
+            // گام ۴: آب شیدرِ اختصاصی گرفت (موج + fresnel + کف). زیرِ Built-in،
+            // MaterialLibrary.Water خودش به متریالِ Surface برمی‌گردد ⇒ هیچ‌وقت نمی‌شکند.
+            _waterMaterial = MaterialLibrary.Water(new Color(0.02f, 0.11f, 0.19f), new Color(0.1f, 0.34f, 0.4f),
+                new Color(0.42f, 0.56f, 0.68f), new Vector4(0.55f, 0.09f, 1.6f, 0.35f), 0.82f);
             _treeMaterial = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Bark,
                 new Color(0.25f, 0.14f, 0.07f), 0.02f, 0.2f, true);
             _leafMaterial = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Foliage,

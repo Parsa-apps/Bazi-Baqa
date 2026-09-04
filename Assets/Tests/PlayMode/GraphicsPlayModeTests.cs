@@ -388,6 +388,70 @@ namespace BaziBaqa.Tests
                 "متریالِ زمین باید از MaterialLibrary بیاید (نامِ BaziSurface_Ground)");
         }
 
+
+        // ============================== گام ۴: آب، آتش، انفجار ==============================
+
+        [UnityTest]
+        public IEnumerator VfxDirector_PlaysEffectsFromPoolWithoutGrowingMaterials()
+        {
+            GraphicsDirector.Ensure();
+            yield return null;
+            VfxDirector vfx = VfxDirector.Instance;
+            Assert.IsNotNull(vfx, "لایه‌ی گرافیک باید VfxDirector را نصب کند");
+
+            int materialsBefore = MaterialLibrary.CachedMaterialCount;
+            int poolBefore = vfx.PooledEffects;
+            Assert.GreaterOrEqual(poolBefore, 1, "استخر باید در Awake پر شده باشد");
+
+            Vector3 anchor = Camera.main != null ? Camera.main.transform.position + new Vector3(2f, 0.5f, 2f) : new Vector3(2f, 0.5f, 2f);
+            vfx.PlayExplosion(anchor, 3.2f);
+            vfx.PlayImpact(anchor + Vector3.right, new Color(1f, 0.8f, 0.4f));
+            vfx.PlaySplash(anchor + Vector3.back);
+            yield return null;
+
+            Assert.Greater(vfx.PlayedCount, 0, "هیچ افکتی پخش نشد (بودجه یا فاصله؟)");
+            Assert.LessOrEqual(vfx.ActiveEffects, vfx.PoolCapacity, "افکتِ هم‌زمان نباید از استخر بیشتر شود");
+            Assert.AreEqual(materialsBefore, MaterialLibrary.CachedMaterialCount,
+                "پخشِ افکت نباید متریالِ تازه بسازد (کشِ MaterialLibrary)");
+
+            for (int i = 0; i < 140; i++) yield return null;      // صبر تا همه آزاد شوند
+            Assert.AreEqual(0, vfx.ActiveEffects, "افکت‌ها باید به استخر برگردند");
+            Assert.GreaterOrEqual(vfx.PooledEffects, poolBefore, "استخر خلوت‌تر از قبل نشود");
+            Debug.Log("GraphicsPlayMode: " + vfx.Report());
+        }
+
+        [UnityTest]
+        public IEnumerator WaterAndFireMaterials_ResolveToProjectShaders()
+        {
+            GraphicsDirector.Ensure();
+            GameManager game = GameManager.Instance;
+
+            Material water = MaterialLibrary.Water(new Color(0.02f, 0.11f, 0.19f), new Color(0.1f, 0.34f, 0.4f),
+                new Color(0.42f, 0.56f, 0.68f), new Vector4(0.55f, 0.09f, 1.6f, 0.35f), 0.82f);
+            Assert.IsNotNull(water);
+            Assert.AreNotEqual("Hidden/InternalErrorShader", water.shader.name, "شیدرِ آب کامپایل نشده");
+            StringAssert.Contains("BaziBaqa", water.shader.name, "آب باید با شیدرِ خودِ پروژه رندر شود");
+
+            Material fire = MaterialLibrary.Fire(new Color(1f, 0.7f, 0.26f), new Color(1f, 0.3f, 0.07f), 0, 3.2f);
+            Assert.IsNotNull(fire);
+            Assert.AreNotEqual("Hidden/InternalErrorShader", fire.shader.name, "شیدرِ آتش کامپایل نشده");
+
+            if (game == null || game.World == null || game.World.TerrainRoot == null)
+            {
+                Assert.Pass("جهازی ساخته نشده؛ فقط حل‌شدنِ متریال‌ها سنجیده شد");
+            }
+
+            // آبِ صحنه باید همان متریالِ تازه را داشته باشد و هیچ رندررِ بی‌متریالی نمانده باشد
+            MeshRenderer[] renderers = game.World.TerrainRoot.GetComponentsInChildren<MeshRenderer>(false);
+            int unassigned = 0;
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i].sharedMaterial == null) unassigned++;
+            }
+            Assert.AreEqual(0, unassigned, "رندررِ بی‌متریال در صحنه هست ⇒ ارغوانی می‌شود");
+            Assert.Greater(renderers.Length, 0);
+        }
+
         private static MaterialLibrary.SurfaceStyle GroundStyle()
         {
             return MaterialLibrary.SurfaceStyle.Ground;
