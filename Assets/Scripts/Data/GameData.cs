@@ -171,6 +171,28 @@ namespace BaziBaqa
     }
 
     [Serializable]
+    public class EquipmentSaveState
+    {
+        public int tool = 1;
+        public int weapon = 1;
+        public int armor = 1;
+    }
+
+    [Serializable]
+    public class StorySaveState
+    {
+        public int lastDecisionDay;
+    }
+
+    [Serializable]
+    public class RaidSaveState
+    {
+        public int lastRaidDay;
+        public int wins;
+        public int losses;
+    }
+
+    [Serializable]
     public class GameSaveData
     {
     public int saveVersion = 3;
