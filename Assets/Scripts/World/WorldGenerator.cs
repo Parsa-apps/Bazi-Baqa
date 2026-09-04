@@ -66,6 +66,7 @@ namespace BaziBaqa
             ClearChildren(BuildingRoot);
             ClearChildren(EffectRoot);
             if (_ambientLife != null) _ambientLife.Clear();
+            if (_worldVfx != null) _worldVfx.Clear();
             _resourceNodes.Clear();
             _generatedObjects.Clear();
         }

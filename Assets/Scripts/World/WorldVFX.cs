@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace BaziBaqa
@@ -6,25 +7,35 @@ namespace BaziBaqa
     /// افکت‌های بصری رویه‌ای که بدون Asset خارجی کار می‌کنند: آتش اردوگاه، دود، زبانه‌ی جرقّه و
     /// درخشش آب. این مؤلفه در Built-in Render Pipeline هم به‌درستی اجرا می‌شود و سطح گرافیکی را
     /// بدون هزینه‌ی سنگین بالا می‌برد. (پاس Bloom/AO در Editor با URP تکمیل می‌شود.)
+    ///
+    /// برای جلوگیری از نشتی حافظه هنگام «بازی جدید» یا بازتولید جهان، همه‌ی Emitterها در فهرستی
+    /// نگه‌داری می‌شوند و با Clear() نابود می‌شوند تا هیچ آبجکت اضافه‌ای در WorldRoot باقی نماند.
     /// </summary>
     public sealed class WorldVFX : MonoBehaviour
     {
-        private ParticleSystem _fire;
-        private ParticleSystem _smoke;
-        private ParticleSystem _embers;
-        private ParticleSystem _shimmer;
-        private Transform _home;
+        private readonly List<GameObject> _emitters = new List<GameObject>();
 
         public void Initialize(Vector3 homePosition)
         {
-            _home = transform;
-            _fire = CreateEmitter("آتش", homePosition + new Vector3(0f, 0.9f, 0f), new Color(1f, 0.55f, 0.12f, 0.9f), 14f, 0.12f, 18f, 0.9f, 0.5f);
-            _smoke = CreateEmitter("دود", homePosition + new Vector3(0f, 1.4f, 0f), new Color(0.32f, 0.32f, 0.34f, 0.5f), 5f, 0.4f, 0.9f, 0.7f, 0.3f);
-            _embers = CreateEmitter("جرقه", homePosition + new Vector3(0f, 1.1f, 0f), new Color(1f, 0.8f, 0.3f, 0.8f), 3f, 0.05f, 22f, 1.6f, 0.1f);
-            _shimmer = CreateEmitter("درخشش آب", homePosition + new Vector3(0f, 6f, 0f), new Color(0.6f, 0.85f, 1f, 0.35f), 6f, 0.02f, 0.2f, 14f, 0.15f);
+            // اگر درخواست بازتولید شد، ابتدا Emitterهای قبلی را آزاد می‌کنیم تا انباشته نشوند.
+            Clear();
+            CreateEmitter("آتش", homePosition + new Vector3(0f, 0.9f, 0f), new Color(1f, 0.55f, 0.12f, 0.9f), 14f, 0.12f, 18f, 0.9f, 0.5f);
+            CreateEmitter("دود", homePosition + new Vector3(0f, 1.4f, 0f), new Color(0.32f, 0.32f, 0.34f, 0.5f), 5f, 0.4f, 0.9f, 0.7f, 0.3f);
+            CreateEmitter("جرقه", homePosition + new Vector3(0f, 1.1f, 0f), new Color(1f, 0.8f, 0.3f, 0.8f), 3f, 0.05f, 22f, 1.6f, 0.1f);
+            CreateEmitter("درخشش آب", homePosition + new Vector3(0f, 6f, 0f), new Color(0.6f, 0.85f, 1f, 0.35f), 6f, 0.02f, 0.2f, 14f, 0.15f);
         }
 
-        private ParticleSystem CreateEmitter(string name, Vector3 position, Color color, float rate, float size, float speed, float lifetime, float gravity)
+        /// <summary>همه‌ی Emitterها را نابود می‌کند و حافظه را آزاد می‌سازد.</summary>
+        public void Clear()
+        {
+            for (int i = 0; i < _emitters.Count; i++)
+            {
+                if (_emitters[i] != null) Destroy(_emitters[i]);
+            }
+            _emitters.Clear();
+        }
+
+        private void CreateEmitter(string name, Vector3 position, Color color, float rate, float size, float speed, float lifetime, float gravity)
         {
             GameObject go = new GameObject(name);
             go.transform.SetParent(transform, false);
@@ -55,7 +66,13 @@ namespace BaziBaqa
                 new[] { new GradientAlphaKey(color.a * 0.6f, 0f), new GradientAlphaKey(0f, 1f) });
             colorLife.color = grad;
             ps.Play();
-            return ps;
+            _emitters.Add(go);
+        }
+
+        private void OnDestroy()
+        {
+            // هنگام حذف مؤلفه، همه‌ی Emitterها را آزاد می‌کنیم.
+            Clear();
         }
     }
 }
