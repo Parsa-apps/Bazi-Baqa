@@ -1,15 +1,14 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 namespace BaziBaqa
 {
     /// <summary>
     /// یک متن را به یک «کلید بومی‌سازی» گره می‌زند. با تغییر زبان (Loc.SetLanguage)
     /// خودکار تازه می‌شود؛ پس هیچ اسکریپتی لازم ندارد متن‌ها را دستی دوباره پر کند.
-    /// روی هر دو نوع متن بازی کار می‌کند: TextMeshPro (متن اصلی UI) و Text قدیمی (سازگار با
-    /// صحنه‌های دستیِ آینده/پریفب‌ها).
+    /// نوشتنِ متن از طریقِ UIText انجام می‌شود، بنابراین بک‌اند (TMP یا Text قدیمی) خودش انتخاب می‌شود
+    /// و مقدارهایِ تنظیم‌شده در Editor حفظ می‌مانند.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class LocalizedText : MonoBehaviour
@@ -22,8 +21,7 @@ namespace BaziBaqa
 
         [SerializeField] private string[] _arguments;
 
-        private TMP_Text _tmp;
-        private Text _legacy;
+        private UIText _label;
 
         public string Key
         {
@@ -33,8 +31,7 @@ namespace BaziBaqa
 
         private void Awake()
         {
-            _tmp = GetComponent<TMP_Text>();
-            _legacy = GetComponent<Text>();
+            _label = UIText.Attach(gameObject);
             LocalizationManager.LanguageChanged += OnLanguageChanged;
             Refresh();
         }
@@ -69,7 +66,8 @@ namespace BaziBaqa
                 return;
             }
             if (string.IsNullOrEmpty(key)) return;
-            Apply(formatArgs != null && formatArgs.Length > 0 ? Loc.Get(key, formatArgs) : Loc.Get(key));
+            if (_label == null) _label = UIText.Attach(gameObject);
+            _label.SetKey(key, (object[])(formatArgs ?? Array.Empty<string>()));
         }
 
         /// <summary>تنظیم کلید + آرگومان‌ها از کد (راه اصلی استفاده در UIManager).</summary>
@@ -83,18 +81,15 @@ namespace BaziBaqa
         private void ApplyFromArguments()
         {
             if (string.IsNullOrEmpty(key)) return;
-            if (_arguments == null || _arguments.Length == 0)
-            {
-                Apply(Loc.Get(key));
-                return;
-            }
-            Apply(Loc.Get(key, _arguments));
+            if (_label == null) _label = UIText.Attach(gameObject);
+            _label.SetKey(key, _arguments ?? Array.Empty<object>());
         }
 
-        private void Apply(string value)
+        /// <summary>متنِ آماده (بدون جدول) روی برچسب می‌گذارد؛ برای متن‌هایِ زنده‌یِ Editor.</summary>
+        public void Apply(string value)
         {
-            if (_tmp != null) { _tmp.text = value; return; }
-            if (_legacy != null) { _legacy.text = PersianText.LegacyDisplay(value); }
+            if (_label == null) _label = UIText.Attach(gameObject);
+            _label.Set(value);
         }
     }
 }

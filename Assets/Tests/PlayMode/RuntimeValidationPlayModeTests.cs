@@ -125,6 +125,11 @@ namespace BaziBaqa.Tests
                 if (tmp != null)
                 {
                     Assert.IsNotNull(tmp.font, "متن TMP بدون فونت‌اسست رندر می‌شود.");
+                    if (GameTextBackend.TmpReady)
+                    {
+                        Assert.AreEqual(GameFont.TmpAsset, tmp.font,
+                            "برچسبِ TMP باید assetِ فونتِ Vazirmatn را داشته باشد، نه فونتِ پیش‌فرضِ TMP.");
+                    }
                     if (!string.IsNullOrEmpty(tmp.text))
                     {
                         Assert.IsFalse(LooksLikeRawLocalizationKey(tmp.text), "کلیدِ خام در UI نمایش داده می‌شود: " + tmp.text);
@@ -135,6 +140,8 @@ namespace BaziBaqa.Tests
                 Text legacy = graphics[i] as Text;
                 if (legacy == null) continue;
                 Assert.IsNotNull(legacy.font, "متن بدون فونت رندر می‌شود.");
+                StringAssert.Contains("Vazirmatn", legacy.font.name,
+                    "مسیرِ بازگشت هم باید Vazirmatn داشته باشد تا حروف فارسی نیفتد.");
                 checkedLabels++;
             }
             Assert.Greater(checkedLabels, 10, "انتظار می‌رفت دست‌کم ده برچسب متنی ساخته شده باشد.");
@@ -161,6 +168,48 @@ namespace BaziBaqa.Tests
             if (labels.Length > 0)
                 Assert.GreaterOrEqual(rightAligned, labels.Length / 2, "چینش راست‌به‌چپ باید روی بیشترِ برچسب‌ها اعمال شده باشد.");
             yield break;
+        }
+
+        /// <summary>
+        /// بخش ۳ فاز ۲٫۵: همه‌ی برچسب‌های رابط باید از لایه‌ی UIText بیایند و همان assetِ فونتِ
+        /// Vazirmatn را داشته باشند (TMP اگر آماده باشد، وگرنه Textِ قدیمی با TTF).
+        /// </summary>
+        [UnityTest]
+        public IEnumerator Typography_EveryLabelIsDrivenByTheTextBackend()
+        {
+            BootstrapGame();
+            yield return null;
+
+            UIText[] labels = Object.FindObjectsOfType<UIText>(true);
+            Assert.Greater(labels.Length, 10, "انتظار می‌رفت رابط از برچسب‌های UIText ساخته شده باشد.");
+
+            bool tmpReady = GameTextBackend.TmpReady;
+            int tmpLabels = 0;
+            for (int i = 0; i < labels.Length; i++)
+            {
+                UIText label = labels[i];
+                TextMeshProUGUI tmp = label.GetComponent<TextMeshProUGUI>();
+                Text legacy = label.GetComponent<Text>();
+                Assert.IsFalse(tmp != null && legacy != null,
+                    "یک برچسب هم‌زمان دو بک‌اند دارد: " + label.gameObject.name);
+
+                if (tmp != null)
+                {
+                    tmpLabels++;
+                    if (tmpReady) Assert.AreEqual(GameFont.TmpAsset, tmp.font, "فونتِ برچسب، assetِ Vazirmatn نیست.");
+                    Assert.IsFalse(float.IsNaN(tmp.fontSize) || tmp.fontSize <= 0f, "اندازه‌ی فونتِ TMP تنظیم نشده است.");
+                }
+                else if (legacy != null)
+                {
+                    Assert.AreEqual(GameFont.Persian, legacy.font, "فونتِ مسیرِ بازگشت Vazirmatn نیست.");
+                }
+            }
+
+            if (tmpReady)
+            {
+                Assert.AreEqual(labels.Length, tmpLabels,
+                    "TMP آماده است ولی بعضی برچسب‌ها روی Text قدیمی مانده‌اند: " + tmpLabels + "/" + labels.Length);
+            }
         }
 
         [UnityTest]

@@ -6,8 +6,12 @@ using UnityEngine.UI;
 namespace BaziBaqa
 {
     /// <summary>
-    /// کمک کوچک و بدون وابستگی برای نمایش متن فارسی در UI سبک بازی.
-    /// در محصول نهایی می‌توان این لایه را با atlas فارسی TextMeshPro جایگزین کرد.
+    /// ابزارِ شکل‌دهیِ دستیِ حروف فارسی. فقط برای دو مسیر لازم است:
+    ///   • Text قدیمیِ Unity UI (مسیرِ بازگشتِ UIText وقتی TMP آماده نیست)؛
+    ///   • TextMesh سه‌بعدی (برچسب‌های روی زمین/ساختمان در WorldGenerator).
+    /// در مسیرِ TextMeshPro این تابع اعمال **نمی‌شود**؛ TMP خودش شکل‌دهی و bidi را انجام می‌دهد
+    /// و یک بار شکل‌دهیِ دستیِ اضافه، حروف را وارونه می‌کند. ارقام در هر دو مسیر با
+    /// LocalizationManager/GameClock محلی‌سازی می‌شوند.
     /// </summary>
     public sealed class PersianText : MonoBehaviour
     {

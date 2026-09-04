@@ -11,10 +11,11 @@
 - موتور: Unity 2022.3 LTS یا جدیدتر
 - هدف: Android
 - زبان رابط: فارسی و راست‌چین — همه‌ی متن‌ها از جدول بومی‌سازی خوانده می‌شوند و انگلیسی هم آماده است
+- متن‌ها با TextMeshPro و assetِ فونتِ Vazirmatn رندر می‌شوند (`Docs/Typography.md`)
 - صحنه‌ی اصلی: `Assets/Scenes/Main.unity`
 - راهنمای معماری: `Docs/Architecture.md`
 - راهنمای خروجی Android: `Docs/AndroidBuild.md`
-- راهنمای بومی‌سازی: `Docs/Localization.md` — اعتبارسنجی زمان اجرا: `Docs/RuntimeValidation.md`
+- راهنمای بومی‌سازی: `Docs/Localization.md` — راهنمای فونت و TextMeshPro: `Docs/Typography.md` — اعتبارسنجی زمان اجرا: `Docs/RuntimeValidation.md`
 
 ## اجرای پروژه
 

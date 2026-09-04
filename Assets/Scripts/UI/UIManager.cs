@@ -10,13 +10,12 @@ namespace BaziBaqa
     [DefaultExecutionOrder(-30)]
     public sealed class UIManager : MonoBehaviour
     {
-        private readonly Dictionary<ResourceType, Text> _resourceLabels = new Dictionary<ResourceType, Text>();
+        private readonly Dictionary<ResourceType, UIText> _resourceLabels = new Dictionary<ResourceType, UIText>();
 
         private GameManager _game;
         private bool _splashActive;
         private Canvas _canvas;
         private RectTransform _canvasRect;
-        private Font _font;
         private GameObject _view;
         private GameObject _hudRoot;
         private GameObject _buildPanel;
@@ -24,13 +23,13 @@ namespace BaziBaqa
         private GameObject _mapPanel;
         private GameObject _modalLayer;
         private Transform _survivorList;
-        private Text _groupTitleLabel;
-        private Text _clockLabel;
-        private Text _weatherLabel;
-        private Text _populationLabel;
-        private Text _technologyLabel;
-        private Text _notificationLabel;
-        private Text _goalLabel;
+        private UIText _groupTitleLabel;
+        private UIText _clockLabel;
+        private UIText _weatherLabel;
+        private UIText _populationLabel;
+        private UIText _technologyLabel;
+        private UIText _notificationLabel;
+        private UIText _goalLabel;
         private float _refreshTimer;
         private float _survivorRefreshTimer;
         private float _notificationTimer;
@@ -46,7 +45,6 @@ namespace BaziBaqa
         public void Initialize(GameManager game)
         {
             _game = game;
-            _font = GameFont.Persian;
             CreateCanvas();
             GameEvents.Notification += OnNotification;
             GameEvents.StateChanged += RefreshHud;
@@ -94,24 +92,21 @@ namespace BaziBaqa
             goldHalo.AddComponent<GlowPulse>();
             GameObject crownObject = CreateRectObject("CrownMark", _view.transform);
             SetRect(crownObject.GetComponent<RectTransform>(), new Vector2(0.35f, 0.7f), new Vector2(0.65f, 0.9f), Vector2.zero, Vector2.zero);
-            Text crown = crownObject.AddComponent<Text>();
-            crown.font = _font;
+            UIText crown = UIText.Attach(crownObject);
             crown.fontSize = 58;
             crown.color = Gold;
             crown.alignment = TextAnchor.MiddleCenter;
-            crown.text = "♛";
-            crown.resizeTextForBestFit = true;
-            crown.resizeTextMinSize = 40;
-            crown.resizeTextMaxSize = 58;
+            crown.autoFit = true;
+            crown.Set("♛");
             CrownPulse crownPulse = crownObject.AddComponent<CrownPulse>();
             crownPulse.Configure(goldHalo.transform);
 
-            Text mark = CreateText(_view.transform, Loc.Get("game.studio"), 48, Color.white, TextAnchor.MiddleCenter);
-            SetRect(mark.rectTransform, new Vector2(0.12f, 0.52f), new Vector2(0.88f, 0.68f), Vector2.zero, Vector2.zero);
-            Text line = CreateText(_view.transform, Loc.Get("ui.splash.studio_line"), 22, Teal, TextAnchor.MiddleCenter);
-            SetRect(line.rectTransform, new Vector2(0.12f, 0.42f), new Vector2(0.88f, 0.53f), Vector2.zero, Vector2.zero);
-            Text loading = CreateText(_view.transform, Loc.Get("game.loading"), 18, Muted, TextAnchor.MiddleCenter);
-            SetRect(loading.rectTransform, new Vector2(0.1f, 0.12f), new Vector2(0.9f, 0.22f), Vector2.zero, Vector2.zero);
+            UIText mark = CreateText(_view.transform, Loc.Get("game.studio"), 48, Color.white, TextAnchor.MiddleCenter);
+            SetRect(mark.Rect, new Vector2(0.12f, 0.52f), new Vector2(0.88f, 0.68f), Vector2.zero, Vector2.zero);
+            UIText line = CreateText(_view.transform, Loc.Get("ui.splash.studio_line"), 22, Teal, TextAnchor.MiddleCenter);
+            SetRect(line.Rect, new Vector2(0.12f, 0.42f), new Vector2(0.88f, 0.53f), Vector2.zero, Vector2.zero);
+            UIText loading = CreateText(_view.transform, Loc.Get("game.loading"), 18, Muted, TextAnchor.MiddleCenter);
+            SetRect(loading.Rect, new Vector2(0.1f, 0.12f), new Vector2(0.9f, 0.22f), Vector2.zero, Vector2.zero);
             StartCoroutine(SplashRoutine(splashGroup));
         }
 
@@ -125,12 +120,12 @@ namespace BaziBaqa
             CreatePanel("LightSweep", _view.transform, new Color(0.05f, 0.3f, 0.34f, 0.28f), new Vector2(0f, 0.72f), new Vector2(1f, 1f));
             CreatePanel("MenuFooterStrip", _view.transform, new Color(0.02f, 0.03f, 0.06f, 0.8f), new Vector2(0f, 0f), new Vector2(1f, 0.12f));
 
-            Text studio = CreateText(_view.transform, Loc.Get("game.studio"), 22, Teal, TextAnchor.MiddleRight);
-            SetRect(studio.rectTransform, new Vector2(0.58f, 0.9f), new Vector2(0.94f, 0.98f), Vector2.zero, Vector2.zero);
-            Text title = CreateText(_view.transform, Loc.Get("game.title"), 52, Color.white, TextAnchor.MiddleCenter);
-            SetRect(title.rectTransform, new Vector2(0.08f, 0.61f), new Vector2(0.92f, 0.83f), Vector2.zero, Vector2.zero);
-            Text subtitle = CreateText(_view.transform, Loc.Get("game.tagline"), 22, Teal, TextAnchor.MiddleCenter);
-            SetRect(subtitle.rectTransform, new Vector2(0.1f, 0.54f), new Vector2(0.9f, 0.64f), Vector2.zero, Vector2.zero);
+            UIText studio = CreateText(_view.transform, Loc.Get("game.studio"), 22, Teal, TextAnchor.MiddleRight);
+            SetRect(studio.Rect, new Vector2(0.58f, 0.9f), new Vector2(0.94f, 0.98f), Vector2.zero, Vector2.zero);
+            UIText title = CreateText(_view.transform, Loc.Get("game.title"), 52, Color.white, TextAnchor.MiddleCenter);
+            SetRect(title.Rect, new Vector2(0.08f, 0.61f), new Vector2(0.92f, 0.83f), Vector2.zero, Vector2.zero);
+            UIText subtitle = CreateText(_view.transform, Loc.Get("game.tagline"), 22, Teal, TextAnchor.MiddleCenter);
+            SetRect(subtitle.Rect, new Vector2(0.1f, 0.54f), new Vector2(0.9f, 0.64f), Vector2.zero, Vector2.zero);
 
             GameObject menuCard = CreatePanel("MenuCard", _view.transform, new Color(0.04f, 0.11f, 0.16f, 0.97f), new Vector2(0.18f, 0.18f), new Vector2(0.82f, 0.53f));
             CreateButton(menuCard.transform, Loc.Get("ui.menu.new_game"), Teal, StartNewGame, new Vector2(0.1f, 0.67f), new Vector2(0.9f, 0.92f), 22);
@@ -139,8 +134,8 @@ namespace BaziBaqa
             CreateButton(menuCard.transform, Loc.Get("menu.settings"), PanelBlueLight, ShowSettings, new Vector2(0.1f, 0.29f), new Vector2(0.9f, 0.46f), 19);
             CreateButton(menuCard.transform, Loc.Get("ui.menu.about"), PanelBlueLight, ShowAbout, new Vector2(0.1f, 0.1f), new Vector2(0.9f, 0.27f), 18);
 
-            Text footer = CreateText(_view.transform, Loc.Get("game.footer"), 15, Muted, TextAnchor.MiddleCenter);
-            SetRect(footer.rectTransform, new Vector2(0.04f, 0.035f), new Vector2(0.96f, 0.095f), Vector2.zero, Vector2.zero);
+            UIText footer = CreateText(_view.transform, Loc.Get("game.footer"), 15, Muted, TextAnchor.MiddleCenter);
+            SetRect(footer.Rect, new Vector2(0.04f, 0.035f), new Vector2(0.96f, 0.095f), Vector2.zero, Vector2.zero);
         }
 
         public void ShowGame(bool continuing)
@@ -159,8 +154,8 @@ namespace BaziBaqa
         {
             CreateModal(Loc.Get("ui.tutorial.title"), (modal) =>
             {
-                Text body = CreateText(modal.transform, Loc.Get("ui.tutorial.body"), 16, Color.white, TextAnchor.MiddleCenter);
-                SetRect(body.rectTransform, new Vector2(0.08f, 0.31f), new Vector2(0.92f, 0.8f), Vector2.zero, Vector2.zero);
+                UIText body = CreateText(modal.transform, Loc.Get("ui.tutorial.body"), 16, Color.white, TextAnchor.MiddleCenter);
+                SetRect(body.Rect, new Vector2(0.08f, 0.31f), new Vector2(0.92f, 0.8f), Vector2.zero, Vector2.zero);
                 CreateButton(modal.transform, Loc.Get("ui.tutorial.ready"), Teal, () => FinishTutorial(modal), new Vector2(0.16f, 0.14f), new Vector2(0.84f, 0.26f), 17);
             });
         }
@@ -211,8 +206,8 @@ namespace BaziBaqa
             }
             if (_modalLayer != null) Destroy(_modalLayer);
             _modalLayer = CreatePanel("PauseOverlay", _canvas.transform, new Color(0.01f, 0.025f, 0.05f, 0.84f), Vector2.zero, Vector2.one);
-            Text title = CreateText(_modalLayer.transform, Loc.Get("modal.pause"), 36, Color.white, TextAnchor.MiddleCenter);
-            SetRect(title.rectTransform, new Vector2(0.18f, 0.65f), new Vector2(0.82f, 0.78f), Vector2.zero, Vector2.zero);
+            UIText title = CreateText(_modalLayer.transform, Loc.Get("modal.pause"), 36, Color.white, TextAnchor.MiddleCenter);
+            SetRect(title.Rect, new Vector2(0.18f, 0.65f), new Vector2(0.82f, 0.78f), Vector2.zero, Vector2.zero);
             CreateButton(_modalLayer.transform, Loc.Get("modal.continue"), Teal, _game.Resume, new Vector2(0.25f, 0.5f), new Vector2(0.75f, 0.62f), 20);
             CreateButton(_modalLayer.transform, Loc.Get("ui.modal.save_and_menu"), PanelBlueLight, _game.ReturnToMenu, new Vector2(0.25f, 0.35f), new Vector2(0.75f, 0.47f), 18);
             CreateButton(_modalLayer.transform, Loc.Get("ui.modal.save_now"), new Color(0.25f, 0.4f, 0.46f), _game.SaveGame, new Vector2(0.25f, 0.2f), new Vector2(0.75f, 0.32f), 18);
@@ -223,12 +218,12 @@ namespace BaziBaqa
             _hudActive = false;
             if (_modalLayer != null) Destroy(_modalLayer);
             _modalLayer = CreatePanel("ResultOverlay", _canvas.transform, new Color(0.01f, 0.025f, 0.05f, 0.91f), Vector2.zero, Vector2.one);
-            Text crown = CreateText(_modalLayer.transform, victory ? "♛" : "✦", 62, victory ? Gold : new Color(0.8f, 0.3f, 0.35f), TextAnchor.MiddleCenter);
-            SetRect(crown.rectTransform, new Vector2(0.3f, 0.66f), new Vector2(0.7f, 0.86f), Vector2.zero, Vector2.zero);
-            Text title = CreateText(_modalLayer.transform, victory ? Loc.Get("ui.result.victory") : Loc.Get("ui.result.defeat"), 31, Color.white, TextAnchor.MiddleCenter);
-            SetRect(title.rectTransform, new Vector2(0.08f, 0.54f), new Vector2(0.92f, 0.68f), Vector2.zero, Vector2.zero);
-            Text detail = CreateText(_modalLayer.transform, victory ? Loc.Get("ui.result.victory_detail") : Loc.Get("ui.result.defeat_detail"), 18, Muted, TextAnchor.MiddleCenter);
-            SetRect(detail.rectTransform, new Vector2(0.14f, 0.42f), new Vector2(0.86f, 0.54f), Vector2.zero, Vector2.zero);
+            UIText crown = CreateText(_modalLayer.transform, victory ? "♛" : "✦", 62, victory ? Gold : new Color(0.8f, 0.3f, 0.35f), TextAnchor.MiddleCenter);
+            SetRect(crown.Rect, new Vector2(0.3f, 0.66f), new Vector2(0.7f, 0.86f), Vector2.zero, Vector2.zero);
+            UIText title = CreateText(_modalLayer.transform, victory ? Loc.Get("ui.result.victory") : Loc.Get("ui.result.defeat"), 31, Color.white, TextAnchor.MiddleCenter);
+            SetRect(title.Rect, new Vector2(0.08f, 0.54f), new Vector2(0.92f, 0.68f), Vector2.zero, Vector2.zero);
+            UIText detail = CreateText(_modalLayer.transform, victory ? Loc.Get("ui.result.victory_detail") : Loc.Get("ui.result.defeat_detail"), 18, Muted, TextAnchor.MiddleCenter);
+            SetRect(detail.Rect, new Vector2(0.14f, 0.42f), new Vector2(0.86f, 0.54f), Vector2.zero, Vector2.zero);
             CreateButton(_modalLayer.transform, Loc.Get("menu.new_game"), Teal, StartNewGame, new Vector2(0.2f, 0.24f), new Vector2(0.8f, 0.36f), 19);
             CreateButton(_modalLayer.transform, Loc.Get("modal.main_menu"), PanelBlueLight, _game.ReturnToMenu, new Vector2(0.2f, 0.09f), new Vector2(0.8f, 0.21f), 18);
         }
@@ -238,25 +233,25 @@ namespace BaziBaqa
             if (!_hudActive || _game == null || _game.Resources == null) return;
             foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
             {
-                if (_resourceLabels.TryGetValue(type, out Text label))
+                if (_resourceLabels.TryGetValue(type, out UIText label))
                 {
-                    PersianText.Set(label, Loc.Get("format.resource_line", GameText.ResourceName(type), Loc.Num(_game.Resources.Get(type))));
+label.Set(Loc.Get("format.resource_line", GameText.ResourceName(type), Loc.Num(_game.Resources.Get(type))));
                 }
             }
-            if (_clockLabel != null) PersianText.Set(_clockLabel, Loc.Get("hud.day_line", Loc.Num(_game.Clock.Day), _game.Clock.GetClockText()));
-            if (_weatherLabel != null) PersianText.Set(_weatherLabel, Loc.Get("hud.weather_line", GameText.WeatherName(_game.Weather.Current)));
-            if (_populationLabel != null) PersianText.Set(_populationLabel, Loc.Get("hud.population_line", Loc.Num(_game.AliveSurvivorCount()), Loc.Num(_game.Survivors.Count)));
+_clockLabel.Set(Loc.Get("hud.day_line", Loc.Num(_game.Clock.Day), _game.Clock.GetClockText()));
+_weatherLabel.Set(Loc.Get("hud.weather_line", GameText.WeatherName(_game.Weather.Current)));
+_populationLabel.Set(Loc.Get("hud.population_line", Loc.Num(_game.AliveSurvivorCount()), Loc.Num(_game.Survivors.Count)));
             if (_groupTitleLabel != null)
             {
                 int level = _game.Progression == null ? 1 : _game.Progression.Level;
-                PersianText.Set(_groupTitleLabel, Loc.Get("hud.companions_line", Loc.Num(level)));
+_groupTitleLabel.Set(Loc.Get("hud.companions_line", Loc.Num(level)));
             }
-            if (_technologyLabel != null) PersianText.Set(_technologyLabel, Loc.Get("hud.technology_line", Loc.Num(_game.Technology.Points)));
+_technologyLabel.Set(Loc.Get("hud.technology_line", Loc.Num(_game.Technology.Points)));
             if (_goalLabel != null)
             {
                 string quest = ActiveQuestText();
                 string morale = _game.Survival == null ? string.Empty : Loc.Get("hud.morale_suffix", Loc.Num(Mathf.RoundToInt(_game.Survival.TeamMorale)));
-                PersianText.Set(_goalLabel, Loc.Get("hud.objective_line", Loc.Num(GameManager.VictoryDay)) + morale + quest);
+_goalLabel.Set(Loc.Get("hud.objective_line", Loc.Num(GameManager.VictoryDay)) + morale + quest);
             }
             if (_survivorRefreshTimer <= 0f)
             {
@@ -272,26 +267,26 @@ namespace BaziBaqa
             {
                 ResourceType type = (ResourceType)i;
                 GameObject card = CreatePanel("ResourceCard", header.transform, new Color(0.05f, 0.15f, 0.2f, 0.96f), new Vector2(i / 6f, 0.35f), new Vector2((i + 1) / 6f, 0.9f));
-                Text label = CreateText(card.transform, GameText.ResourceName(type), 16, Color.white, TextAnchor.MiddleCenter);
-                SetRect(label.rectTransform, Vector2.zero, Vector2.one, new Vector2(3f, 1f), new Vector2(-3f, -1f));
+                UIText label = CreateText(card.transform, GameText.ResourceName(type), 16, Color.white, TextAnchor.MiddleCenter);
+                SetRect(label.Rect, Vector2.zero, Vector2.one, new Vector2(3f, 1f), new Vector2(-3f, -1f));
                 _resourceLabels[type] = label;
             }
             _clockLabel = CreateText(header.transform, "", 17, Gold, TextAnchor.MiddleRight);
-            SetRect(_clockLabel.rectTransform, new Vector2(0.54f, 0.03f), new Vector2(0.98f, 0.32f), Vector2.zero, Vector2.zero);
+            SetRect(_clockLabel.Rect, new Vector2(0.54f, 0.03f), new Vector2(0.98f, 0.32f), Vector2.zero, Vector2.zero);
             _weatherLabel = CreateText(header.transform, "", 15, Muted, TextAnchor.MiddleLeft);
-            SetRect(_weatherLabel.rectTransform, new Vector2(0.02f, 0.03f), new Vector2(0.4f, 0.32f), Vector2.zero, Vector2.zero);
+            SetRect(_weatherLabel.Rect, new Vector2(0.02f, 0.03f), new Vector2(0.4f, 0.32f), Vector2.zero, Vector2.zero);
 
             GameObject leftPanel = CreatePanel("GroupPanel", _hudRoot.transform, new Color(0.025f, 0.09f, 0.13f, 0.92f), new Vector2(0.015f, 0.2f), new Vector2(0.275f, 0.82f));
             _groupTitleLabel = CreateText(leftPanel.transform, Loc.Get("hud.companions"), 19, Teal, TextAnchor.MiddleRight);
-            SetRect(_groupTitleLabel.rectTransform, new Vector2(0.06f, 0.91f), new Vector2(0.94f, 0.99f), Vector2.zero, Vector2.zero);
+            SetRect(_groupTitleLabel.Rect, new Vector2(0.06f, 0.91f), new Vector2(0.94f, 0.99f), Vector2.zero, Vector2.zero);
             _survivorList = CreateRectObject("SurvivorList", leftPanel.transform).transform;
             SetRect((RectTransform)_survivorList, new Vector2(0.02f, 0.04f), new Vector2(0.98f, 0.9f), Vector2.zero, Vector2.zero);
 
             GameObject rightInfo = CreatePanel("InfoPanel", _hudRoot.transform, new Color(0.025f, 0.09f, 0.13f, 0.78f), new Vector2(0.73f, 0.71f), new Vector2(0.985f, 0.82f));
             _populationLabel = CreateText(rightInfo.transform, "", 15, Color.white, TextAnchor.MiddleRight);
-            SetRect(_populationLabel.rectTransform, new Vector2(0.04f, 0.5f), new Vector2(0.96f, 0.98f), Vector2.zero, Vector2.zero);
+            SetRect(_populationLabel.Rect, new Vector2(0.04f, 0.5f), new Vector2(0.96f, 0.98f), Vector2.zero, Vector2.zero);
             _technologyLabel = CreateText(rightInfo.transform, "", 14, Gold, TextAnchor.MiddleRight);
-            SetRect(_technologyLabel.rectTransform, new Vector2(0.04f, 0.03f), new Vector2(0.96f, 0.5f), Vector2.zero, Vector2.zero);
+            SetRect(_technologyLabel.Rect, new Vector2(0.04f, 0.03f), new Vector2(0.96f, 0.5f), Vector2.zero, Vector2.zero);
 
             GameObject bottom = CreatePanel("ActionBar", _hudRoot.transform, new Color(0.02f, 0.07f, 0.11f, 0.97f), new Vector2(0f, 0f), new Vector2(1f, 0.2f));
             CreateButton(bottom.transform, Loc.Get("ui.action.build"), Teal, ToggleBuildPanel, new Vector2(0.02f, 0.55f), new Vector2(0.2f, 0.92f), 13);
@@ -306,10 +301,10 @@ namespace BaziBaqa
             CreateButton(bottom.transform, Loc.Get("ui.action.save"), new Color(0.36f, 0.45f, 0.5f), _game.SaveGame, new Vector2(0.66f, 0.14f), new Vector2(0.81f, 0.48f), 12);
             CreateButton(bottom.transform, Loc.Get("ui.action.pause"), new Color(0.28f, 0.34f, 0.4f), _game.TogglePause, new Vector2(0.82f, 0.14f), new Vector2(0.96f, 0.48f), 12);
             _goalLabel = CreateText(bottom.transform, "", 12, Muted, TextAnchor.MiddleLeft);
-            SetRect(_goalLabel.rectTransform, new Vector2(0.02f, 0.02f), new Vector2(0.98f, 0.12f), Vector2.zero, Vector2.zero);
+            SetRect(_goalLabel.Rect, new Vector2(0.02f, 0.02f), new Vector2(0.98f, 0.12f), Vector2.zero, Vector2.zero);
 
             _notificationLabel = CreateText(_hudRoot.transform, "", 17, Color.white, TextAnchor.MiddleCenter);
-            SetRect(_notificationLabel.rectTransform, new Vector2(0.29f, 0.18f), new Vector2(0.72f, 0.28f), Vector2.zero, Vector2.zero);
+            SetRect(_notificationLabel.Rect, new Vector2(0.29f, 0.18f), new Vector2(0.72f, 0.28f), Vector2.zero, Vector2.zero);
             CreatePanel("NotificationBackdrop", _hudRoot.transform, new Color(0.03f, 0.15f, 0.17f, 0.4f), new Vector2(0.29f, 0.18f), new Vector2(0.72f, 0.28f)).transform.SetAsFirstSibling();
         }
 
@@ -324,13 +319,13 @@ namespace BaziBaqa
                 if (survivor == null) continue;
                 float top = 1f - i * 0.155f;
                 GameObject row = CreatePanel("SurvivorRow", _survivorList, survivor.IsAlive ? new Color(0.06f, 0.16f, 0.2f, 0.92f) : new Color(0.18f, 0.08f, 0.1f, 0.8f), new Vector2(0.02f, top - 0.14f), new Vector2(0.98f, top - 0.01f));
-                Text name = CreateText(row.transform, survivor.DisplayName, 15, survivor.IsAlive ? Color.white : new Color(0.75f, 0.5f, 0.5f), TextAnchor.MiddleRight);
-                SetRect(name.rectTransform, new Vector2(0.39f, 0.48f), new Vector2(0.96f, 0.96f), Vector2.zero, Vector2.zero);
+                UIText name = CreateText(row.transform, survivor.DisplayName, 15, survivor.IsAlive ? Color.white : new Color(0.75f, 0.5f, 0.5f), TextAnchor.MiddleRight);
+                SetRect(name.Rect, new Vector2(0.39f, 0.48f), new Vector2(0.96f, 0.96f), Vector2.zero, Vector2.zero);
                 string roleLine = survivor.IsAlive
                     ? GameText.RoleName(survivor.Role) + "\n" + survivor.TaskDescription
                     : Loc.Get("ui.survivor.lost");
-                Text role = CreateText(row.transform, roleLine, 11, Muted, TextAnchor.MiddleRight);
-                SetRect(role.rectTransform, new Vector2(0.39f, 0.04f), new Vector2(0.96f, 0.48f), Vector2.zero, Vector2.zero);
+                UIText role = CreateText(row.transform, roleLine, 11, Muted, TextAnchor.MiddleRight);
+                SetRect(role.Rect, new Vector2(0.39f, 0.04f), new Vector2(0.96f, 0.48f), Vector2.zero, Vector2.zero);
                 CreateStatusBar(row.transform, new Vector2(0.04f, 0.58f), survivor.Health / 100f, new Color(0.92f, 0.28f, 0.3f));
                 CreateStatusBar(row.transform, new Vector2(0.04f, 0.35f), survivor.Hunger / 100f, new Color(0.9f, 0.64f, 0.2f));
                 CreateStatusBar(row.transform, new Vector2(0.04f, 0.12f), survivor.Thirst / 100f, new Color(0.2f, 0.6f, 0.9f));
@@ -344,8 +339,8 @@ namespace BaziBaqa
             {
                 string detail = Loc.Get("ui.building.detail", Loc.Num(building.Level), Loc.Num(Mathf.RoundToInt(building.Health)), Loc.Num(Mathf.RoundToInt(building.MaxHealth)),
                     GameText.CostLine(ConstructionSystem.GetUpgradeCosts(building.Type, building.Level)));
-                Text body = CreateText(modal.transform, detail, 17, Color.white, TextAnchor.MiddleCenter);
-                SetRect(body.rectTransform, new Vector2(0.08f, 0.38f), new Vector2(0.92f, 0.8f), Vector2.zero, Vector2.zero);
+                UIText body = CreateText(modal.transform, detail, 17, Color.white, TextAnchor.MiddleCenter);
+                SetRect(body.Rect, new Vector2(0.08f, 0.38f), new Vector2(0.92f, 0.8f), Vector2.zero, Vector2.zero);
                 CreateButton(modal.transform, Loc.Get("ui.building.upgrade"), Teal, () => UpgradeBuilding(building), new Vector2(0.18f, 0.2f), new Vector2(0.82f, 0.32f), 17);
             });
         }
@@ -368,8 +363,8 @@ namespace BaziBaqa
             }
             if (_technologyPanel != null) Destroy(_technologyPanel);
             _buildPanel = CreatePanel("BuildPanel", _hudRoot.transform, new Color(0.03f, 0.12f, 0.16f, 0.98f), new Vector2(0.28f, 0.18f), new Vector2(0.72f, 0.79f));
-            Text title = CreateText(_buildPanel.transform, Loc.Get("ui.build.title"), 20, Teal, TextAnchor.MiddleCenter);
-            SetRect(title.rectTransform, new Vector2(0.08f, 0.89f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
+            UIText title = CreateText(_buildPanel.transform, Loc.Get("ui.build.title"), 20, Teal, TextAnchor.MiddleCenter);
+            SetRect(title.Rect, new Vector2(0.08f, 0.89f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
             BuildingType[] types = { BuildingType.House, BuildingType.Farm, BuildingType.WatchTower, BuildingType.Workshop, BuildingType.Wall, BuildingType.SolarStation };
             for (int i = 0; i < types.Length; i++)
             {
@@ -395,9 +390,9 @@ namespace BaziBaqa
             if (_technologyPanel != null) Destroy(_technologyPanel);
             CreateModal(Loc.Get("ui.train.title"), (modal) =>
             {
-                Text body = CreateText(modal.transform, Loc.Get("ui.train.body", TrainingSystem.CostLine(),
+                UIText body = CreateText(modal.transform, Loc.Get("ui.train.body", TrainingSystem.CostLine(),
                     Loc.Num(_game.AliveSurvivorCount()), Loc.Num(TrainingSystem.MaximumGroupSize)), 16, Color.white, TextAnchor.MiddleCenter);
-                SetRect(body.rectTransform, new Vector2(0.08f, 0.4f), new Vector2(0.92f, 0.79f), Vector2.zero, Vector2.zero);
+                SetRect(body.Rect, new Vector2(0.08f, 0.4f), new Vector2(0.92f, 0.79f), Vector2.zero, Vector2.zero);
                 CreateButton(modal.transform, Loc.Get("ui.train.button"), Teal, TrainGuard, new Vector2(0.16f, 0.23f), new Vector2(0.84f, 0.35f), 17);
             });
         }
@@ -420,10 +415,10 @@ namespace BaziBaqa
             }
             if (_buildPanel != null) Destroy(_buildPanel);
             _technologyPanel = CreatePanel("TechnologyPanel", _hudRoot.transform, new Color(0.03f, 0.12f, 0.16f, 0.98f), new Vector2(0.28f, 0.22f), new Vector2(0.72f, 0.78f));
-            Text title = CreateText(_technologyPanel.transform, Loc.Get("ui.tech.title"), 21, Gold, TextAnchor.MiddleCenter);
-            SetRect(title.rectTransform, new Vector2(0.08f, 0.88f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
-            Text points = CreateText(_technologyPanel.transform, Loc.Get("ui.tech.points", Loc.Num(_game.Technology.Points)), 14, Muted, TextAnchor.MiddleCenter);
-            SetRect(points.rectTransform, new Vector2(0.08f, 0.78f), new Vector2(0.92f, 0.88f), Vector2.zero, Vector2.zero);
+            UIText title = CreateText(_technologyPanel.transform, Loc.Get("ui.tech.title"), 21, Gold, TextAnchor.MiddleCenter);
+            SetRect(title.Rect, new Vector2(0.08f, 0.88f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
+            UIText points = CreateText(_technologyPanel.transform, Loc.Get("ui.tech.points", Loc.Num(_game.Technology.Points)), 14, Muted, TextAnchor.MiddleCenter);
+            SetRect(points.Rect, new Vector2(0.08f, 0.78f), new Vector2(0.92f, 0.88f), Vector2.zero, Vector2.zero);
             TechnologyType[] technologies = { TechnologyType.Cooperation, TechnologyType.WaterPurification, TechnologyType.ReinforcedWalls, TechnologyType.FieldRotation };
             for (int i = 0; i < technologies.Length; i++)
             {
@@ -451,14 +446,14 @@ namespace BaziBaqa
             CreateModal(Loc.Get("ui.daily.title"), (modal) =>
             {
                 int bonus = Mathf.Min(streak, 3);
-                Text body = CreateText(modal.transform, Loc.Get("ui.daily.body",
+                UIText body = CreateText(modal.transform, Loc.Get("ui.daily.body",
                         Loc.Get("ui.daily.reward_line",
                             GameText.ResourceAmount(ResourceType.Food, DailyRewardSystem.FoodReward(bonus)),
                             GameText.ResourceAmount(ResourceType.Gold, DailyRewardSystem.GoldReward(bonus))),
                         Loc.Num(streak),
                         Loc.Get(claimable ? "ui.daily.available" : "ui.daily.claimed")),
                     17, Color.white, TextAnchor.MiddleCenter);
-                SetRect(body.rectTransform, new Vector2(0.08f, 0.44f), new Vector2(0.92f, 0.8f), Vector2.zero, Vector2.zero);
+                SetRect(body.Rect, new Vector2(0.08f, 0.44f), new Vector2(0.92f, 0.8f), Vector2.zero, Vector2.zero);
                 CreateButton(modal.transform, Loc.Get("ui.daily.claim"), Teal, () => ClaimDaily(modal), new Vector2(0.2f, 0.26f), new Vector2(0.8f, 0.4f), 17);
             });
         }
@@ -476,8 +471,8 @@ namespace BaziBaqa
             if (_buildPanel != null) Destroy(_buildPanel);
             if (_technologyPanel != null) Destroy(_technologyPanel);
             _buildPanel = CreatePanel("QuestPanel", _hudRoot.transform, new Color(0.03f, 0.12f, 0.16f, 0.98f), new Vector2(0.22f, 0.18f), new Vector2(0.78f, 0.82f));
-            Text title = CreateText(_buildPanel.transform, Loc.Get("ui.quest.title"), 22, Teal, TextAnchor.MiddleCenter);
-            SetRect(title.rectTransform, new Vector2(0.08f, 0.9f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
+            UIText title = CreateText(_buildPanel.transform, Loc.Get("ui.quest.title"), 22, Teal, TextAnchor.MiddleCenter);
+            SetRect(title.Rect, new Vector2(0.08f, 0.9f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
 
             IReadOnlyList<QuestRuntime> quests = _game.Quests == null ? (IReadOnlyList<QuestRuntime>)new List<QuestRuntime>() : _game.Quests.Quests;
             for (int i = 0; i < quests.Count; i++)
@@ -487,10 +482,10 @@ namespace BaziBaqa
                 string status = quest.Status == QuestStatus.Completed ? Loc.Get("ui.common.done")
                     : Loc.Get(quest.Status == QuestStatus.Claimed ? "ui.quest.claimed" : "ui.quest.active");
                 Color statusColor = quest.Status == QuestStatus.Completed ? Gold : (quest.Status == QuestStatus.Claimed ? Muted : Color.white);
-                Text q = CreateText(_buildPanel.transform, Loc.Get("ui.quest.entry_line", quest.Definition.Title, quest.Definition.Description,
+                UIText q = CreateText(_buildPanel.transform, Loc.Get("ui.quest.entry_line", quest.Definition.Title, quest.Definition.Description,
                         GameText.ResourceAmount(quest.Definition.rewardResource, quest.Definition.rewardAmount), status),
                     13, statusColor, TextAnchor.MiddleRight);
-                SetRect(q.rectTransform, new Vector2(0.08f, top - 0.13f), new Vector2(0.92f, top), Vector2.zero, Vector2.zero);
+                SetRect(q.Rect, new Vector2(0.08f, top - 0.13f), new Vector2(0.92f, top), Vector2.zero, Vector2.zero);
             }
             CreateButton(_buildPanel.transform, Loc.Get("ui.quest.claim_all"), Teal, ClaimQuests, new Vector2(0.16f, 0.05f), new Vector2(0.84f, 0.16f), 15);
         }
@@ -508,8 +503,8 @@ namespace BaziBaqa
             if (_buildPanel != null) Destroy(_buildPanel);
             if (_technologyPanel != null) Destroy(_technologyPanel);
             _buildPanel = CreatePanel("AchievementPanel", _hudRoot.transform, new Color(0.03f, 0.12f, 0.16f, 0.98f), new Vector2(0.22f, 0.18f), new Vector2(0.78f, 0.82f));
-            Text title = CreateText(_buildPanel.transform, Loc.Get("ui.action.achievements"), 22, Gold, TextAnchor.MiddleCenter);
-            SetRect(title.rectTransform, new Vector2(0.08f, 0.9f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
+            UIText title = CreateText(_buildPanel.transform, Loc.Get("ui.action.achievements"), 22, Gold, TextAnchor.MiddleCenter);
+            SetRect(title.Rect, new Vector2(0.08f, 0.9f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
 
             AchievementId[] ids = { AchievementId.Builder, AchievementId.Defender, AchievementId.Scavenger, AchievementId.FirstNight, AchievementId.Survivor, AchievementId.Rich };
             AchievementId[] ids = { AchievementId.Builder, AchievementId.Defender, AchievementId.Scavenger, AchievementId.FirstNight, AchievementId.Survivor, AchievementId.Rich };
@@ -517,10 +512,10 @@ namespace BaziBaqa
             {
                 float top = 0.78f - i * 0.1f;
                 bool unlocked = _game.Achievements.IsUnlocked(ids[i]);
-                Text row = CreateText(_buildPanel.transform,
+                UIText row = CreateText(_buildPanel.transform,
                     (unlocked ? Loc.Get("ui.common.done") + "  " : "○  ") + GameText.AchievementName(ids[i]),
                     15, unlocked ? Gold : Muted, TextAnchor.MiddleRight);
-                SetRect(row.rectTransform, new Vector2(0.08f, top - 0.08f), new Vector2(0.92f, top), Vector2.zero, Vector2.zero);
+                SetRect(row.Rect, new Vector2(0.08f, top - 0.08f), new Vector2(0.92f, top), Vector2.zero, Vector2.zero);
             }
         }
 
@@ -529,8 +524,8 @@ namespace BaziBaqa
             if (_buildPanel != null) Destroy(_buildPanel);
             if (_technologyPanel != null) Destroy(_technologyPanel);
             _buildPanel = CreatePanel("EquipmentPanel", _hudRoot.transform, new Color(0.03f, 0.12f, 0.16f, 0.98f), new Vector2(0.2f, 0.18f), new Vector2(0.8f, 0.84f));
-            Text title = CreateText(_buildPanel.transform, Loc.Get("ui.equip.title"), 22, Teal, TextAnchor.MiddleCenter);
-            SetRect(title.rectTransform, new Vector2(0.08f, 0.9f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
+            UIText title = CreateText(_buildPanel.transform, Loc.Get("ui.equip.title"), 22, Teal, TextAnchor.MiddleCenter);
+            SetRect(title.Rect, new Vector2(0.08f, 0.9f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
 
             EquipmentType[] types = { EquipmentType.Tool, EquipmentType.Weapon, EquipmentType.Armor };
             for (int i = 0; i < types.Length; i++)
@@ -546,12 +541,12 @@ namespace BaziBaqa
                     (can ? string.Empty : "\n" + Loc.Get("ui.equip.level_required"));
                 CreateButton(_buildPanel.transform, label, color, () => UpgradeEquipment(type), new Vector2(0.08f, top - 0.11f), new Vector2(0.92f, top), 13);
             }
-            Text bonus = CreateText(_buildPanel.transform, Loc.Get("ui.equip.effect_block",
+            UIText bonus = CreateText(_buildPanel.transform, Loc.Get("ui.equip.effect_block",
                 Loc.Get("ui.equip.gather_bonus", Loc.Num(Mathf.RoundToInt(_game.Equipment.ToolGatherBonus * 100f))),
                 Loc.Get("ui.equip.attack_bonus", Loc.Num(_game.Equipment.WeaponDamageBonus)),
                 Loc.Get("ui.equip.armor_bonus", Loc.Num(Mathf.RoundToInt(_game.Equipment.ArmorReduction * 100f)))),
                 13, Muted, TextAnchor.MiddleCenter);
-            SetRect(bonus.rectTransform, new Vector2(0.08f, 0.05f), new Vector2(0.92f, 0.34f), Vector2.zero, Vector2.zero);
+            SetRect(bonus.Rect, new Vector2(0.08f, 0.05f), new Vector2(0.92f, 0.34f), Vector2.zero, Vector2.zero);
             CreateButton(_buildPanel.transform, Loc.Get("ui.common.close"), new Color(0.25f, 0.32f, 0.36f), () => { Destroy(_buildPanel); _buildPanel = null; }, new Vector2(0.3f, 0.0f), new Vector2(0.7f, 0.06f), 14);
         }
 
@@ -572,7 +567,7 @@ namespace BaziBaqa
             float chance = Mathf.RoundToInt(_game.Raid.SuccessChance() * 100f);
             CreateModal(Loc.Get("ui.raid.title"), (modal) =>
             {
-                Text body = CreateText(modal.transform, Loc.Get("ui.raid.body",
+                UIText body = CreateText(modal.transform, Loc.Get("ui.raid.body",
                     Loc.Get("ui.raid.guards_line", Loc.Num(guards)),
                     Loc.Get("ui.raid.chance_line", Loc.Num(chance)),
                     Loc.Get("ui.raid.cost_line",
@@ -580,7 +575,7 @@ namespace BaziBaqa
                         GameText.ResourceAmount(ResourceType.Gold, RaidSystem.GoldCost)),
                     Loc.Get("ui.raid.record_line", Loc.Num(_game.Raid.Wins), Loc.Num(_game.Raid.Losses))),
                     16, Color.white, TextAnchor.MiddleCenter);
-                SetRect(body.rectTransform, new Vector2(0.08f, 0.4f), new Vector2(0.92f, 0.82f), Vector2.zero, Vector2.zero);
+                SetRect(body.Rect, new Vector2(0.08f, 0.4f), new Vector2(0.92f, 0.82f), Vector2.zero, Vector2.zero);
                 CreateButton(modal.transform, Loc.Get("ui.raid.start"), new Color(0.7f, 0.36f, 0.3f), () => ExecuteRaid(modal), new Vector2(0.16f, 0.22f), new Vector2(0.84f, 0.36f), 17);
             });
         }
@@ -597,8 +592,8 @@ namespace BaziBaqa
         {
             if (_mapPanel != null) { Destroy(_mapPanel); _mapPanel = null; return; }
             _mapPanel = CreatePanel("MapPanel", _canvas.transform, new Color(0.02f, 0.05f, 0.08f, 0.95f), new Vector2(0.12f, 0.22f), new Vector2(0.88f, 0.8f));
-            Text title = CreateText(_mapPanel.transform, Loc.Get("ui.map.title"), 22, Teal, TextAnchor.MiddleCenter);
-            SetRect(title.rectTransform, new Vector2(0.08f, 0.92f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
+            UIText title = CreateText(_mapPanel.transform, Loc.Get("ui.map.title"), 22, Teal, TextAnchor.MiddleCenter);
+            SetRect(title.Rect, new Vector2(0.08f, 0.92f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
             GameObject mapArea = CreatePanel("MapArea", _mapPanel.transform, new Color(0.12f, 0.2f, 0.16f, 0.9f), new Vector2(0.08f, 0.12f), new Vector2(0.92f, 0.88f));
 
             // ساختمان‌ها (سبز)
@@ -650,8 +645,8 @@ namespace BaziBaqa
             if (story == null) return;
             CreateModal(story.Title, (modal) =>
             {
-                Text body = CreateText(modal.transform, story.Body, 17, Color.white, TextAnchor.MiddleCenter);
-                SetRect(body.rectTransform, new Vector2(0.08f, 0.5f), new Vector2(0.92f, 0.84f), Vector2.zero, Vector2.zero);
+                UIText body = CreateText(modal.transform, story.Body, 17, Color.white, TextAnchor.MiddleCenter);
+                SetRect(body.Rect, new Vector2(0.08f, 0.5f), new Vector2(0.92f, 0.84f), Vector2.zero, Vector2.zero);
                 for (int i = 0; i < story.choices.Count; i++)
                 {
                     StoryChoice choice = story.choices[i];
@@ -674,8 +669,8 @@ namespace BaziBaqa
         {
             CreateModal(Loc.Get("menu.settings"), (modal) =>
             {
-                Text hint = CreateText(modal.transform, Loc.Get("ui.settings.hint"), 15, Muted, TextAnchor.MiddleCenter);
-                SetRect(hint.rectTransform, new Vector2(0.1f, 0.64f), new Vector2(0.9f, 0.75f), Vector2.zero, Vector2.zero);
+                UIText hint = CreateText(modal.transform, Loc.Get("ui.settings.hint"), 15, Muted, TextAnchor.MiddleCenter);
+                SetRect(hint.Rect, new Vector2(0.1f, 0.64f), new Vector2(0.9f, 0.75f), Vector2.zero, Vector2.zero);
                 bool sound = _game.Audio == null || _game.Audio.SoundEnabled;
                 bool vibration = _game.Audio == null || _game.Audio.VibrationEnabled;
                 if (PlayerPrefs.HasKey("bazi_baqa_sound")) sound = PlayerPrefs.GetInt("bazi_baqa_sound", 1) == 1;
@@ -724,8 +719,8 @@ namespace BaziBaqa
         {
             CreateModal(Loc.Get("ui.menu.about"), (modal) =>
             {
-                Text body = CreateText(modal.transform, Loc.Get("game.credits"), 18, Color.white, TextAnchor.MiddleCenter);
-                SetRect(body.rectTransform, new Vector2(0.08f, 0.3f), new Vector2(0.92f, 0.78f), Vector2.zero, Vector2.zero);
+                UIText body = CreateText(modal.transform, Loc.Get("game.credits"), 18, Color.white, TextAnchor.MiddleCenter);
+                SetRect(body.Rect, new Vector2(0.08f, 0.3f), new Vector2(0.92f, 0.78f), Vector2.zero, Vector2.zero);
                 CreateButton(modal.transform, Loc.Get("ui.about.website"), Teal, () => Application.OpenURL("https://Parsa-apps.github.io"), new Vector2(0.2f, 0.14f), new Vector2(0.8f, 0.25f), 16);
             });
         }
@@ -735,8 +730,8 @@ namespace BaziBaqa
             if (_modalLayer != null) Destroy(_modalLayer);
             _modalLayer = CreatePanel("ModalOverlay", _canvas.transform, new Color(0.01f, 0.025f, 0.05f, 0.86f), Vector2.zero, Vector2.one);
             GameObject card = CreatePanel("ModalCard", _modalLayer.transform, new Color(0.035f, 0.12f, 0.17f, 0.99f), new Vector2(0.12f, 0.16f), new Vector2(0.88f, 0.84f));
-            Text title = CreateText(card.transform, titleText, 26, Teal, TextAnchor.MiddleCenter);
-            SetRect(title.rectTransform, new Vector2(0.08f, 0.82f), new Vector2(0.92f, 0.96f), Vector2.zero, Vector2.zero);
+            UIText title = CreateText(card.transform, titleText, 26, Teal, TextAnchor.MiddleCenter);
+            SetRect(title.Rect, new Vector2(0.08f, 0.82f), new Vector2(0.92f, 0.96f), Vector2.zero, Vector2.zero);
             CreateButton(card.transform, "×", new Color(0.4f, 0.16f, 0.2f), () => { Destroy(_modalLayer); _modalLayer = null; }, new Vector2(0.82f, 0.88f), new Vector2(0.96f, 0.99f), 19);
             content(card);
         }
@@ -744,7 +739,7 @@ namespace BaziBaqa
         private void OnNotification(string message)
         {
             if (_notificationLabel == null) return;
-            PersianText.Set(_notificationLabel, message);
+_notificationLabel.Set(message);
             _notificationTimer = 4.5f;
         }
 
@@ -849,20 +844,14 @@ namespace BaziBaqa
             return panel;
         }
 
-        private Text CreateText(Transform parent, string value, int size, Color color, TextAnchor anchor)
+        /// <summary>
+        /// تنها نقطه‌ی ساختِ برچسب در رابط؛ خودِ بک‌اند (TMP یا Text قدیمی) را GameTextBackend انتخاب
+        /// می‌کند، پس این‌جا نه فونتِ raw هست و نه نوعِ کامپوننتِ Unity UI.
+        /// </summary>
+        private UIText CreateText(Transform parent, string value, int size, Color color, TextAnchor anchor)
         {
-            GameObject textObject = CreateRectObject("Text", parent);
-            Text label = textObject.AddComponent<Text>();
-            label.font = _font;
-            label.fontSize = size;
-            label.color = color;
-            label.alignment = anchor;
-            label.horizontalOverflow = HorizontalWrapMode.Wrap;
-            label.verticalOverflow = VerticalWrapMode.Truncate;
-            label.resizeTextForBestFit = true;
-            label.resizeTextMinSize = Mathf.Max(10, size - 5);
-            label.resizeTextMaxSize = size;
-            PersianText.Set(label, value);
+            UIText label = UIText.Create(parent, "Text", value, size, color, anchor);
+            label.autoFit = true;
             return label;
         }
 
@@ -881,8 +870,8 @@ namespace BaziBaqa
             button.colors = colors;
             button.onClick.AddListener(action);
             buttonObject.AddComponent<ButtonFx>();
-            Text buttonText = CreateText(buttonObject.transform, label, size, Color.white, TextAnchor.MiddleCenter);
-            SetRect(buttonText.rectTransform, Vector2.zero, Vector2.one, new Vector2(5f, 2f), new Vector2(-5f, -2f));
+            UIText buttonText = CreateText(buttonObject.transform, label, size, Color.white, TextAnchor.MiddleCenter);
+            SetRect(buttonText.Rect, Vector2.zero, Vector2.one, new Vector2(5f, 2f), new Vector2(-5f, -2f));
             return button;
         }
 
@@ -915,7 +904,10 @@ namespace BaziBaqa
         /// </summary>
         private void OnLanguageChanged(string language)
         {
-            if (_game == null || _splashActive) return;
+            if (_splashActive) return;
+            // برچسب‌هایِ کلید‌محور (UIText.SetKey) همین‌جا از جدول تازه می‌شوند…
+            GameTextBackend.RebuildAll();
+            // …و پنل‌هایی که داده‌ی زنده نشان می‌دهند دوباره ساخته می‌شوند.
             if (_hudActive) ShowGame(false);
             else ShowMainMenu();
         }

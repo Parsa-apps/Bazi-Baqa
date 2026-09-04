@@ -809,13 +809,78 @@ def load_localization_tables() -> dict[str, dict[str, str]]:
     return tables
 
 
-def check_textmeshpro(paths: list[Path]):
-    legacy = re.compile(r"\b(?:AddComponent<\s*Text\s*>|Resources\.GetBuiltinResource<\s*Font\s*>|new Text\b|<Text>\s*\w+\s*=\s*new Dictionary)")
-    tmp_files = [p for p in paths if "/UI/" in rel(p) or "UIManager" in p.name]
-    for path in tmp_files:
-        source = path.read_text(encoding="utf-8")
-        if legacy.search(source):
-            err(f"{rel(path)}: هنوز از Text/Font قدیمیِ Unity UI استفاده می‌کند؛ باید به TextMeshProUGUI منتقل شود")
+TEXT_BACKEND_FILES = {
+    "Assets/Scripts/UI/UIText.cs",
+    "Assets/Scripts/Utilities/PersianText.cs",
+    "Assets/Scripts/Utilities/GameFont.cs",
+    "Assets/Scripts/Core/GameTextBackend.cs",
+}
+GLYPH_FILE = ROOT / "Assets/Resources/Fonts/PersianGlyphs.txt"
+SOURCE_FONT = ROOT / "Assets/Resources/Fonts/Vazirmatn.ttf"
+
+
+def read_glyph_characters() -> str:
+    """مجموعه‌حروف را از همان فایلی می‌خواند که بیکرِ TMP استفاده می‌کند."""
+    if not GLYPH_FILE.exists():
+        return ""
+    characters = set()
+    for line in GLYPH_FILE.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        characters.update(line)
+    return "".join(sorted(characters))
+
+
+def check_textmeshpro(paths: list[Path], tables: dict):
+    legacy = re.compile(r"\b(?:AddComponent<\s*Text\s*>|Resources\.GetBuiltinResource<\s*Font\s*>|new Text\b|<Text>\s*\w+\s*=\s*new Dictionary|GetComponent<\s*Text\s*>\(\))")
+    ui_files = [p for p in paths if ("/UI/" in rel(p) or "UIManager" in p.name or "HUD" in p.name)]
+
+    # ۱) هیچ فایلِ UI جز لایه‌ی بک‌اند نباید Text/Font خامِ Unity UI را بسازد.
+    offenders = []
+    for path in ui_files:
+        if rel(path) in TEXT_BACKEND_FILES:
+            continue
+        if legacy.search(path.read_text(encoding="utf-8")):
+            offenders.append(rel(path))
+    if offenders:
+        err("هنوز از Text/Font قدیمیِ Unity UI استفاده می‌کند؛ متن‌ها باید از UIText (بک‌اندِ TMP) ساخته شوند: " + ", ".join(sorted(offenders)))
+
+    # ۲) خودِ لایه‌ی بک‌اند باید مسیرِ TMP را داشته باشد، وگرنه «مهاجرت» فقط اسم بوده است.
+    backend = {rel(p): p for p in paths if rel(p) in TEXT_BACKEND_FILES}
+    uitext = backend.get("Assets/Scripts/UI/UIText.cs")
+    if uitext is None:
+        err("Assets/Scripts/UI/UIText.cs وجود ندارد؛ لایه‌ی بک‌اندِ متن حذف شده است")
+    else:
+        source = uitext.read_text(encoding="utf-8")
+        if "TextMeshProUGUI" not in source or "GameFont.TmpAsset" not in source:
+            err("UIText باید TextMeshProUGUI را با assetِ فونتِ GameFont.TmpAsset بسازد (مسیرِ اصلیِ تایپوگرافی)")
+
+    # ۳) فایلِ فونت و مجموعه‌حروف باید در Resources باشند.
+    if not SOURCE_FONT.exists():
+        err("Assets/Resources/Fonts/Vazirmatn.ttf نبود؛ فونتِ فارسی در زمان اجرا پیدا نمی‌شود")
+    if not GLYPH_FILE.exists():
+        err("Assets/Resources/Fonts/PersianGlyphs.txt نبود؛ بیکرِ TMP مجموعه‌حروف ندارد")
+    else:
+        characters = read_glyph_characters()
+        if not characters:
+            err("فایلِ مجموعه‌حروف خالی است")
+        else:
+            used = set()
+            for entries in tables.values():
+                for value in entries.values():
+                    used.update(value)
+            # کاراکترهای ASCIIِ چاپی و فاصله را TMP از font asset پیش‌فرض هم می‌گیرد؛ ولی برای
+            # اطمینان از خوانایی، همه‌ی کاراکترهایِ غیرلاتین باید در مجموعه‌حروف باشند.
+            missing = sorted(c for c in used if ord(c) > 0x7E and c not in characters)
+            if missing:
+                preview = " ".join(f"U+{ord(c):04X}({c})" for c in missing[:12])
+                err(f"مجموعه‌حروفِ فونت {len(missing)} کاراکترِ موردنیازِ جدول را ندارد → در بازی «توفو» می‌شود: {preview}. "
+                    "به Assets/Resources/Fonts/PersianGlyphs.txt بیفزایید.")
+            else:
+                info(f"پوششِ حروف: همه‌ی {len([c for c in used if ord(c) > 0x7E])} کاراکترِ غیرلاتینِ جدول در مجموعه‌حروف هست "
+                     f"({len(characters)} کاراکتر در مجموع)")
+
     uses_tmp = [p for p in paths if "TMPro" in p.read_text(encoding="utf-8")]
     if not uses_tmp:
         err("هیچ اسکریپت UI از TMPro استفاده نمی‌کند؛ فونت‌اسست فارسیِ TextMeshPro وصل نشده است")
@@ -943,7 +1008,7 @@ def main() -> int:
     check_resources_paths(paths)
     check_unity_asset_hygiene()
     check_asmdef_coverage(paths)
-    check_textmeshpro(runtime_paths)
+    check_textmeshpro(runtime_paths, tables)
     check_versions(tables)
     check_hardcoded_text(runtime_paths, tables)
 

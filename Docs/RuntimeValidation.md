@@ -7,7 +7,7 @@
 لایه ۱  ساختار/کامپایل    →  Tools/unity_validation.sh  +  python3 Tools/project_lint.py
 لایه ۲  تست‌های واحد      →  Test Runner (EditMode + PlayMode)
 لایه ۳  سناریوهای اجرا    →  Assets/Tests/PlayMode/RuntimeValidationPlayModeTests.cs
-لایه ۴  ممیزی‌های Editor  →  BaziBaqa > Audit / Validation منوها
+لایه ۴  ممیزی‌های Editor  →  BaziBaqa > Audit / Validation / Typography منوها
 ```
 
 ## ۱) اجرای خودکار در خط فرمان (توصیه‌شده برای CI)
@@ -28,7 +28,8 @@ Tools/unity_validation.sh skip-playmode
 
 1. کامپایل کامل پروژه (`error CS…` در لاگ = شکست).
 2. اجرای تست‌های **EditMode** و **PlayMode** با `-runTests` و تجزیه‌ی XML نتیجه.
-3. اجرای `BaziBaqa.EditorTools.RuntimeValidation.ValidateBatch` (ممیزی صحنه، Save/Load، UI، نسخه، بومی‌سازی).
+3. اجرای `BaziBaqa.EditorTools.TypographyBaker.BakeBatch` (بیک assetِ فونتِ TMP + پوششِ حروف).
+4. اجرای `BaziBaqa.EditorTools.RuntimeValidation.ValidateBatch` (ممیزی صحنه، Save/Load، UI، تایپوگرافی، نسخه، بومی‌سازی).
 4. پالایش لاگ‌ها برای `Missing Script/Reference`، API های منسوخ‌شده و اخطارهای مهم.
 
 همه‌ی لاگ‌ها در `Logs/` نوشته می‌شوند (این پوشه در `.gitignore` است).
@@ -54,6 +55,9 @@ python3 Tools/validate_project.py    # ساختار پروژه + تنظیمات 
 | `BaziBaqa > Audit > Run Full Audit` | ممیزی ساختاری (متا، GUID، صحنه‌ها، ترتیب اجرا) |
 | `BaziBaqa > Audit > Find Hardcoded Persian Text` | متن‌های قابل‌مشاهده‌ی نمانده در کد + کلیدهای جاافتاده |
 | `BaziBaqa > Audit > Performance & Assets` | منبع تکراری/بلااستفاده و راهنمای Draw Call |
+| `BaziBaqa > Typography > Bake Persian TMP Font Asset` | ساخت assetِ فونتِ Vazirmatn برای TMP (+ import خودکارِ Essentials) |
+| `BaziBaqa > Typography > Validate Typography Setup` | پوششِ حروفِ جدول، includeFontData، درستی assetها |
+| `BaziBaqa > Typography > Repair Font Import Settings` | اصلاح تنظیمات import فونت‌ها |
 | `BaziBaqa > Fonts > Build Persian TMP Font Assets` | ساخت فونت‌اسست TextMeshPro فارسی |
 | `BaziBaqa > Version > Apply Version To Player Settings` | اعمال نسخه از `VersionConfig.json` |
 | `BaziBaqa > Build > Build APK/AAB` | بیلد با دروازه‌ی ممیزی |

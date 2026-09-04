@@ -63,6 +63,7 @@ namespace BaziBaqa.EditorTools
                 CheckSceneLoading();
                 CheckSaveLoadCycle();
                 CheckUserInterface();
+                CheckTypography();
                 LocalizationAudit.Run(false);
                 VersionAudit();
             }
@@ -81,6 +82,29 @@ namespace BaziBaqa.EditorTools
                 Debug.LogError("[BaziBaqa Validation] ✗ " + Failures.Count + " مشکل یافت شد:\n• " + string.Join("\n• ", Failures.ToArray()));
             }
             return Failures.Count;
+        }
+
+        /// <summary>
+        /// assetِ فونتِ TMP را اگر نبود می‌سازد و بعد پوششِ حروف و تنظیمات import را می‌سنجد.
+        /// بدون این مرحله ممکن است بازی با فونتِ پیش‌فرضِ TMP باز شود و حروفِ فارسی نیفتد.
+        /// </summary>
+        private static void CheckTypography()
+        {
+            if (!File.Exists(GameFont.TmpAssetPath))
+            {
+                Notes.Add("assetِ فونتِ TMP در پروژه نبود؛ بیکِ خودکار انجام شد.");
+                TypographyBaker.Bake(false);
+            }
+
+            int problems = TypographyBaker.Validate(true, false);
+            if (problems > 0)
+            {
+                Failures.Add("تایپوگرافی فارسی: " + problems + " مشکل (جزئیات با برچسب [BaziBaqa Typography] در کنسول است).");
+            }
+            else
+            {
+                Notes.Add("تایپوگرافی: بک‌اندِ فعال = " + GameTextBackend.ActiveBackendName);
+            }
         }
 
         // ---------- ۱) کامپایل و کنسول ----------

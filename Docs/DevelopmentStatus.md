@@ -98,6 +98,12 @@ Splash برند Parsa Apps، منوی فارسی، شروع سفر، ادامه�
 - ابزارها و دروازه‌ها: `Tools/localization_table.py` (تولید/ممیزی جدول + پوشش enumها + گرفتن \ دوباره‌اسکیپ‌شده)، قوانین تازه در `Tools/project_lint.py` (کلید خام در برچسب UI، بی‌ربطیِ آرگومان و `{0}`ها، allowlist که عمداً خالی شد)، و ممیزی `BaziBaqa > Audit` در Editor. سند: `Docs/Localization.md`.
 - یک باگِ داده هم در همین مسیر درست شد: دو دستاوردِ «جمع‌آور» و «ثروتمند» هیچ‌وقت ارزیابی نمی‌شدند (اکنون با `RegisterGather`/`RegisterProsperity` باز می‌شوند) و باگِ نهفته‌ی «برچسبِ کارِ بازمانده» هم رفع شد: `TaskDescription` فقط نوشته می‌شد و هیچ‌جا خوانده نمی‌شد (اکنون کلید‌محور است و در ردیفِ گروه نمایش داده می‌شود).
 - تست‌ها: `Assets/Tests/EditMode/LocalizationTests.cs` (بازنویسی‌شده: ساختار جدول، جهت، رویداد، پوشش enum/مأموریت/داستان/نام‌ها، `LocalizedText`) و دو تستِ تازه در PlayMode برای تغییر زبان در زمان اجرا.
+### ۳) فونتِ فارسیِ TextMeshPro ✅
+- همه‌ی متن‌های رابط از لایه‌ی `UIText` می‌گذرند: اگر TMP آماده باشد `TextMeshProUGUI` با assetِ **Vazirmatn SDF** (atlasِ ۲۰۴۸، SDFAA، Dynamic، sampling ۹۰، padding ۹) و در غیر این صورت `Text` قدیمی با همان TTF — پس رابط در هیچ حالتی بی‌متن یا پُرخطا نمی‌شود.
+- شکل‌دهیِ حروف، bidi و کرنینگ به TMP سپرده شد (`PersianText.Process` فقط برای مسیرِ قدیمی و `TextMesh` جهان)؛ ارقام با `GameTextBackend.LocalizeDigits` محلی‌سازی می‌شوند؛ نسخه‌ی ضخیم از `Vazirmatn-Bold SDF` استفاده می‌کند.
+- `Assets/Editor/TypographyBaker.cs`: منوهای Bake / Validate / Repair Import + import خودکارِ TMP Essential Resources و ثبتِ فونتِ پیش‌فرضِ TMP. `Assets/Resources/Fonts/PersianGlyphs.txt` منبعِ واحدِ مجموعه‌حروف است و دروازه‌ی ایستا هر کاراکترِ غیرلاتینِ جدول را با آن می‌سنجد (یک خطای واقعی در همین مرحله گرفته شد: `٪`).
+- `RuntimeValidation.CheckTypography()` بیک و اعتبارسنجی را در خط فرمان هم اجرا می‌کند. تست‌ها: `Assets/Tests/EditMode/TypographyTests.cs` (۱۱ تست) + `Typography_EveryLabelIsDrivenByTheTextBackend` در PlayMode. سند: `Docs/Typography.md`.
+- وضعیتِ دروازه‌ها پس از این بخش: `Tools/project_lint.py` = **۰ خطا، ۰ هشدار** (خطای «هنوز از Text/Font قدیمی استفاده می‌کند» بسته شد).
 
 ## وضعیت انتشار
 
