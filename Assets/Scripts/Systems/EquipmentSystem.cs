@@ -136,7 +136,10 @@ namespace BaziBaqa
         public void CopyTo(GameSaveData save)
         {
             if (save == null) return;
-            save.equipment = _state;
+            if (save.equipment == null) save.equipment = new EquipmentSaveState();
+            save.equipment.tool = _state.tool;
+            save.equipment.weapon = _state.weapon;
+            save.equipment.armor = _state.armor;
         }
     }
 }

@@ -251,7 +251,7 @@ namespace BaziBaqa
             if (Phase == GamePhase.MainMenu) return;
             GameSaveData save = new GameSaveData
             {
-                saveVersion = 2,
+                saveVersion = SaveSystem.CurrentSaveVersion,
                 seed = WorldSeedFromCurrent(),
                 day = Clock.Day,
                 dayTime = Clock.NormalizedTime,

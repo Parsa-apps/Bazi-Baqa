@@ -62,7 +62,8 @@ namespace BaziBaqa
 
         public void Initialize(GameSaveData save)
         {
-            _lastDecisionDay = save != null ? save.story.lastDecisionDay : 0;
+            // برای سازگاری با ذخیره‌های قدیمی، اگر بخش «داستان» وجود نداشت ارزش پیش‌فرض می‌گیریم.
+            _lastDecisionDay = save != null && save.story != null ? save.story.lastDecisionDay : 0;
             HasPendingDecision = false;
             Pending = null;
         }
@@ -95,6 +96,7 @@ namespace BaziBaqa
         public void CopyTo(GameSaveData save)
         {
             if (save == null) return;
+            if (save.story == null) save.story = new StorySaveState();
             save.story.lastDecisionDay = _lastDecisionDay;
         }
 

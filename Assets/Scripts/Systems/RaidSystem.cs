@@ -114,7 +114,10 @@ namespace BaziBaqa
         public void CopyTo(GameSaveData save)
         {
             if (save == null) return;
-            save.raid = _state;
+            if (save.raid == null) save.raid = new RaidSaveState();
+            save.raid.lastRaidDay = _state.lastRaidDay;
+            save.raid.wins = _state.wins;
+            save.raid.losses = _state.losses;
         }
 
         private int AliveGuards()
