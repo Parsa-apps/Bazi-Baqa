@@ -104,11 +104,11 @@ namespace BaziBaqa
             CrownPulse crownPulse = crownObject.AddComponent<CrownPulse>();
             crownPulse.Configure(goldHalo.transform);
 
-            Text mark = CreateText(_view.transform, "Parsa Apps", 48, Color.white, TextAnchor.MiddleCenter);
+            Text mark = CreateText(_view.transform, Loc.Get("game.studio"), 48, Color.white, TextAnchor.MiddleCenter);
             SetRect(mark.rectTransform, new Vector2(0.12f, 0.52f), new Vector2(0.88f, 0.68f), Vector2.zero, Vector2.zero);
             Text line = CreateText(_view.transform, "استودیوی بازی‌سازی پارسا", 22, Teal, TextAnchor.MiddleCenter);
             SetRect(line.rectTransform, new Vector2(0.12f, 0.42f), new Vector2(0.88f, 0.53f), Vector2.zero, Vector2.zero);
-            Text loading = CreateText(_view.transform, "در حال آماده‌سازی سرزمین بقا", 18, Muted, TextAnchor.MiddleCenter);
+            Text loading = CreateText(_view.transform, Loc.Get("game.loading"), 18, Muted, TextAnchor.MiddleCenter);
             SetRect(loading.rectTransform, new Vector2(0.1f, 0.12f), new Vector2(0.9f, 0.22f), Vector2.zero, Vector2.zero);
             StartCoroutine(SplashRoutine(splashGroup));
         }
@@ -123,11 +123,11 @@ namespace BaziBaqa
             CreatePanel("خط نور", _view.transform, new Color(0.05f, 0.3f, 0.34f, 0.28f), new Vector2(0f, 0.72f), new Vector2(1f, 1f));
             CreatePanel("نوار پایین", _view.transform, new Color(0.02f, 0.03f, 0.06f, 0.8f), new Vector2(0f, 0f), new Vector2(1f, 0.12f));
 
-            Text studio = CreateText(_view.transform, "Parsa Apps", 22, Teal, TextAnchor.MiddleRight);
+            Text studio = CreateText(_view.transform, Loc.Get("game.studio"), 22, Teal, TextAnchor.MiddleRight);
             SetRect(studio.rectTransform, new Vector2(0.58f, 0.9f), new Vector2(0.94f, 0.98f), Vector2.zero, Vector2.zero);
-            Text title = CreateText(_view.transform, "سرزمین بقا", 52, Color.white, TextAnchor.MiddleCenter);
+            Text title = CreateText(_view.transform, Loc.Get("game.title"), 52, Color.white, TextAnchor.MiddleCenter);
             SetRect(title.rectTransform, new Vector2(0.08f, 0.61f), new Vector2(0.92f, 0.83f), Vector2.zero, Vector2.zero);
-            Text subtitle = CreateText(_view.transform, "با همکاری، زنده می‌مانیم", 22, Teal, TextAnchor.MiddleCenter);
+            Text subtitle = CreateText(_view.transform, Loc.Get("game.tagline"), 22, Teal, TextAnchor.MiddleCenter);
             SetRect(subtitle.rectTransform, new Vector2(0.1f, 0.54f), new Vector2(0.9f, 0.64f), Vector2.zero, Vector2.zero);
 
             GameObject menuCard = CreatePanel("کارت منو", _view.transform, new Color(0.04f, 0.11f, 0.16f, 0.97f), new Vector2(0.18f, 0.18f), new Vector2(0.82f, 0.53f));
@@ -137,7 +137,7 @@ namespace BaziBaqa
             CreateButton(menuCard.transform, "تنظیمات", PanelBlueLight, ShowSettings, new Vector2(0.1f, 0.29f), new Vector2(0.9f, 0.46f), 19);
             CreateButton(menuCard.transform, "درباره‌ی سازنده", PanelBlueLight, ShowAbout, new Vector2(0.1f, 0.1f), new Vector2(0.9f, 0.27f), 18);
 
-            Text footer = CreateText(_view.transform, "ساخته شده توسط Parsa Apps  •  مدیریت: فرشاد پارسا", 15, Muted, TextAnchor.MiddleCenter);
+            Text footer = CreateText(_view.transform, Loc.Get("game.footer"), 15, Muted, TextAnchor.MiddleCenter);
             SetRect(footer.rectTransform, new Vector2(0.04f, 0.035f), new Vector2(0.96f, 0.095f), Vector2.zero, Vector2.zero);
         }
 
@@ -694,7 +694,7 @@ namespace BaziBaqa
         {
             CreateModal("درباره‌ی سازنده", (modal) =>
             {
-                Text body = CreateText(modal.transform, "ساخته شده توسط\nParsa Apps\n\nمدیریت: فرشاد پارسا\n\nوب‌سایت رسمی:\nParsa-apps.github.io", 18, Color.white, TextAnchor.MiddleCenter);
+                Text body = CreateText(modal.transform, Loc.Get("game.credits"), 18, Color.white, TextAnchor.MiddleCenter);
                 SetRect(body.rectTransform, new Vector2(0.08f, 0.3f), new Vector2(0.92f, 0.78f), Vector2.zero, Vector2.zero);
                 CreateButton(modal.transform, "باز کردن وب‌سایت", Teal, () => Application.OpenURL("https://Parsa-apps.github.io"), new Vector2(0.2f, 0.14f), new Vector2(0.8f, 0.25f), 16);
             });

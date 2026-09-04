@@ -10,7 +10,7 @@ required_dirs = [
     "Assets/Scripts/Core", "Assets/Scripts/Data", "Assets/Scripts/Systems",
     "Assets/Scripts/World", "Assets/Scripts/AI", "Assets/Scripts/UI",
     "Assets/Scripts/Audio", "Assets/Scripts/Utilities", "Assets/Scenes", "Assets/Prefabs",
-    "Assets/Materials", "Assets/Textures", "Assets/Animations", "Assets/Localization",
+    "Assets/Materials", "Assets/Textures", "Assets/Animations", "Assets/Resources/Localization",
     "Assets/Resources/Fonts", "Assets/Editor", "ProjectSettings", "Packages"
 ]
 required_files = [
@@ -27,7 +27,7 @@ required_files = [
     "Assets/Scripts/UI/ButtonFx.cs", "Assets/Scripts/UI/CrownPulse.cs",
     "Assets/Scripts/Utilities/ObjectPool.cs", "Assets/Editor/AndroidBuild.cs",
     "ProjectSettings/ProjectVersion.txt", "Packages/manifest.json",
-    "Assets/Localization/LocalizationTable.json"
+    "Assets/Resources/Localization/LocalizationTable.json"
 ]
 
 errors = []
@@ -39,7 +39,7 @@ for filename in required_files:
     if not path.is_file() or path.stat().st_size == 0:
         errors.append(f"missing file: {filename}")
 
-for json_file in ["Packages/manifest.json", "Packages/packages-lock.json", "Assets/Localization/LocalizationTable.json"]:
+for json_file in ["Packages/manifest.json", "Packages/packages-lock.json", "Assets/Resources/Localization/LocalizationTable.json"]:
     try:
         json.loads((ROOT / json_file).read_text(encoding="utf-8"))
     except Exception as exc:

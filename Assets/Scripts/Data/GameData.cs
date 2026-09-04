@@ -262,58 +262,22 @@ namespace BaziBaqa
     {
         public static string ResourceName(ResourceType type)
         {
-            switch (type)
-            {
-                case ResourceType.Wood: return "چوب";
-                case ResourceType.Stone: return "سنگ";
-                case ResourceType.Food: return "غذا";
-                case ResourceType.Gold: return "طلا";
-                case ResourceType.Energy: return "انرژی";
-                case ResourceType.Water: return "آب";
-                default: return "منبع";
-            }
+            return Loc.Get("resource." + type.ToString().ToLowerInvariant());
         }
 
         public static string RoleName(SurvivorRole role)
         {
-            switch (role)
-            {
-                case SurvivorRole.Gatherer: return "جمع‌آور";
-                case SurvivorRole.Builder: return "سازنده";
-                case SurvivorRole.Medic: return "پزشک";
-                case SurvivorRole.Guard: return "نگهبان";
-                case SurvivorRole.Scout: return "پیشاهنگ";
-                case SurvivorRole.Farmer: return "کشاورز";
-                default: return "بازمانده";
-            }
+            return Loc.Get("role." + role.ToString().ToLowerInvariant());
         }
 
         public static string BuildingName(BuildingType type)
         {
-            switch (type)
-            {
-                case BuildingType.Camp: return "اردوگاه";
-                case BuildingType.House: return "خانه";
-                case BuildingType.Storage: return "انبار";
-                case BuildingType.Farm: return "مزرعه";
-                case BuildingType.WatchTower: return "برج دیده‌بانی";
-                case BuildingType.Workshop: return "کارگاه";
-                case BuildingType.Wall: return "دیوار دفاعی";
-                case BuildingType.SolarStation: return "نیروگاه خورشیدی";
-                default: return "ساختمان";
-            }
+            return Loc.Get("building." + type.ToString().ToLowerInvariant());
         }
 
         public static string WeatherName(WeatherType type)
         {
-            switch (type)
-            {
-                case WeatherType.Clear: return "آسمان صاف";
-                case WeatherType.Rain: return "بارانی";
-                case WeatherType.Fog: return "مه‌آلود";
-                case WeatherType.Storm: return "توفانی";
-                default: return "آرام";
-            }
+            return Loc.Get("weather." + type.ToString().ToLowerInvariant());
         }
     }
 }

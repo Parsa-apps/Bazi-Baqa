@@ -16,12 +16,21 @@ namespace BaziBaqa
         {
             EnsureRuntimeLogger();
             EnsureEventSystem();
+            LoadLocalization();
             _gameManager = GetComponent<GameManager>();
             if (_gameManager == null) _gameManager = gameObject.AddComponent<GameManager>();
             _ui = GetComponent<UIManager>();
             if (_ui == null) _ui = gameObject.AddComponent<UIManager>();
             _gameManager.Initialize(_ui);
             _ui.Initialize(_gameManager);
+        }
+
+        /// <summary>بارگذاری جدول بومی‌سازی و بازیابی زبانِ ذخیره‌شده‌ی بازیکن.</summary>
+        private void LoadLocalization()
+        {
+            TextAsset table = Resources.Load<TextAsset>("Localization/LocalizationTable");
+            LocalizationManager.LoadFromTextAsset(table);
+            LocalizationManager.ApplySavedLanguage();
         }
 
         private void Start()
