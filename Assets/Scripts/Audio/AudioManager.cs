@@ -7,6 +7,8 @@ namespace BaziBaqa
     /// با Asset خارجی مشکل Missing Reference پیش نیاید. هنگام شب و خطر، محیط صوتی دنج به نسخه‌ی
     /// هشداردهنده (خطر) تغییر می‌کند و صداهای طبیعت/پرنده در پس‌زمینه پخش می‌شود.
     /// </summary>
+    /// <summary>صدا؛ بعد از راه‌اندازی بقیه‌ی سامانه‌ها مقداردهی می‌شود.</summary>
+    [DefaultExecutionOrder(90)]
     public sealed class AudioManager : MonoBehaviour
     {
         public bool SoundEnabled { get; private set; } = true;

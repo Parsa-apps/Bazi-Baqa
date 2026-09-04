@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 namespace BaziBaqa
 {
+    /// <summary>رابط کاربری؛ بعد از GameManager آماده می‌شود ولی پیش از سامانه‌های زمان‌بر.</summary>
+    [DefaultExecutionOrder(-30)]
     public sealed class UIManager : MonoBehaviour
     {
         private readonly Dictionary<ResourceType, Text> _resourceLabels = new Dictionary<ResourceType, Text>();

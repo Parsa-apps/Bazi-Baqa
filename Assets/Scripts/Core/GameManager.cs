@@ -12,6 +12,8 @@ namespace BaziBaqa
         Victory
     }
 
+    /// <summary>مدیریت مرکزی سفر؛ بعد از Bootstrap و پیش از UIManager اجرا می‌شود.</summary>
+    [DefaultExecutionOrder(-40)]
     public sealed class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }

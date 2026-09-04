@@ -10,6 +10,8 @@ namespace BaziBaqa
     /// Application.logMessageReceived) گرفته و همراه با تاریخچه در فایلی روی حافظه‌ی دستگاه
     /// نگهداری می‌شوند. این فایل به تیم کمک می‌کند تا مشکل را بدون نیاز به بازگشت از کاربر بازآفرینی کند.
     /// </summary>
+    /// <summary>تسخیر خطاها بسیار زود انجام می‌شود تا هیچ لاگی از دست نرود.</summary>
+    [DefaultExecutionOrder(-100)]
     public sealed class RuntimeLogger : MonoBehaviour
     {
         private const int MaxLines = 400;

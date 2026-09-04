@@ -45,6 +45,13 @@ namespace BaziBaqa.EditorTools
 
         private static void Build(string[] scenes, string outputFile, BuildOptions options, bool BuildAppBundle)
         {
+            // دروازه‌ی کیفیت: پیش از ساخت، پروژه را ممیزی کن تا با مرجع شکسته یا صحنه‌ی خراب خروجی نگیریم.
+            if (!ProjectAudit.RunFullAudit(false))
+            {
+                Debug.LogError("[BaziBaqa] ممیزی پروژه ناموفق بود؛ برای جلوگیری از خروجی معیوب، بیلد متوقف شد. ابتدا موارد بالا را برطرف کنید.");
+                return;
+            }
+
             if (!ConfigureAndroidPlayer(BuildAppBundle))
             {
                 Debug.LogError("[BaziBaqa] پیکربندی Android ناموفق بود؛ خروجی ساخته نشد.");

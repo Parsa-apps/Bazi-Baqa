@@ -3,6 +3,8 @@ using UnityEngine;
 
 namespace BaziBaqa
 {
+    /// <summary>تولید جهان؛ پیش از سامانه‌های وابسته به دنیا ساخته می‌شود.</summary>
+    [DefaultExecutionOrder(-20)]
     public sealed class WorldGenerator : MonoBehaviour
     {
         public const float WorldWidth = 64f;

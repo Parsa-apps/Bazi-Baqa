@@ -6,6 +6,8 @@ namespace BaziBaqa
     /// بهینه‌ساز زمان اجرا برای دستگاه‌های متوسط. کیفیت را بر اساس نرخ فریم به‌صورت خودکار کم می‌کند
     /// تا بازی روی گوشی‌های ضعیف‌تر هم روان بماند؛ هیچ کیفیتی بدون نیاز کاهش نمی‌یابد.
     /// </summary>
+    /// <summary>بهینه‌ساز کیفیت؛ در انتهای چرخه‌ی آپدیت اجرا می‌شود.</summary>
+    [DefaultExecutionOrder(100)]
     public sealed class PerformanceManager : MonoBehaviour
     {
         private const float LowFpsThreshold = 30f;

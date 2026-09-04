@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 namespace BaziBaqa
 {
+    /// <summary>نقطه‌ی ورود بازی؛ قبل از همه‌ی سامانه‌ها ساخته می‌شود.</summary>
+    [DefaultExecutionOrder(-50)]
     public sealed class GameBootstrap : MonoBehaviour
     {
         private GameManager _gameManager;
