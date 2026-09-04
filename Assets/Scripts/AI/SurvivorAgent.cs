@@ -17,9 +17,11 @@ namespace BaziBaqa
 
         private SurvivorBrain _brain;
         private ResourceNode _targetNode;
+        private Transform _body;
         private float _decisionTimer;
         private float _workTimer;
         private float _needTimer;
+        private float _bobTime;
         private Vector3 _patrolTarget;
         private TextMesh _nameLabel;
 
@@ -38,6 +40,7 @@ namespace BaziBaqa
             TaskDescription = "در حال آماده‌سازی";
             _nameLabel = GetComponentInChildren<TextMesh>();
             if (_nameLabel != null) _nameLabel.text = PersianText.Process(DisplayName);
+            _body = transform.Find("بدن");
             if (GameManager.Instance != null) GameManager.Instance.RegisterSurvivor(this);
             if (!IsAlive) Fall();
         }
@@ -62,7 +65,9 @@ namespace BaziBaqa
         public void NotifyDamage(float amount)
         {
             if (!IsAlive) return;
-            Health = Mathf.Max(0f, Health - Mathf.Max(0f, amount));
+            float armor = GameManager.Instance.Equipment != null ? GameManager.Instance.Equipment.ArmorReduction : 0f;
+            amount = Mathf.Max(0f, amount) * (1f - armor);
+            Health = Mathf.Max(0f, Health - amount);
             Morale = Mathf.Max(0f, Morale - amount * 0.15f);
             if (Health <= 0f) Fall();
         }
@@ -73,6 +78,12 @@ namespace BaziBaqa
             Health = Mathf.Min(100f, Health + Mathf.Max(0f, amount));
             State = SurvivorState.Healing;
             TaskDescription = "در حال درمان";
+        }
+
+        public void BoostMorale(float amount)
+        {
+            if (!IsAlive) return;
+            Morale = Mathf.Clamp(Morale + Mathf.Max(0f, amount), 0f, 100f);
         }
 
         public SurvivorSaveData ToSaveData()
@@ -134,6 +145,21 @@ namespace BaziBaqa
                 TaskDescription = "در حال استراحت";
                 _targetNode = null;
                 return;
+            }
+
+            // اگر در شب دشمنی نزدیک باشد، بازمانده به امنیت عقب می‌کشد (واکنش به خطر).
+            if (GameManager.Instance.Clock.IsNight)
+            {
+                EnemyAgent threat = GameManager.Instance.FindNearestEnemy(transform.position, 6f);
+                if (threat != null)
+                {
+                    Vector3 home = GameManager.Instance.Construction.GetHomePosition();
+                    _patrolTarget = home + (transform.position - home).normalized * -6f + new Vector3(Random.Range(-2f, 2f), 0f, Random.Range(-2f, 2f));
+                    State = SurvivorState.Fleeing;
+                    TaskDescription = "فرار از خطر";
+                    _targetNode = null;
+                    return;
+                }
             }
 
             if (Role == SurvivorRole.Medic)
@@ -199,8 +225,14 @@ namespace BaziBaqa
                         {
                             _workTimer = 1.2f;
                             int baseAmount = Role == SurvivorRole.Farmer ? 3 : 2;
-                            int amount = _targetNode.Gather(Mathf.CeilToInt(baseAmount * (_brain == null ? 1f : _brain.GatheringMultiplier())));
-                            if (amount > 0) GameManager.Instance.Resources.Add(_targetNode.type, amount, "جمع‌آوری توسط " + DisplayName);
+                            float toolBonus = GameManager.Instance.Equipment != null ? GameManager.Instance.Equipment.ToolGatherBonus : 0f;
+                            int amount = _targetNode.Gather(Mathf.CeilToInt(baseAmount * (_brain == null ? 1f : _brain.GatheringMultiplier()) * (1f + toolBonus)));
+                            if (amount > 0)
+                            {
+                                GameManager.Instance.Resources.Add(_targetNode.type, amount, "جمع‌آوری توسط " + DisplayName);
+                                if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(1, "جمع‌آوری");
+                                if (GameManager.Instance.Quests != null) GameManager.Instance.Quests.TryComplete();
+                            }
                         }
                     }
                     break;
@@ -216,6 +248,10 @@ namespace BaziBaqa
                     if (Vector3.Distance(transform.position, _patrolTarget) < 1.2f) _decisionTimer = 0f;
                     AttackNearbyEnemy();
                     break;
+                case SurvivorState.Fleeing:
+                    MoveTo(_patrolTarget, delta, 3.2f);
+                    if (Vector3.Distance(transform.position, _patrolTarget) < 1.2f || GameManager.Instance.FindNearestEnemy(transform.position, 4f) == null) _decisionTimer = 0f;
+                    break;
                 case SurvivorState.Resting:
                 case SurvivorState.Eating:
                     MoveTo(GameManager.Instance.Construction.GetHomePosition(), delta, 2.2f);
@@ -230,7 +266,9 @@ namespace BaziBaqa
         private void AttackNearbyEnemy()
         {
             EnemyAgent enemy = GameManager.Instance.FindNearestEnemy(transform.position, 3.5f);
-            if (enemy != null) enemy.TakeDamage(3.5f * Time.deltaTime);
+            if (enemy == null) return;
+            float weaponBonus = GameManager.Instance.Equipment != null ? GameManager.Instance.Equipment.WeaponDamageBonus : 0f;
+            enemy.TakeDamage((3.5f + weaponBonus) * Time.deltaTime);
         }
 
         private void MoveTo(Vector3 target, float delta, float speed)
@@ -243,6 +281,16 @@ namespace BaziBaqa
             Vector3 direction = target - transform.position;
             direction.y = 0f;
             if (direction.sqrMagnitude > 0.01f) transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), delta * 7f);
+            AnimateWalk(delta);
+        }
+
+        // حرکت طبیعی: بالا و پایین رفتنِ ظریف بدن هنگام راه‌رفتن و توقف.
+        private void AnimateWalk(float delta)
+        {
+            if (_body == null) return;
+            _bobTime += delta;
+            float bob = Mathf.Sin(_bobTime * 9f) * 0.06f;
+            _body.localPosition = new Vector3(0f, 0.9f + bob, 0f);
         }
 
         private void Fall()

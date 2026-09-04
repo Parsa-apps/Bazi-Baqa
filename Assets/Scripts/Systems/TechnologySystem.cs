@@ -73,6 +73,7 @@ namespace BaziBaqa
                 GameManager.Instance.Resources.Add(ResourceType.Food, 20, "پژوهش کشت چرخشی");
                 GameEvents.Notify("کشت چرخشی باز شد؛ مزرعه پربازده‌تر شد.");
             }
+            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(12, "پژوهش فناوری");
             StateChanged?.Invoke();
             GameManager.Instance.SaveSoon();
             return true;

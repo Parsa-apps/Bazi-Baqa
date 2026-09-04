@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace BaziBaqa
 {
+    /// <summary>
+    /// مدیر حملات شب. حمله‌ها به‌صورت موج‌های هماهنگ از یک سمت برای احساس «محاصره» انجام می‌شود
+    /// و با هر روز تعداد و توان آن‌ها افزایش می‌یابد. دشمنان وارد شونده در یک سمت مشترک ظاهر می‌شوند
+    /// تا حس حمله‌ی گروهی را القا کنند.
+    /// </summary>
     public sealed class EnemyDirector : MonoBehaviour
     {
         private readonly List<EnemyAgent> _enemies = new List<EnemyAgent>();
@@ -57,14 +62,21 @@ namespace BaziBaqa
 
         private void SpawnWave(int day)
         {
-            int count = Mathf.Clamp(1 + day / 2, 1, 6);
+            // تعداد با روز، اما محدود به بودجه‌ی دستگاه‌های متوسط.
+            int count = Mathf.Clamp(2 + day, 3, 12);
+
+            // یک سمت حمله به‌صورت تصادفی ساده انتخاب می‌شود تا حس محاصره گروهی ایجاد شود.
+            bool fromEast = Random.value > 0.5f;
+            float side = fromEast ? 1f : -1f;
+
             for (int i = 0; i < count; i++)
             {
-                float side = i % 2 == 0 ? -1f : 1f;
-                Vector3 position = new Vector3(side * (WorldGenerator.WorldWidth * 0.39f - i), 0f, Random.Range(-WorldGenerator.WorldDepth * 0.35f, WorldGenerator.WorldDepth * 0.35f));
+                float z = Random.Range(-WorldGenerator.WorldDepth * 0.34f, WorldGenerator.WorldDepth * 0.34f);
+                float x = side * (WorldGenerator.WorldWidth * 0.42f - i * 0.5f);
+                Vector3 position = new Vector3(x, 0f, z);
                 GameManager.Instance.World.CreateEnemyVisual(position, i + 1);
             }
-            GameEvents.Notify("موج شبانه رسید؛ نگهبان‌ها را آماده کنید.");
+            GameEvents.Notify("موج شبانه رسید؛ " + GameClock.ToPersianDigits(count.ToString()) + " سایه از سمت " + (fromEast ? "شرق" : "غرب") + " نزدیک می‌شوند.");
             GameManager.Instance.Audio.PlayAlert();
         }
     }

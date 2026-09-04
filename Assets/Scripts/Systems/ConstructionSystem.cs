@@ -76,6 +76,7 @@ namespace BaziBaqa
             }
             building.ApplyUpgrade();
             GameEvents.Notify(GameText.BuildingName(building.Type) + " ارتقا یافت.");
+            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(3, "ارتقای ساختمان");
             GameManager.Instance.SaveSoon();
         }
 
@@ -177,6 +178,9 @@ namespace BaziBaqa
             };
             CreateFromSave(data);
             GameEvents.Notify(GameText.BuildingName(_placingType) + " ساخته شد.");
+            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(4, "ساخت ساختمان");
+            if (GameManager.Instance.Achievements != null) GameManager.Instance.Achievements.RegisterBuild();
+            if (GameManager.Instance.Quests != null) GameManager.Instance.Quests.TryComplete();
             GameManager.Instance.Audio.PlayBuild();
             GameManager.Instance.SaveSoon();
             CancelPlacement();

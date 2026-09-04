@@ -44,6 +44,7 @@ namespace BaziBaqa
                 return;
             }
             GameManager.Instance.RecruitSurvivor(SurvivorRole.Guard);
+            if (GameManager.Instance.Quests != null) GameManager.Instance.Quests.TryComplete();
             GameManager.Instance.Audio.PlayBuild();
         }
     }

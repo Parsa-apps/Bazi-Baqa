@@ -18,8 +18,10 @@ namespace BaziBaqa
         private GameObject _hudRoot;
         private GameObject _buildPanel;
         private GameObject _technologyPanel;
+        private GameObject _mapPanel;
         private GameObject _modalLayer;
         private Transform _survivorList;
+        private Text _groupTitleLabel;
         private Text _clockLabel;
         private Text _weatherLabel;
         private Text _populationLabel;
@@ -83,12 +85,27 @@ namespace BaziBaqa
 
             GameObject glow = CreatePanel("هاله‌ی لوگو", _view.transform, new Color(0.06f, 0.38f, 0.42f, 0.42f), new Vector2(0.2f, 0.25f), new Vector2(0.8f, 0.76f));
             glow.AddComponent<GlowPulse>();
+
+            GameObject goldHalo = CreatePanel("هاله‌ی طلایی", _view.transform, new Color(1f, 0.72f, 0.22f, 0.28f), new Vector2(0.32f, 0.66f), new Vector2(0.68f, 0.92f));
+            goldHalo.AddComponent<GlowPulse>();
+            GameObject crownObject = CreateRectObject("تاج طلایی", _view.transform);
+            SetRect(crownObject.GetComponent<RectTransform>(), new Vector2(0.35f, 0.7f), new Vector2(0.65f, 0.9f), Vector2.zero, Vector2.zero);
+            Text crown = crownObject.AddComponent<Text>();
+            crown.font = _font;
+            crown.fontSize = 58;
+            crown.color = Gold;
+            crown.alignment = TextAnchor.MiddleCenter;
+            crown.text = "♛";
+            crown.resizeTextForBestFit = true;
+            crown.resizeTextMinSize = 40;
+            crown.resizeTextMaxSize = 58;
+            CrownPulse crownPulse = crownObject.AddComponent<CrownPulse>();
+            crownPulse.Configure(goldHalo.transform);
+
             Text mark = CreateText(_view.transform, "Parsa Apps", 48, Color.white, TextAnchor.MiddleCenter);
             SetRect(mark.rectTransform, new Vector2(0.12f, 0.52f), new Vector2(0.88f, 0.68f), Vector2.zero, Vector2.zero);
             Text line = CreateText(_view.transform, "استودیوی بازی‌سازی پارسا", 22, Teal, TextAnchor.MiddleCenter);
             SetRect(line.rectTransform, new Vector2(0.12f, 0.42f), new Vector2(0.88f, 0.53f), Vector2.zero, Vector2.zero);
-            Text crown = CreateText(_view.transform, "♛", 58, Gold, TextAnchor.MiddleCenter);
-            SetRect(crown.rectTransform, new Vector2(0.35f, 0.7f), new Vector2(0.65f, 0.9f), Vector2.zero, Vector2.zero);
             Text loading = CreateText(_view.transform, "در حال آماده‌سازی سرزمین بقا", 18, Muted, TextAnchor.MiddleCenter);
             SetRect(loading.rectTransform, new Vector2(0.1f, 0.12f), new Vector2(0.9f, 0.22f), Vector2.zero, Vector2.zero);
             StartCoroutine(SplashRoutine(splashGroup));
@@ -171,6 +188,12 @@ namespace BaziBaqa
                 _technologyPanel = null;
                 return true;
             }
+            if (_mapPanel != null)
+            {
+                Destroy(_mapPanel);
+                _mapPanel = null;
+                return true;
+            }
             return false;
         }
 
@@ -220,11 +243,17 @@ namespace BaziBaqa
             if (_clockLabel != null) PersianText.Set(_clockLabel, "روز " + GameClock.ToPersianDigits(_game.Clock.Day.ToString()) + "  •  " + _game.Clock.GetClockText());
             if (_weatherLabel != null) PersianText.Set(_weatherLabel, "☁  " + GameText.WeatherName(_game.Weather.Current));
             if (_populationLabel != null) PersianText.Set(_populationLabel, "گروه: " + GameClock.ToPersianDigits(_game.AliveSurvivorCount().ToString()) + " / " + GameClock.ToPersianDigits(_game.Survivors.Count.ToString()));
+            if (_groupTitleLabel != null)
+            {
+                int level = _game.Progression == null ? 1 : _game.Progression.Level;
+                PersianText.Set(_groupTitleLabel, "همراهان  •  مرحله‌ی گروه: " + GameClock.ToPersianDigits(level.ToString()));
+            }
             if (_technologyLabel != null) PersianText.Set(_technologyLabel, "فناوری  " + GameClock.ToPersianDigits(_game.Technology.Points.ToString()));
             if (_goalLabel != null)
             {
+                string quest = ActiveQuestText();
                 string morale = _game.Survival == null ? "" : "  •  روحیه: " + GameClock.ToPersianDigits(Mathf.RoundToInt(_game.Survival.TeamMorale).ToString());
-                PersianText.Set(_goalLabel, "هدف: زنده ماندن تا روز " + GameClock.ToPersianDigits("۷") + morale);
+                PersianText.Set(_goalLabel, "هدف: زنده ماندن تا روز " + GameClock.ToPersianDigits("۷") + morale + quest);
             }
             if (_survivorRefreshTimer <= 0f)
             {
@@ -250,8 +279,8 @@ namespace BaziBaqa
             SetRect(_weatherLabel.rectTransform, new Vector2(0.02f, 0.03f), new Vector2(0.4f, 0.32f), Vector2.zero, Vector2.zero);
 
             GameObject leftPanel = CreatePanel("گروه", _hudRoot.transform, new Color(0.025f, 0.09f, 0.13f, 0.92f), new Vector2(0.015f, 0.2f), new Vector2(0.275f, 0.82f));
-            Text groupTitle = CreateText(leftPanel.transform, "همراهان", 19, Teal, TextAnchor.MiddleRight);
-            SetRect(groupTitle.rectTransform, new Vector2(0.06f, 0.91f), new Vector2(0.94f, 0.99f), Vector2.zero, Vector2.zero);
+            _groupTitleLabel = CreateText(leftPanel.transform, "همراهان", 19, Teal, TextAnchor.MiddleRight);
+            SetRect(_groupTitleLabel.rectTransform, new Vector2(0.06f, 0.91f), new Vector2(0.94f, 0.99f), Vector2.zero, Vector2.zero);
             _survivorList = CreateRectObject("فهرست بازمانده‌ها", leftPanel.transform).transform;
             SetRect((RectTransform)_survivorList, new Vector2(0.02f, 0.04f), new Vector2(0.98f, 0.9f), Vector2.zero, Vector2.zero);
 
@@ -261,14 +290,20 @@ namespace BaziBaqa
             _technologyLabel = CreateText(rightInfo.transform, "", 14, Gold, TextAnchor.MiddleRight);
             SetRect(_technologyLabel.rectTransform, new Vector2(0.04f, 0.03f), new Vector2(0.96f, 0.5f), Vector2.zero, Vector2.zero);
 
-            GameObject bottom = CreatePanel("نوار عملیات", _hudRoot.transform, new Color(0.02f, 0.07f, 0.11f, 0.97f), new Vector2(0f, 0f), new Vector2(1f, 0.17f));
-            CreateButton(bottom.transform, "ساخت‌وساز", Teal, ToggleBuildPanel, new Vector2(0.28f, 0.2f), new Vector2(0.41f, 0.82f), 15);
-            CreateButton(bottom.transform, "فناوری", new Color(0.38f, 0.55f, 0.85f), ToggleTechnologyPanel, new Vector2(0.425f, 0.2f), new Vector2(0.55f, 0.82f), 15);
-            CreateButton(bottom.transform, "تربیت نیرو", new Color(0.55f, 0.38f, 0.68f), ShowTrainingPanel, new Vector2(0.565f, 0.2f), new Vector2(0.69f, 0.82f), 14);
-            CreateButton(bottom.transform, "ذخیره", new Color(0.36f, 0.45f, 0.5f), _game.SaveGame, new Vector2(0.705f, 0.2f), new Vector2(0.815f, 0.82f), 14);
-            CreateButton(bottom.transform, "مکث", new Color(0.28f, 0.34f, 0.4f), _game.TogglePause, new Vector2(0.83f, 0.2f), new Vector2(0.94f, 0.82f), 14);
-            _goalLabel = CreateText(bottom.transform, "", 13, Muted, TextAnchor.MiddleLeft);
-            SetRect(_goalLabel.rectTransform, new Vector2(0.02f, 0.08f), new Vector2(0.26f, 0.9f), Vector2.zero, Vector2.zero);
+            GameObject bottom = CreatePanel("نوار عملیات", _hudRoot.transform, new Color(0.02f, 0.07f, 0.11f, 0.97f), new Vector2(0f, 0f), new Vector2(1f, 0.2f));
+            CreateButton(bottom.transform, "ساخت‌وساز", Teal, ToggleBuildPanel, new Vector2(0.02f, 0.55f), new Vector2(0.2f, 0.92f), 13);
+            CreateButton(bottom.transform, "فناوری", new Color(0.38f, 0.55f, 0.85f), ToggleTechnologyPanel, new Vector2(0.21f, 0.55f), new Vector2(0.39f, 0.92f), 13);
+            CreateButton(bottom.transform, "تربیت نیرو", new Color(0.55f, 0.38f, 0.68f), ShowTrainingPanel, new Vector2(0.4f, 0.55f), new Vector2(0.58f, 0.92f), 12);
+            CreateButton(bottom.transform, "مأموریت‌ها", new Color(0.28f, 0.72f, 0.62f), ShowQuestsPanel, new Vector2(0.59f, 0.55f), new Vector2(0.77f, 0.92f), 13);
+            CreateButton(bottom.transform, "دستاوردها", new Color(0.86f, 0.66f, 0.3f), ShowAchievementsPanel, new Vector2(0.78f, 0.55f), new Vector2(0.96f, 0.92f), 12);
+            CreateButton(bottom.transform, "تجهیزات", new Color(0.3f, 0.52f, 0.55f), ShowEquipmentPanel, new Vector2(0.02f, 0.14f), new Vector2(0.17f, 0.48f), 12);
+            CreateButton(bottom.transform, "یورش", new Color(0.7f, 0.36f, 0.3f), ShowRaidPanel, new Vector2(0.18f, 0.14f), new Vector2(0.33f, 0.48f), 12);
+            CreateButton(bottom.transform, "نقشه", new Color(0.3f, 0.45f, 0.32f), ShowMap, new Vector2(0.34f, 0.14f), new Vector2(0.49f, 0.48f), 12);
+            CreateButton(bottom.transform, "پاداش روز", new Color(0.24f, 0.55f, 0.42f), ShowDailyReward, new Vector2(0.5f, 0.14f), new Vector2(0.65f, 0.48f), 12);
+            CreateButton(bottom.transform, "ذخیره", new Color(0.36f, 0.45f, 0.5f), _game.SaveGame, new Vector2(0.66f, 0.14f), new Vector2(0.81f, 0.48f), 12);
+            CreateButton(bottom.transform, "مکث", new Color(0.28f, 0.34f, 0.4f), _game.TogglePause, new Vector2(0.82f, 0.14f), new Vector2(0.96f, 0.48f), 12);
+            _goalLabel = CreateText(bottom.transform, "", 12, Muted, TextAnchor.MiddleLeft);
+            SetRect(_goalLabel.rectTransform, new Vector2(0.02f, 0.02f), new Vector2(0.98f, 0.12f), Vector2.zero, Vector2.zero);
 
             _notificationLabel = CreateText(_hudRoot.transform, "", 17, Color.white, TextAnchor.MiddleCenter);
             SetRect(_notificationLabel.rectTransform, new Vector2(0.29f, 0.18f), new Vector2(0.72f, 0.28f), Vector2.zero, Vector2.zero);
@@ -399,6 +434,226 @@ namespace BaziBaqa
             RefreshHud();
         }
 
+        public void ShowDailyReward()
+        {
+            int streak = _game.DailyRewards == null ? 0 : _game.DailyRewards.Streak;
+            bool claimable = _game.DailyRewards != null && _game.DailyRewards.Claimable;
+            CreateModal("پاداش روزانه", (modal) =>
+            {
+                Text body = CreateText(modal.transform, "هر روز برای ماندن در کنار گروه پاداش بگیرید.\n\n" +
+                    "پاداش امروز: ۱۲ غذا + ۲ طلا\n" +
+                    "ردیف روزانه: " + GameClock.ToPersianDigits(streak.ToString()) + "\n\n" +
+                    (claimable ? "پاداش امروز در انتظار شماست." : "پاداش امروز را دریافت کردید؛ فردا دوباره سر بزنید."),
+                    17, Color.white, TextAnchor.MiddleCenter);
+                SetRect(body.rectTransform, new Vector2(0.08f, 0.44f), new Vector2(0.92f, 0.8f), Vector2.zero, Vector2.zero);
+                CreateButton(modal.transform, "گرفتن پاداش", Teal, () => ClaimDaily(modal), new Vector2(0.2f, 0.26f), new Vector2(0.8f, 0.4f), 17);
+            });
+        }
+
+        private void ClaimDaily(GameObject modal)
+        {
+            if (_game.DailyRewards != null) _game.DailyRewards.TryClaim();
+            Destroy(modal);
+            _modalLayer = null;
+            RefreshHud();
+        }
+
+        public void ShowQuestsPanel()
+        {
+            if (_buildPanel != null) Destroy(_buildPanel);
+            if (_technologyPanel != null) Destroy(_technologyPanel);
+            _buildPanel = CreatePanel("پنل مأموریت‌ها", _hudRoot.transform, new Color(0.03f, 0.12f, 0.16f, 0.98f), new Vector2(0.22f, 0.18f), new Vector2(0.78f, 0.82f));
+            Text title = CreateText(_buildPanel.transform, "مأموریت‌های گروه", 22, Teal, TextAnchor.MiddleCenter);
+            SetRect(title.rectTransform, new Vector2(0.08f, 0.9f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
+
+            IReadOnlyList<QuestRuntime> quests = _game.Quests == null ? (IReadOnlyList<QuestRuntime>)new List<QuestRuntime>() : _game.Quests.Quests;
+            for (int i = 0; i < quests.Count; i++)
+            {
+                QuestRuntime quest = quests[i];
+                float top = 0.78f - i * 0.16f;
+                string status = quest.Status == QuestStatus.Completed ? "✓" : (quest.Status == QuestStatus.Claimed ? "گرفته شد" : "در حال انجام");
+                Color statusColor = quest.Status == QuestStatus.Completed ? Gold : (quest.Status == QuestStatus.Claimed ? Muted : Color.white);
+                Text q = CreateText(_buildPanel.transform, quest.Definition.title + "\n" + quest.Definition.description + "\nپاداش: " + GameText.ResourceName(quest.Definition.rewardResource) + " " + GameClock.ToPersianDigits(quest.Definition.rewardAmount.ToString()) + "   •   " + status, 13, statusColor, TextAnchor.MiddleRight);
+                SetRect(q.rectTransform, new Vector2(0.08f, top - 0.13f), new Vector2(0.92f, top), Vector2.zero, Vector2.zero);
+            }
+            CreateButton(_buildPanel.transform, "گرفتن پاداش‌های آماده", Teal, ClaimQuests, new Vector2(0.16f, 0.05f), new Vector2(0.84f, 0.16f), 15);
+        }
+
+        private void ClaimQuests()
+        {
+            _game.Quests.ClaimAll();
+            if (_buildPanel != null) Destroy(_buildPanel);
+            _buildPanel = null;
+            RefreshHud();
+        }
+
+        public void ShowAchievementsPanel()
+        {
+            if (_buildPanel != null) Destroy(_buildPanel);
+            if (_technologyPanel != null) Destroy(_technologyPanel);
+            _buildPanel = CreatePanel("پنل دستاوردها", _hudRoot.transform, new Color(0.03f, 0.12f, 0.16f, 0.98f), new Vector2(0.22f, 0.18f), new Vector2(0.78f, 0.82f));
+            Text title = CreateText(_buildPanel.transform, "دستاوردها", 22, Gold, TextAnchor.MiddleCenter);
+            SetRect(title.rectTransform, new Vector2(0.08f, 0.9f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
+
+            AchievementId[] ids = { AchievementId.Builder, AchievementId.Defender, AchievementId.Scavenger, AchievementId.FirstNight, AchievementId.Survivor, AchievementId.Rich };
+            string[] names = { "سازنده", "مدافع اردوگاه", "جمع‌آور", "دومین روز", "بازمانده‌ی ماهر", "ثروتمند" };
+            for (int i = 0; i < ids.Length; i++)
+            {
+                float top = 0.78f - i * 0.1f;
+                bool unlocked = _game.Achievements.IsUnlocked(ids[i]);
+                Text row = CreateText(_buildPanel.transform, (unlocked ? "✓  " : "○  ") + names[i], 15, unlocked ? Gold : Muted, TextAnchor.MiddleRight);
+                SetRect(row.rectTransform, new Vector2(0.08f, top - 0.08f), new Vector2(0.92f, top), Vector2.zero, Vector2.zero);
+            }
+        }
+
+        public void ShowEquipmentPanel()
+        {
+            if (_buildPanel != null) Destroy(_buildPanel);
+            if (_technologyPanel != null) Destroy(_technologyPanel);
+            _buildPanel = CreatePanel("پنل تجهیزات", _hudRoot.transform, new Color(0.03f, 0.12f, 0.16f, 0.98f), new Vector2(0.2f, 0.18f), new Vector2(0.8f, 0.84f));
+            Text title = CreateText(_buildPanel.transform, "تجهیزات گروه", 22, Teal, TextAnchor.MiddleCenter);
+            SetRect(title.rectTransform, new Vector2(0.08f, 0.9f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
+
+            EquipmentType[] types = { EquipmentType.Tool, EquipmentType.Weapon, EquipmentType.Armor };
+            for (int i = 0; i < types.Length; i++)
+            {
+                EquipmentType type = types[i];
+                int level = _game.Equipment.Level(type);
+                float top = 0.76f - i * 0.14f;
+                bool can = _game.Equipment.CanUpgrade(type, out _);
+                Color color = can ? Teal : PanelBlueLight;
+                string label = _game.Equipment.Name(type) + "\n" +
+                    "سطح: " + GameClock.ToPersianDigits(level.ToString()) + " / ۵\n" +
+                    "هزینه: " + CostTextUtils(_game.Equipment.GetUpgradeCosts(type, level)) + (can ? "" : "\n(نیاز به مرحله‌ی بالاتر)");
+                CreateButton(_buildPanel.transform, label, color, () => UpgradeEquipment(type), new Vector2(0.08f, top - 0.11f), new Vector2(0.92f, top), 13);
+            }
+            Text bonus = CreateText(_buildPanel.transform, "اثر فعلی\n" +
+                "جمع‌آوری +" + Mathf.RoundToInt(_game.Equipment.ToolGatherBonus * 100f) + "٪\n" +
+                "حمله +" + _game.Equipment.WeaponDamageBonus.ToString("0.0") + "\n" +
+                "کاهش آسیب " + Mathf.RoundToInt(_game.Equipment.ArmorReduction * 100f) + "٪", 13, Muted, TextAnchor.MiddleCenter);
+            SetRect(bonus.rectTransform, new Vector2(0.08f, 0.05f), new Vector2(0.92f, 0.34f), Vector2.zero, Vector2.zero);
+            CreateButton(_buildPanel.transform, "بستن", new Color(0.25f, 0.32f, 0.36f), () => { Destroy(_buildPanel); _buildPanel = null; }, new Vector2(0.3f, 0.0f), new Vector2(0.7f, 0.06f), 14);
+        }
+
+        private void UpgradeEquipment(EquipmentType type)
+        {
+            _game.Equipment.Upgrade(type);
+            RefreshHud();
+        }
+
+        public void ShowRaidPanel()
+        {
+            int guards = 0;
+            for (int i = 0; i < _game.Survivors.Count; i++)
+            {
+                SurvivorAgent s = _game.Survivors[i];
+                if (s != null && s.IsAlive && (s.Role == SurvivorRole.Guard || s.Role == SurvivorRole.Scout)) guards++;
+            }
+            float chance = Mathf.RoundToInt(_game.Raid.SuccessChance() * 100f);
+            CreateModal("یورش به اردوگاه دشمن", (modal) =>
+            {
+                Text body = CreateText(modal.transform, "نگهبانان را برای غنیمت به سمت اردوگاه دشمن بفرستید.\n\n" +
+                    "نگهبانان آماده: " + GameClock.ToPersianDigits(guards.ToString()) + "\n" +
+                    "شانس پیروزی: " + GameClock.ToPersianDigits(chance.ToString()) + "٪\n" +
+                    "هزینه: ۸ انرژی و ۳ طلا\n\n" +
+                    "برنامه‌ی روزانه: " + GameClock.ToPersianDigits(_game.Raid.Wins.ToString()) + " برد / " + GameClock.ToPersianDigits(_game.Raid.Losses.ToString()) + " باخت", 16, Color.white, TextAnchor.MiddleCenter);
+                SetRect(body.rectTransform, new Vector2(0.08f, 0.4f), new Vector2(0.92f, 0.82f), Vector2.zero, Vector2.zero);
+                CreateButton(modal.transform, "شروع یورش", new Color(0.7f, 0.36f, 0.3f), () => ExecuteRaid(modal), new Vector2(0.16f, 0.22f), new Vector2(0.84f, 0.36f), 17);
+            });
+        }
+
+        private void ExecuteRaid(GameObject modal)
+        {
+            _game.Raid.ExecuteRaid();
+            Destroy(modal);
+            _modalLayer = null;
+            RefreshHud();
+        }
+
+        public void ShowMap()
+        {
+            if (_mapPanel != null) { Destroy(_mapPanel); _mapPanel = null; return; }
+            _mapPanel = CreatePanel("نقشه‌ی جزیره", _canvas.transform, new Color(0.02f, 0.05f, 0.08f, 0.95f), new Vector2(0.12f, 0.22f), new Vector2(0.88f, 0.8f));
+            Text title = CreateText(_mapPanel.transform, "نقشه‌ی جزیره", 22, Teal, TextAnchor.MiddleCenter);
+            SetRect(title.rectTransform, new Vector2(0.08f, 0.92f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
+            GameObject mapArea = CreatePanel("قلمرو جزیره", _mapPanel.transform, new Color(0.12f, 0.2f, 0.16f, 0.9f), new Vector2(0.08f, 0.12f), new Vector2(0.92f, 0.88f));
+
+            // ساختمان‌ها (سبز)
+            for (int i = 0; i < _game.Construction.Buildings.Count; i++)
+            {
+                BuildingController b = _game.Construction.Buildings[i];
+                if (b != null && b.IsOperational) AddMapMarker(mapArea.transform, b.transform.position, new Color(0.3f, 0.7f, 0.35f), 0.05f);
+            }
+            // منابع (قهوه‌ای/آبی)
+            for (int i = 0; i < _game.World.ResourceNodes.Count; i++)
+            {
+                ResourceNode node = _game.World.ResourceNodes[i];
+                if (node == null || node.IsDepleted) continue;
+                Color c = node.type == ResourceType.Water ? new Color(0.3f, 0.6f, 0.9f) : new Color(0.55f, 0.4f, 0.25f);
+                AddMapMarker(mapArea.transform, node.transform.position, c, 0.03f);
+            }
+            // بازمانده‌ها (فیروزه‌ای)
+            for (int i = 0; i < _game.Survivors.Count; i++)
+            {
+                SurvivorAgent s = _game.Survivors[i];
+                if (s != null && s.IsAlive) AddMapMarker(mapArea.transform, s.transform.position, new Color(0.18f, 0.85f, 0.8f), 0.045f);
+            }
+            // دشمنان (قرمز)
+            for (int i = 0; i < _game.Enemies.Count; i++)
+            {
+                EnemyAgent e = _game.Enemies[i];
+                if (e != null && e.IsAlive) AddMapMarker(mapArea.transform, e.transform.position, new Color(0.9f, 0.2f, 0.25f), 0.05f);
+            }
+
+            CreateButton(_mapPanel.transform, "بستن", new Color(0.25f, 0.32f, 0.36f), () => { Destroy(_mapPanel); _mapPanel = null; }, new Vector2(0.3f, 0.02f), new Vector2(0.7f, 0.1f), 15);
+        }
+
+        private void AddMapMarker(Transform parent, Vector3 worldPosition, Color color, float size)
+        {
+            GameObject marker = CreateRectObject("نشانه", parent);
+            RectTransform rect = marker.GetComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(size * 100f, size * 100f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            float nx = Mathf.Clamp01((worldPosition.x + WorldGenerator.WorldWidth * 0.5f) / WorldGenerator.WorldWidth);
+            float ny = Mathf.Clamp01((worldPosition.z + WorldGenerator.WorldDepth * 0.5f) / WorldGenerator.WorldDepth);
+            rect.anchorMin = rect.anchorMax = new Vector2(nx, ny);
+            rect.anchoredPosition = Vector2.zero;
+            Image image = marker.AddComponent<Image>();
+            image.color = color;
+        }
+
+        public void ShowStoryDecision(StoryEvent story)
+        {
+            if (story == null) return;
+            CreateModal(story.title, (modal) =>
+            {
+                Text body = CreateText(modal.transform, story.body, 17, Color.white, TextAnchor.MiddleCenter);
+                SetRect(body.rectTransform, new Vector2(0.08f, 0.5f), new Vector2(0.92f, 0.84f), Vector2.zero, Vector2.zero);
+                for (int i = 0; i < story.choices.Count; i++)
+                {
+                    StoryChoice choice = story.choices[i];
+                    float top = 0.46f - i * 0.14f;
+                    CreateButton(modal.transform, choice.title, i % 2 == 0 ? Teal : PanelBlueLight, () => ResolveStory(modal, choice), new Vector2(0.1f, top - 0.11f), new Vector2(0.9f, top), 14);
+                }
+            });
+        }
+
+        private void ResolveStory(GameObject modal, StoryChoice choice)
+        {
+            _game.Story.Resolve(choice);
+            Destroy(modal);
+            _modalLayer = null;
+            RefreshHud();
+        }
+
+        private string CostTextUtils(List<EquipmentUpgradeCost> costs)
+        {
+            if (costs == null || costs.Count == 0) return "رایگان";
+            List<string> parts = new List<string>();
+            for (int i = 0; i < costs.Count; i++) parts.Add(GameText.ResourceName(costs[i].type) + " " + GameClock.ToPersianDigits(costs[i].amount.ToString()));
+            return string.Join("  •  ", parts.ToArray());
+        }
+
         private void ShowSettings()
         {
             CreateModal("تنظیمات", (modal) =>
@@ -493,6 +748,17 @@ namespace BaziBaqa
             _game.ContinueGame();
         }
 
+        private string ActiveQuestText()
+        {
+            if (_game.Quests == null || _game.Quests.Quests.Count == 0) return "";
+            for (int i = 0; i < _game.Quests.Quests.Count; i++)
+            {
+                QuestRuntime quest = _game.Quests.Quests[i];
+                if (quest.Status == QuestStatus.Active) return "  •  مأموریت: " + quest.Definition.title;
+            }
+            return "";
+        }
+
         private string CostText(List<ResourceCost> costs)
         {
             if (costs == null || costs.Count == 0) return "رایگان";
@@ -545,9 +811,11 @@ namespace BaziBaqa
             _hudRoot = null;
             _buildPanel = null;
             _technologyPanel = null;
+            _mapPanel = null;
             _modalLayer = null;
             _resourceLabels.Clear();
             _survivorList = null;
+            _groupTitleLabel = null;
             _clockLabel = null;
             _weatherLabel = null;
             _populationLabel = null;
@@ -599,6 +867,7 @@ namespace BaziBaqa
             colors.fadeDuration = 0.08f;
             button.colors = colors;
             button.onClick.AddListener(action);
+            buttonObject.AddComponent<ButtonFx>();
             Text buttonText = CreateText(buttonObject.transform, label, size, Color.white, TextAnchor.MiddleCenter);
             SetRect(buttonText.rectTransform, Vector2.zero, Vector2.one, new Vector2(5f, 2f), new Vector2(-5f, -2f));
             return button;
