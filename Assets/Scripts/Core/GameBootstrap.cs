@@ -17,6 +17,7 @@ namespace BaziBaqa
             EnsureRuntimeLogger();
             EnsureEventSystem();
             LoadLocalization();
+            LoadVersion();
             _gameManager = GetComponent<GameManager>();
             if (_gameManager == null) _gameManager = gameObject.AddComponent<GameManager>();
             _ui = GetComponent<UIManager>();
@@ -31,6 +32,13 @@ namespace BaziBaqa
             TextAsset table = Resources.Load<TextAsset>("Localization/LocalizationTable");
             LocalizationManager.LoadFromTextAsset(table);
             LocalizationManager.ApplySavedLanguage();
+        }
+
+        /// <summary>بارگذاری پیکربندی نسخه برای نمایش و نگهداری.</summary>
+        private void LoadVersion()
+        {
+            TextAsset version = Resources.Load<TextAsset>("VersionConfig");
+            GameVersion.LoadFromTextAsset(version);
         }
 
         private void Start()

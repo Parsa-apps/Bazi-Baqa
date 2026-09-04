@@ -83,6 +83,15 @@ namespace BaziBaqa.Tests
         }
 
         [Test]
+        public void GameVersionParsesConfig()
+        {
+            GameVersion.LoadFromJson("{\"versionName\":\"0.2.0\",\"versionCode\":3,\"bundleId\":\"com.parsaapps.bazibaqa\"}");
+            Assert.AreEqual("0.2.0", GameVersion.VersionName);
+            Assert.AreEqual(3, GameVersion.VersionCode);
+            Assert.AreEqual("com.parsaapps.bazibaqa", GameVersion.BundleId);
+        }
+
+        [Test]
         public void ResourceNamesArePersian()
         {
             Assert.AreEqual("چوب", GameText.ResourceName(ResourceType.Wood));
