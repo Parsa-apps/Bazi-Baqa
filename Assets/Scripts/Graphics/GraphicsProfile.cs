@@ -21,7 +21,7 @@ namespace BaziBaqa
     public sealed class GraphicsProfile
     {
         public const string ResourcePath = "Graphics/GraphicsProfile";
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2;
 
         [SerializeField] private int version = CurrentVersion;
         [SerializeField] private string defaultTier = "medium";
@@ -74,7 +74,7 @@ namespace BaziBaqa
                 version = CurrentVersion,
                 defaultTier = "medium"
             };
-            profile.tiers.Add(TierSettings.Create("low", 0, 0.75f, false, 0, false, false));
+            profile.tiers.Add(TierSettings.Create("low", 0, 0.72f, false, 0, false, false));
             profile.tiers.Add(TierSettings.Create("medium", 1, 0.9f, false, 0, true, true));
             profile.tiers.Add(TierSettings.Create("high", 2, 1.0f, true, 4, true, true));
             profile.tiers.Add(TierSettings.Create("ultra", 2, 1.0f, true, 4, true, true));
@@ -176,6 +176,8 @@ namespace BaziBaqa
                        .Append(", shadow ").Append(tier.shadowResolution)
                        .Append(tier.ao ? ", AO" : string.Empty)
                        .Append(tier.hdr ? ", HDR" : string.Empty)
+                       .Append(tier.proceduralSky ? ", sky" : ", flat")
+                       .Append(" lamps ").Append(tier.lampBudget)
                        .Append(i + 1 < tiers.Count ? ") | " : ")");
             }
             return builder.ToString();
@@ -201,6 +203,13 @@ namespace BaziBaqa
             public float shadowDepthBias = 1.2f;
             public float shadowNormalBias = 0.5f;
             public bool softShadows = false;
+
+            // ---- نورپردازیِ سینمایی (گام ۲) ----
+            public bool proceduralSky = true;             // شیدرِ آسمان یا SolidColor
+            public float ambientScale = 1.0f;              // ضریبِ نورِ محیطیِ Trilight
+            [Range(0f, 1f)] public float shadowStrength = 0.82f;
+            public float heightFogCeiling = 24f;           // ارتفاعی که مه ارتفاعی تا آنجاست
+            [Range(0, 8)] public int lampBudget = 3;       // بیشترین چراغِ هم‌زمانِ شبانه
 
             public bool ao = true;
             [Range(0f, 2f)] public float aoIntensity = 0.7f;
@@ -251,6 +260,12 @@ namespace BaziBaqa
                 particleBudget = Mathf.Clamp(particleBudget, 32, 8000);
                 maxAdditionalLights = Mathf.Clamp(maxAdditionalLights, 0, 8);
                 targetFrameRate = Mathf.Clamp(targetFrameRate, 30, 120);
+                ambientScale = Mathf.Clamp(ambientScale, 0.35f, 1.6f);
+                shadowStrength = Mathf.Clamp(shadowStrength, 0f, 1f);
+                heightFogCeiling = Mathf.Clamp(heightFogCeiling, 4f, 160f);
+                lampBudget = Mathf.Clamp(lampBudget, 0, 8);
+                // چراغ‌های بیشتر از بودجه‌ی نورِ اضافه‌ی URP، بی‌اثر و گران‌اند
+                if (lampBudget > maxAdditionalLights) lampBudget = Mathf.Max(0, maxAdditionalLights);
             }
         }
     }

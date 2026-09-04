@@ -25,6 +25,7 @@ GameBootstrap
     ├── PerformanceManager تنظیم خودکار کیفیت بر اساس نرخ فریم
     └── GraphicsDirector  (لایه‌ی بصری؛ خودش را نصب می‌کند، GameManager آن را صدا نمی‌زند)
         ├── CinematicVolumeRig          استک Volume: Bloom/Tonemap/Color/Vignette/DoF/Grain
+        ├── SkyLightingRig              چرخه‌ی شب/روز، آسمان رویه‌ای، مه، بودجه‌ی چراغ‌ها
         ├── RenderPipelineBridge        اعمالِ سطحِ کیفیت روی موتور (تک‌نویسنده)
         ├── MaterialLibrary             حلِ شیدر URP/built-in + کشِ متریال + ثابت‌های جهانی
         └── ScreenSpaceAmbientOcclusionFeature  (داخل Renderer Data یِ URP)
@@ -73,6 +74,8 @@ AndroidBuild (Assets/Editor) ── BuildPipeline ── APK / AAB
 - لایه‌ی بصری از Gameplay جداست: `GraphicsDirector` با `RuntimeInitializeOnLoadMethod` نصب می‌شود،
   هیچ فایلِ Gameplay او را صدا نمی‌زند و حذفِ `Assets/Scripts/Graphics` بازی را بی‌نقص برمی‌گرداند
   (تستِ `GraphicsDirector_InstallsWithoutTouchingGameplayFiles` همین را نگه می‌دارد).
+- `WeatherSystem` دیگر `RenderSettings` نمی‌نویسد؛ فقط `NotifyWeather` را صدا می‌زند و
+  `SkyLightingRig` تنها نویسنده‌ی نور/مه/آسمان است (`Docs/Lighting.md`).
 - همه‌ی متریال‌ها از `MaterialLibrary` می‌آیند؛ `Shader.Find` مستقیم در کدِ بازی ممنوع است
   (دروازه‌ی `Tools/project_lint.py` و تستِ EditMode آن را بررسی می‌کنند).
 - خروجی اندروید از اسکریپت `Assets/Editor/AndroidBuild` (منوی `BaziBaqa > Build`) ساخته می‌شود و پس از پیکربندی

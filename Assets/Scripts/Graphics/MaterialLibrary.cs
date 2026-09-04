@@ -37,6 +37,8 @@ namespace BaziBaqa
         private const string SurfaceShaderResource = "Shaders/BaziBaqa-Surface";
         private const string EmissiveShaderName = "BaziBaqa/Emissive";
         private const string EmissiveShaderResource = "Shaders/BaziBaqa-Emissive";
+        private const string SkyShaderName = "Hidden/BaziBaqa/Sky";
+        private const string SkyShaderResource = "Shaders/BaziBaqa-Sky";
 
         private static readonly Dictionary<string, Material> _materials = new Dictionary<string, Material>();
         private static readonly Dictionary<string, Shader> _shaderCache = new Dictionary<string, Shader>();
@@ -167,6 +169,9 @@ namespace BaziBaqa
         // ------------------------------------------------------------------ بافت
 
         public const string TextureFolder = "Textures/Graphics";
+
+        /// <summary>نامِ فایلِ شیدرِ آسمان؛ برای گزارش‌ها و تست‌ها (Hidden ⇒ فقط از MaterialLibrary).</summary>
+        public const string SkyShaderFile = "BaziBaqa-Sky";
 
         private static Texture2D LoadTexture(string resourcePath, bool linear)
         {
@@ -461,6 +466,37 @@ namespace BaziBaqa
 
         /// <summary>نامِ شیدرِ property‌ی اتمسفر؛ تست‌ها و ابزارها همین را می‌خوانند.</summary>
         public static Vector4 AtmosphereState { get { return GetGlobalVector("_BaziAtmosphere"); } }
+
+        /// <summary>
+        /// متریالِ آسمانِ رویه‌ای (یک نمونه‌ی کش‌شده که SkyLightingRig هر فریم پارامترهایش را
+        /// تنظیم می‌کند). برخلافِ Surface/Emissive اینجا از زنجیره‌ی جایگزین استفاده نمی‌کنیم:
+        /// اگر شیدرِ آسمان نبود باید null برگردد تا Rig دوربین را روی SolidColor بگذارد؛
+        /// یک شیدرِ Diffuse به‌عنوانِ آسمان، آسمانِ سفیدِ بی‌معنی می‌سازد.
+        /// </summary>
+        public static Material Sky()
+        {
+            Shader shader;
+            _shaderCache.TryGetValue(SkyShaderName, out shader);
+            if (shader == null) shader = Resources.Load<Shader>(SkyShaderResource);
+            if (shader == null) shader = Shader.Find(SkyShaderName);
+            if (shader == null)
+            {
+                _shaderCache[SkyShaderName] = null;
+                return null;
+            }
+            _shaderCache[SkyShaderName] = shader;
+
+            string key = "sky:" + shader.name;
+            Material material;
+            if (_materials.TryGetValue(key, out material) && material != null) return material;
+            material = new Material(shader)
+            {
+                name = "BaziBaqa Sky",
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            _materials[key] = material;
+            return material;
+        }
 
         /// <summary>پاک‌سازیِ کش (برای تست‌ها و Reload دامنه‌ی ویرایشگر).</summary>
         public static void ResetCache()

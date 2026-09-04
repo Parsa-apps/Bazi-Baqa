@@ -33,6 +33,7 @@ namespace BaziBaqa
 
         public IReadOnlyList<MonoBehaviour> Children { get { return _children; } }
         public CinematicVolumeRig Volume { get; private set; }
+        public SkyLightingRig Sky { get; private set; }
         public bool IsInstalled { get { return Instance == this; } }
 
         /// <summary>نصبِ خودکار در اولین فریمِ هر صحنه (شاملِ صحنه‌های تست).</summary>
@@ -88,7 +89,10 @@ namespace BaziBaqa
             Volume = GetOrAdd<CinematicVolumeRig>();
             if (Volume != null) _children.Add(Volume);
 
-            // فازهای بعدیِ گرافیک همین‌جا اضافه می‌شوند (نور سینمایی، محیط، VFX، کیفیت)
+            Sky = GetOrAdd<SkyLightingRig>();
+            if (Sky != null) _children.Add(Sky);
+
+            // فازهای بعدیِ گرافیک همین‌جا اضافه می‌شوند (محیط زنده، VFX، کیفیت)
             GraphicsProfile profile = GraphicsProfile.Load();
             List<string> issues = new List<string>();
             profile.Validate(issues);
@@ -128,9 +132,24 @@ namespace BaziBaqa
                 _lastQualityLevel = quality;
                 RenderPipelineBridge.ApplyCurrentQuality(true);
                 if (Volume != null) Volume.Rebuild();
+                if (Sky != null)
+                {
+                    // بودجه‌ی سایه/چراغ/آسمان با سطحِ کیفیت عوض می‌شود ⇒ بی‌درجا بازاعمال
+                    Sky.Refresh();
+                    Sky.ApplyNow();
+                }
             }
 
-            // ۳) اولین باری که جهان ساخته شد، یک گزارشِ کامل می‌نویسیم (برای ممیزیِ صحنه)
+            // ۳) بازسازیِ جهان: نورِ اصلی و ریشه‌ها تازه‌اند ⇒ Rigِ نور باید دوباره پیدا کند
+            WorldGenerator world = GameManager.Instance != null ? GameManager.Instance.World : null;
+            int generation = world != null && world.WorldRoot != null ? world.WorldRoot.GetInstanceID() : 0;
+            if (generation != _lastWorldGeneration)
+            {
+                _lastWorldGeneration = generation;
+                if (Sky != null) Sky.Refresh();
+            }
+
+            // ۴) اولین باری که جهان ساخته شد، یک گزارشِ کامل می‌نویسیم (برای ممیزیِ صحنه)
             if (!_bootLogged && GameManager.Instance != null && GameManager.Instance.World != null)
             {
                 _bootLogged = true;
@@ -145,6 +164,7 @@ namespace BaziBaqa
             builder.Append("GraphicsDirector | ").Append(RenderPipelineBridge.Describe());
             builder.Append(" | volume=").Append(Volume != null && Volume.IsActive ? "active" : "inactive");
             builder.Append(" | materials=").Append(MaterialLibrary.CachedMaterialCount);
+            builder.Append(" | ").Append(Sky != null ? Sky.Report() : "sky=absent");
             return builder.ToString();
         }
 
@@ -153,6 +173,7 @@ namespace BaziBaqa
         {
             GraphicsProfile.Load(true);
             if (Volume != null) Volume.Rebuild();
+            if (Sky != null) { Sky.Refresh(); Sky.ApplyNow(); }
             RenderPipelineBridge.ApplyCurrentQuality(true);
         }
 

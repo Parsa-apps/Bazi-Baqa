@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -61,7 +62,8 @@ namespace BaziBaqa.Tests
         public void GraphicsProfile_MatchesRuntimeContract()
         {
             string json = Read(ProfilePath);
-            StringAssert.Contains("\"version\": 1", json.Replace("\r", string.Empty), "نسخه‌ی نمایه باید ۱ باشد");
+            StringAssert.Contains("\"version\": " + GraphicsProfile.CurrentVersion, json.Replace("\r", string.Empty),
+                "نسخه‌ی فایل با CurrentVersionِ کد یکی نیست");
 
             GraphicsProfile profile = GraphicsProfile.Load(true);
             Assert.Greater(profile.Tiers.Count, 0, "حداقل یک سطحِ کیفیتی لازم است");
@@ -309,5 +311,145 @@ namespace BaziBaqa.Tests
             }
             return builder.Length == 0 ? "بدون پیام" : builder.ToString();
         }
+
+        // ============================== گام ۲: نورپردازیِ سینمایی ==============================
+
+        [Test]
+        public void SkyLightingRig_IsTheOnlyRenderSettingsWriter()
+        {
+            // فاز ۳ یک قانونِ معماری دارد: تصویر از یک‌جا نوشته می‌شود. اگر روزی Gameplay
+            // دوباره RenderSettings لمس کند، این تست اول از همه قرمز می‌شود.
+            string pattern = "RenderSettings\\.(fog|fogColor|fogDensity|ambientLight|ambientMode|skybox|sun)\\s*=";
+            int offenders = 0;
+            string details = string.Empty;
+            foreach (string file in Directory.GetFiles(ProjectPath("Assets/Scripts"), "*.cs", SearchOption.AllDirectories))
+            {
+                string normalized = file.Replace("\\", "/");
+                if (normalized.Contains("/Graphics/SkyLightingRig.cs")) continue;
+                string text = File.ReadAllText(normalized);
+                foreach (string line in text.Split('\n'))
+                {
+                    if (line.TrimStart().StartsWith("//")) continue;
+                    if (Regex.IsMatch(line, pattern))
+                    {
+                        offenders++;
+                        details += normalized + " :: " + line.Trim() + "\n";
+                    }
+                }
+            }
+            Assert.AreEqual(0, offenders, "نوشتنِ RenderSettings فقط در SkyLightingRig مجاز است:\n" + details);
+        }
+
+        [Test]
+        public void SkyShader_IsHiddenSkyboxAndMaterialLibraryResolvesIt()
+        {
+            string sky = Read(ShaderFolder + "/BaziBaqa-Sky.shader");
+            StringAssert.Contains("Shader \"Hidden/BaziBaqa/Sky\"", sky, "نام/مسیرِ شیدرِ آسمان قرارداد است");
+            StringAssert.Contains("\"Queue\" = \"Background\"", sky);
+            StringAssert.Contains("\"PreviewType\" = \"Skybox\"", sky, "پیش‌نمای آسمان در Editor");
+            StringAssert.Contains("ZWrite Off", sky, "آسمان نباید depth بنویسد (مه/SSAO خراب می‌شود)");
+            StringAssert.Contains("ZTest Always", sky, "هندسه‌ی آسمان را موتور می‌سازد، نه ما");
+            StringAssert.Contains("Fog { Mode Off }", sky, "مه‌روی‌آسمان، آسمان را خاکستری می‌کند");
+            StringAssert.Contains("unity_MatrixInvP", sky, "جهتِ دید باید از projection معکوس ساخته شود (ortho+perspective)");
+            Assert.IsFalse(Regex.IsMatch(sky, "CBUFFER_START"), "آسمان یک متریالِ یکتاست؛ CBUFFER لازم ندارد");
+            Assert.IsFalse(sky.Contains("HLSLPROGRAM"), "شیدرِ آسمان با CGPROGRAM/UnityCG در هر دو خطِ رندر کامپایل می‌شود");
+
+            string[] required =
+            {
+                "_BaziSkyZenith", "_BaziSkyHorizon", "_BaziSkyGround", "_BaziSkySunColor", "_BaziSkySunDir",
+                "_BaziSkySunSize", "_BaziSkyNight", "_BaziSkyCloud", "_BaziSkyCloudLevel", "_BaziSkyDust", "_BaziSkyExposure"
+            };
+            foreach (string property in required)
+            {
+                StringAssert.Contains(property + "(", sky, "SkyLightingRig این پارامتر را می‌نویسد: " + property);
+            }
+
+            string library = Read("Assets/Scripts/Graphics/MaterialLibrary.cs");
+            StringAssert.Contains("public static Material Sky()", library);
+            StringAssert.Contains("\"Shaders/BaziBaqa-Sky\"", library, "محلِ شیدر باید در Resources باشد تا در بیلد strip نشود");
+        }
+
+        [Test]
+        public void SkyLightingRig_DayNightCycle_HasClosedLoopAndRealContrast()
+        {
+            string rig = Read("Assets/Scripts/Graphics/SkyLightingRig.cs");
+            MatchCollection times = Regex.Matches(rig, @"time = ([0-9.]+)f");
+            MatchCollection nights = Regex.Matches(rig, @"night = ([0-9.]+)f");
+            MatchCollection intensities = Regex.Matches(rig, @"intensity = ([0-9.]+)f");
+            MatchCollection elevations = Regex.Matches(rig, @"elevation = (-?[0-9.]+)f");
+            Assert.GreaterOrEqual(times.Count, 6, "چرخه‌ی شبانه‌روزی باید دست‌کم شش کلید داشته باشد");
+            Assert.AreEqual(times.Count, nights.Count, "هر کلید باید مقدارِ شب و زمان داشته باشد");
+            Assert.AreEqual(times.Count, intensities.Count);
+            Assert.AreEqual(times.Count, elevations.Count);
+
+            float[] t = new float[times.Count];
+            for (int i = 0; i < t.Length; i++) t[i] = float.Parse(times[i].Groups[1].Value, CultureInfo.InvariantCulture);
+            Assert.AreEqual(0f, t[0], 0.0001f, "چرخه باید از صبحانه‌ی کامل (t=0) شروع شود");
+            Assert.AreEqual(1f, t[t.Length - 1], 0.0001f, "چرخه باید به t=1 بسته شود وگرنه پرشِ نصف‌شب داریم");
+            for (int i = 1; i < t.Length; i++)
+            {
+                Assert.Greater(t[i], t[i - 1], "کلیدها باید صعودی باشند: index " + i);
+            }
+
+            float[] n = new float[nights.Count];
+            for (int i = 0; i < n.Length; i++) n[i] = float.Parse(nights[i].Groups[1].Value, CultureInfo.InvariantCulture);
+            float maxNight = n[0];
+            float minNight = n[0];
+            foreach (float value in n) { maxNight = Mathf.Max(maxNight, value); minNight = Mathf.Min(minNight, value); }
+            Assert.GreaterOrEqual(maxNight, 0.9f, "شبِ عمیق باید واقعاً شب باشد");
+            Assert.LessOrEqual(minNight, 0.02f, "ظهر باید واقعاً روز باشد");
+
+            // ظهر: بیشترین شدت و ارتفاع، کمترین مه؛ شب: برعکس
+            int noonIndex = 0;
+            for (int i = 0; i < t.Length; i++) if (Mathf.Abs(t[i] - 0.5f) < Mathf.Abs(t[noonIndex] - 0.5f)) noonIndex = i;
+            float noonIntensity = float.Parse(intensities[noonIndex].Groups[1].Value, CultureInfo.InvariantCulture);
+            float noonElevation = float.Parse(elevations[noonIndex].Groups[1].Value, CultureInfo.InvariantCulture);
+            Assert.Greater(noonElevation, 45f, "خورشیدِ ظهر باید بالایِ سر باشد");
+            Assert.Greater(noonIntensity, 1f, "نورِ ظهر باید از حدِ معمول بیشتر باشد");
+
+            // کلیدِ اول و آخر باید یکی باشند (حلقه)
+            Assert.AreEqual(n[0], n[n.Length - 1], 0.0001f, "شبِ انتها و ابتدا برابر نیستند ⇒ پرشِ دیدنی در نیمه‌شب");
+            Assert.AreEqual(intensities[0].Groups[1].Value, intensities[intensities.Count - 1].Groups[1].Value);
+        }
+
+        [Test]
+        public void GraphicsProfile_V2_CarriesLightingBudgetsPerTier()
+        {
+            string json = Read(ProfilePath);
+            string[] skyFields = { "proceduralSky", "ambientScale", "shadowStrength", "heightFogCeiling", "lampBudget" };
+            foreach (string field in skyFields)
+            {
+                StringAssert.Contains("\"" + field + "\"", json, "نمایه‌ی نسخه‌ی ۲ باید این فیلد را برای همه‌ی سطح‌ها داشته باشد: " + field);
+            }
+            Assert.AreEqual(4, Regex.Matches(json, "\"" + "proceduralSky" + "\"").Count, "برای هر چهار سطح");
+
+            string profileCode = Read("Assets/Scripts/Graphics/GraphicsProfile.cs");
+            foreach (string field in skyFields)
+            {
+                StringAssert.Contains("public " + (field == "proceduralSky" ? "bool proceduralSky"
+                    : field == "lampBudget" ? "[Range(0, 8)] public int lampBudget"
+                    : "float " + field), profileCode, "فیلدِ بصری باید در کد هم باشد: " + field);
+            }
+            StringAssert.Contains("lampBudget > maxAdditionalLights", profileCode,
+                "بودجه‌ی چراغ نباید از نورِ اضافه‌ی URP بیشتر شود");
+        }
+
+        [Test]
+        public void WeatherSystem_DelegatesLightingToGraphicsLayer()
+        {
+            string weather = Read("Assets/Scripts/Systems/WeatherSystem.cs");
+            Assert.IsFalse(weather.Contains("RenderSettings."), "هوا دیگر نباید RenderSettings بنویسد (تک‌نویسنده: SkyLightingRig)");
+            Assert.IsFalse(weather.Contains("UpdateDayLight"), "رانندگیِ نورِ روز در فایلِ منطقِ هوا تکرارِ منطق است");
+            StringAssert.Contains("SkyLightingRig rig", weather);
+            StringAssert.Contains("rig.NotifyWeather(weather, rainRate)", weather);
+            StringAssert.Contains("RainRateFor", weather, "شدتِ باران باید از یک‌جا بیاید (ذرات و شیدرها)");
+
+            // منطقِ هوا دست‌نخورده مانده: رویداد، اعلام و تغییرِ تصادفی سرِ جایش است
+            StringAssert.Contains("WeatherChanged?.Invoke(weather)", weather);
+            StringAssert.Contains("toast.weather_changed", weather);
+            StringAssert.Contains("_changeTimer = UnityEngine.Random.Range(22f, 38f)", weather);
+            StringAssert.Contains("RainIntensity", weather, "گام‌های بعدیِ VFX همین را می‌خوانند");
+        }
+
     }
 }

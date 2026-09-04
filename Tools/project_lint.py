@@ -993,11 +993,29 @@ GUARD_DEFINE = "BAZI_UNIVERSAL"
 # این فایل تنها جایی است که Shader.Find مجاز است (حل‌کننده‌ی متریال)؛ بقیه باید از MaterialLibrary بخوانند
 SHADER_FIND_ALLOWLIST = {"Assets/Scripts/Graphics/MaterialLibrary.cs"}
 # تنها نوشتنِ مه/نورِ محیطی باید از یک‌جا انجام شود، وگرنه دو سیستم با هم می‌جنگند
-FOG_WRITERS = {"Assets/Scripts/Systems/WeatherSystem.cs", "Assets/Scripts/World/WorldGenerator.cs",
-               "Assets/Scripts/Graphics/SkyLightingRig.cs"}
+FOG_WRITERS = {"Assets/Scripts/Graphics/SkyLightingRig.cs"}
 LIGHT_WRITERS = FOG_WRITERS | {"Assets/Scripts/Systems/PerformanceManager.cs"}
+# فایل‌هایی که نباید هیچ‌وقت RenderSettings بنویسند (تعارضِ دو نویسنده در فاز ۳ رفع شد)
+RENDER_SETTINGS_BANNED = {"Assets/Scripts/Systems/WeatherSystem.cs", "Assets/Scripts/World/WorldGenerator.cs"}
 # کاراکترهایِ خارج از الفبای لاتین/فارسی که تا حالا تصادفی وارد کامنت‌ها شده‌اند
 STRAY_SCRIPT_RANGES = ((0x3040, 0x30FF), (0x4E00, 0x9FFF), (0xAC00, 0xD7AF), (0x3130, 0x318F))
+
+
+_PROFILE_VERSION_CACHE: dict = {}
+
+
+def profile_current_version() -> int:
+    """GraphicsProfile.CurrentVersion را از خودِ کد می‌خواند؛ تا فایل json و C# همیشه هم‌نسخه بمانند."""
+    if "v" in _PROFILE_VERSION_CACHE:
+        return _PROFILE_VERSION_CACHE["v"]
+    version = 1
+    profile_cs = ROOT / "Assets/Scripts/Graphics/GraphicsProfile.cs"
+    if profile_cs.exists():
+        match = re.search(r"public\s+const\s+int\s+CurrentVersion\s*=\s*(\d+)", profile_cs.read_text(encoding="utf-8"))
+        if match:
+            version = int(match.group(1))
+    _PROFILE_VERSION_CACHE["v"] = version
+    return version
 
 
 def read_text(path: Path) -> str:
@@ -1242,8 +1260,34 @@ def check_rendering_pipeline(paths: list[Path]) -> None:
         if "Shader.Find(" in mask_source(text).code:
             err(f"{rel_path}: Shader.Find مستقیم ⇒ زیر URP ارغوانی می‌شود؛ از MaterialLibrary.ResolveShader استفاده کنید")
 
+    # ۶-ب) گام ۲: نورپردازیِ سینمایی باید از یک Rig خوانده شود، نه از فایل‌های پراکنده
+    sky_rig = ROOT / "Assets/Scripts/Graphics/SkyLightingRig.cs"
+    if not sky_rig.exists():
+        err("Assets/Scripts/Graphics/SkyLightingRig.cs نیست؛ چرخه‌ی شب و روز بی‌صاحب مانده است")
+    else:
+        sky_text = raw_code(sky_rig)
+        for token in ("RenderSettings.ambientMode", "RenderSettings.fogDensity", "RenderSettings.sun",
+                      "NotifyWeather", "MaterialLibrary.SetHeightFog", "MaterialLibrary.SetAtmosphere",
+                      "ApplyShadowSettings"):
+            if token not in sky_text:
+                err(f"SkyLightingRig.cs: «{token}» نیست؛ قراردادِ لایه‌ی نور شکسته شده")
+        if sky_text.count("RenderSettings.") < 8:
+            err("SkyLightingRig.cs: تعدادِ نوشتنِ RenderSettings غیرعادی است؛ چرخه‌ی نور کامل نیست")
+    director_text = raw_code(ROOT / "Assets/Scripts/Graphics/GraphicsDirector.cs")
+    if "SkyLightingRig" not in director_text:
+        err("GraphicsDirector SkyLightingRig را نصب نمی‌کند؛ نورِ سینمایی در بازی فعال نمی‌شود")
+    for rel_path in sorted(RENDER_SETTINGS_BANNED):
+        banned_path = ROOT / rel_path
+        if not banned_path.exists():
+            continue
+        masked = mask_source(raw_code(banned_path)).code
+        if "RenderSettings." in masked:
+            err(f"{rel_path}: نباید RenderSettings بنویسد؛ مسئولیتِ نور/مه با SkyLightingRig است")
+
     # ۷) تک‌نویسنده‌ی مه و نور
-    fog_write = re.compile(r"RenderSettings\.fog(Color|Density)?\s*=|RenderSettings\.ambientLight\s*=|RenderSettings\.skybox\s*=")
+    fog_write = re.compile(
+        r"RenderSettings\.(fog|fogColor|fogDensity|fogMode|ambientLight|ambientMode|ambientSkyColor"
+        r"|ambientEquatorColor|ambientGroundColor|skybox|sun|defaultReflectionMode)\s*=")
     light_write = re.compile(r"\.intensity\s*=[^=]|\.color\s*=[^=]")
     for path in paths:
         rel_path = rel(path)
@@ -1251,8 +1295,10 @@ def check_rendering_pipeline(paths: list[Path]) -> None:
         masked = mask_source(text).code
         if "RenderSettings." in masked and rel_path not in FOG_WRITERS and fog_write.search(masked):
             err(f"{rel_path}: نوشتنِ RenderSettings.fog/ambientLight خارج از لایه‌ی نور است (تعارضِ دو نویسنده)")
-        if "WorldGenerator" in rel_path and "Directional" in masked and rel_path not in LIGHT_WRITERS:
-            warn(f"{rel_path}: ساختنِ نورِ جهت‌دار در WorldGenerator؛ با SkyLightingRig هماهنگ است؟")
+        if ("WorldGenerator" in rel_path and "Directional" in masked
+                and not (ROOT / "Assets/Scripts/Graphics/SkyLightingRig.cs").exists()):
+            # ساختنِ نور در WorldGenerator اشکالی ندارد؛ به شرطی که SkyLightingRig آن را به RenderSettings.sun بدهد
+            warn(f"{rel_path}: نورِ جهت‌دار می‌سازد ولی SkyLightingRig نصب نیست؛ مه/سایه بی‌صاحب می‌ماند")
 
     # ۸) نمایه‌ی گرافیک
     profile_path = ROOT / "Assets/Resources/Graphics/GraphicsProfile.json"
@@ -1263,9 +1309,22 @@ def check_rendering_pipeline(paths: list[Path]) -> None:
             profile = json.loads(profile_path.read_text(encoding="utf-8"))
         except Exception as exc:
             err(f"GraphicsProfile.json نامعتبر است: {exc}")
+        else:
+            sky_fields = ("proceduralSky", "ambientScale", "shadowStrength", "heightFogCeiling", "lampBudget")
+            for tier in profile.get("tiers", []) or []:
+                if not isinstance(tier, dict):
+                    continue
+                for field in sky_fields:
+                    if field not in tier:
+                        err(f"GraphicsProfile.json/tiers[{tier.get('id')}]: «{field}» نیست (نسخه‌ی ۲ نمایه)")
+                budget = tier.get("lampBudget")
+                lights = tier.get("maxAdditionalLights")
+                if isinstance(budget, int) and isinstance(lights, int) and budget > lights:
+                    err(f"GraphicsProfile.json/tiers[{tier.get('id')}]: lampBudget ({budget}) از "
+                        f"maxAdditionalLights ({lights}) بیشتر است؛ چراغ‌های اضافه بی‌اثرند")
             profile = None
         if profile is not None:
-            if profile.get("version") != 1:
+            if profile.get("version") != profile_current_version():
                 err(f"GraphicsProfile.json: version باید ۱ باشد، بود {profile.get('version')}")
             tiers = profile.get("tiers") or []
             if not tiers:

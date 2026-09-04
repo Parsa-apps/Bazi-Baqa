@@ -11,16 +11,15 @@ namespace BaziBaqa
 
         private float _changeTimer;
         private ParticleSystem _rain;
-        private Light _sun;
-        private Color _clearFog;
+        // نور/مه/آسمان در لایه‌ی گرافیک است (SkyLightingRig)؛ این فایل فقط «تغییرِ هوا» را خبر می‌دهد
+        private float _rainRate;
 
         public void Initialize()
         {
             _changeTimer = 24f;
-            _clearFog = new Color(0.18f, 0.28f, 0.31f);
-            _sun = FindObjectOfType<Light>();
             CreateRainEffect();
             SetWeather(WeatherType.Clear, false);
+            if (SkyLightingRig.Instance != null) SkyLightingRig.Instance.Refresh();
         }
 
         private void Update()
@@ -33,52 +32,33 @@ namespace BaziBaqa
                 WeatherType next = (WeatherType)UnityEngine.Random.Range(0, 4);
                 SetWeather(next, true);
             }
-            UpdateDayLight();
         }
 
         public void SetWeather(WeatherType weather, bool announce)
         {
             Current = weather;
-            switch (weather)
-            {
-                case WeatherType.Clear:
-                    RenderSettings.fog = true;
-                    RenderSettings.fogColor = _clearFog;
-                    RenderSettings.fogDensity = 0.012f;
-                    SetRain(false, 0f);
-                    break;
-                case WeatherType.Rain:
-                    RenderSettings.fog = true;
-                    RenderSettings.fogColor = new Color(0.16f, 0.23f, 0.28f);
-                    RenderSettings.fogDensity = 0.019f;
-                    SetRain(true, 0.45f);
-                    break;
-                case WeatherType.Fog:
-                    RenderSettings.fog = true;
-                    RenderSettings.fogColor = new Color(0.46f, 0.53f, 0.53f);
-                    RenderSettings.fogDensity = 0.035f;
-                    SetRain(false, 0f);
-                    break;
-                case WeatherType.Storm:
-                    RenderSettings.fog = true;
-                    RenderSettings.fogColor = new Color(0.08f, 0.12f, 0.17f);
-                    RenderSettings.fogDensity = 0.027f;
-                    SetRain(true, 0.95f);
-                    break;
-            }
+            float rainRate = RainRateFor(weather);
+            _rainRate = rainRate;
+            SetRain(rainRate > 0f, rainRate);
+
+            // لایه‌ی گرافیک اگر نصب باشد، مه/نور/آسمان را به‌سمتِ این هوا می‌بَرَد؛ اگر نباشد
+            // صحنه با همان تنظیماتِ پیش‌فرضِ موتور روشن می‌ماند (هیچ وابستگیِ اجباری‌ای ساخته نشده).
+            SkyLightingRig rig = SkyLightingRig.Instance;
+            if (rig != null) rig.NotifyWeather(weather, rainRate);
+
             WeatherChanged?.Invoke(weather);
             if (announce) GameEvents.Notify(Loc.Get("toast.weather_changed", GameText.WeatherName(weather)));
         }
 
-        private void UpdateDayLight()
+        /// <summary>شدتِ بارانِ هر هوا (۰ تا ۱)؛ همان عددی که ذرات و شیدرها استفاده می‌کنند.</summary>
+        private static float RainRateFor(WeatherType weather)
         {
-            if (_sun == null) return;
-            float day = GameManager.Instance.Clock.NormalizedTime;
-            float daylight = Mathf.Clamp01(Mathf.Sin((day - 0.2f) * Mathf.PI * 1.25f));
-            float weatherMultiplier = Current == WeatherType.Storm ? 0.48f : (Current == WeatherType.Fog ? 0.7f : 1f);
-            _sun.intensity = Mathf.Lerp(0.18f, 1.12f, daylight) * weatherMultiplier;
-            _sun.color = Color.Lerp(new Color(0.35f, 0.42f, 0.58f), new Color(1f, 0.88f, 0.7f), daylight);
-            RenderSettings.ambientLight = Color.Lerp(new Color(0.1f, 0.14f, 0.23f), new Color(0.35f, 0.43f, 0.47f), daylight) * weatherMultiplier;
+            switch (weather)
+            {
+                case WeatherType.Rain: return 0.45f;
+                case WeatherType.Storm: return 0.95f;
+                default: return 0f;
+            }
         }
 
         private void CreateRainEffect()
@@ -102,6 +82,9 @@ namespace BaziBaqa
             shape.scale = new Vector3(WorldGenerator.WorldWidth, 0.1f, WorldGenerator.WorldDepth);
             _rain.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
+
+        /// <summary>شدتِ فعلیِ باران (برای EnvironmentFx و ذراتِ گام‌های بعدی).</summary>
+        public float RainIntensity { get { return _rainRate; } }
 
         private void SetRain(bool enabled, float rate)
         {

@@ -373,14 +373,13 @@ namespace BaziBaqa
             return ClampToIsland(result);
         }
 
+        /// <summary>
+        /// نورِ اصلیِ جهان این‌جا ساخته می‌شود (چون به WorldRoot وصل است و با Clear پاک می‌شود)،
+        /// اما رنگ/شدت/مه/آسمان را SkyLightingRig می‌نویسد؛ این‌جا فقط مقادیرِ اولیه‌ی امن گذاشته
+        /// می‌شود تا اگر لایه‌ی گرافیک نصب نبود، صحنه تاریک نماند.
+        /// </summary>
         private void ConfigureEnvironment()
         {
-            RenderSettings.fog = true;
-            RenderSettings.fogColor = new Color(0.18f, 0.28f, 0.31f);
-            RenderSettings.fogDensity = 0.012f;
-            RenderSettings.ambientLight = new Color(0.34f, 0.43f, 0.47f);
-            RenderSettings.skybox = null;
-
             GameObject lightObject = new GameObject(WorldParts.SunLight);
             lightObject.transform.SetParent(WorldRoot, false);
             lightObject.transform.rotation = Quaternion.Euler(48f, -32f, 0f);

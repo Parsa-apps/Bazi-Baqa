@@ -167,6 +167,13 @@ namespace BaziBaqa
 #endif
         }
 
+        /// <summary>
+        /// حال‌وهوایِ فعلیِ نرم‌شده. لایه‌ی نور (SkyLightingRig) از fogDensity/fogColor/
+        /// ambientScale/wetness/dust آن به‌عنوانِ «سواری» روی چرخه‌ی شبانه‌روزی استفاده می‌کند؛
+        /// خودِ این کلاس هیچ‌وقت RenderSettings یا ثابت‌های جهانیِ اتمسفر را نمی‌نویسد.
+        /// </summary>
+        public CinematicMood Mood { get { return _mood; } }
+
         /// <summary>تنظیم نرمِ حال‌وهوا (فاز ۲ این فاز: نور سینمایی)؛ میان‌یابی در Update.</summary>
         public void SetMood(CinematicMood mood)
         {

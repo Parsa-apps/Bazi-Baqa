@@ -27,10 +27,13 @@ Built-in با همان شیدرهای پروژه) — هیچ نیمه‌نصبی
 امتحان می‌کند. به همین دلیل **هیچ** متریالِ `.mat` یا صحنه‌ی از پیش ساخته‌شده‌ای لازم نیست.
 
 ### قانونِ تک‌نویسنده
-`RenderSettings.fog/ambientLight` و نورِ جهت‌دار فقط در `WeatherSystem` (و از فاز ۳ به بعد
-`SkyLightingRig`) نوشته می‌شوند؛ `GraphicsProfile` و `MaterialLibrary` هیچ مقدارِ تازه‌ای روی این‌ها نمی‌نویسند.
-دروازه‌ی `Tools/project_lint.py` این را بررسی می‌کند؛ اگر سیستمِ تازه‌ای بخواهد مه را عوض کند،
-باید به `FOG_WRITERS` اضافه شود و دلیلش در سند نوشته شود.
+`RenderSettings.fog*/ambient*/sun/skybox` فقط در `Assets/Scripts/Graphics/SkyLightingRig.cs`
+نوشته می‌شوند (`Docs/Lighting.md`)؛ `WeatherSystem` از گام ۲ دیگر چیزی در `RenderSettings`
+نمی‌نویسد و فقط `NotifyWeather(weather, rainRate)` را صدا می‌زند، و `GraphicsProfile`/
+`MaterialLibrary` هیچ مقدارِ تازه‌ای روی این‌ها نمی‌نویسند.
+دروازه‌ی `Tools/project_lint.py` (مجموعه‌ی `FOG_WRITERS`) این را در کل `Assets/Scripts` بررسی
+می‌کند؛ اگر سیستمِ تازه‌ای واقعاً باید مه را عوض کند، باید به `FOG_WRITERS` اضافه شود و
+دلیلش در سند نوشته شود.
 
 ## ۲) نصبِ URP Asset (یک منو)
 

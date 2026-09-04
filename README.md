@@ -17,6 +17,7 @@
 - راهنمای خروجی Android: `Docs/AndroidBuild.md`
 - راهنمای بومی‌سازی: `Docs/Localization.md` — راهنمای فونت و TextMeshPro: `Docs/Typography.md`
 - خطِ رندر: URP با شیدرهای رویه‌ایِ خودِ پروژه و مسیرِ پشتیبانِ Built-in — راهنمای `Docs/URPGraphics.md`
+- نورپردازی سینمایی: چرخه‌ی صبح/ظهر/غروب/شب با مه و آسمانِ رویه‌ای — راهنمای `Docs/Lighting.md`
 - مدیریت نسخه: `Docs/Versioning.md` — اعتبارسنجی زمان اجرا: `Docs/RuntimeValidation.md`
 
 ## اجرای پروژه

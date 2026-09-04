@@ -98,8 +98,11 @@
 | میزِ شیدرها | `BaziBaqa > Rendering > Validate Rendering Setup` | بدونِ «خطای کامپایل»؛ هر سه شیدر از `Resources` بارگذاری شوند |
 | نصبِ URP | `BaziBaqa > Rendering > Install URP Assets` | چهار فایل در `Assets/Settings/URP` + اتصالِ هر سطحِ کیفیت؛ گزارش در `Logs/RenderingSetupReport.txt` |
 | بافت‌های بی‌درز | `python3 Tools/procedural_textures.py --check` | ۱۵ فایلِ موجود و حجمِ معقول (< ۲ مگابایت منبع) |
-| تست‌های ایستایِ گرافیک | Test Runner → EditMode → `RenderingStackEditModeTests` | ۹ تست سبز |
-| تست‌های زنده‌ی گرافیک | Test Runner → PlayMode → `GraphicsPlayModeTests` | ۶ تست سبز؛ با URP نصب‌شده `volume=active` در لاگ |
+| تست‌های ایستایِ گرافیک | Test Runner → EditMode → `RenderingStackEditModeTests` | ۱۵ تست سبز |
+| تست‌های زنده‌ی گرافیک | Test Runner → PlayMode → `GraphicsPlayModeTests` | ۹ تست سبز؛ با URP نصب‌شده `volume=active` در لاگ |
+| تک‌نویسنده‌ی نور/مه | `python3 Tools/project_lint.py` و تستِ `SkyLightingRig_IsTheOnlyRenderSettingsWriter` | `RenderSettings` فقط در `SkyLightingRig.cs` نوشته می‌شود |
+| چرخه‌ی شب و روز | Play → `GraphicsPlayModeTests.SkyRig_NoonAndMidnight_FeelDifferent` | ظهر و نیمه‌شب در نور/محیطی/مه تفاوتِ واقعی دارند |
+| بودجه‌ی چراغ‌ها | `SkyRig_LampBudgetIsRespectedAtNight` | `LampsActive ≤ lampBudget` در هر سطح |
 | رگرسیونِ Gameplay | `Tools/unity_validation.sh` + تست‌های موجود | هیچ تستِ منطق/ذخیره/رابطی نباید قرمز شود |
 
 یادآوری: در محفظه‌ی توسعه‌ی این مخزن، Unity نصب نیست؛ لذا «بیلد» به‌صورت ایستا + ابزارهای
