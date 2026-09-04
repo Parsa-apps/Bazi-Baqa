@@ -35,6 +35,7 @@ namespace BaziBaqa
         private float _gust;
         private float _phase;
         private float _gustTimer;
+        private float _tierScale = 1f;
         private float _clock;
         private WeatherType _weather = WeatherType.Clear;
 
@@ -164,11 +165,13 @@ namespace BaziBaqa
             // بسامدِ بَرگشت کم می‌شود تا تکانِ درخت‌ها ارزان‌تر به نظر برسد.
             frequency = Mathf.Lerp(0.45f, 0.9f, Mathf.Clamp01(tier.renderScale));
             gustSharpness = tier.qualityLevel <= 0 ? 1.6f : 2.4f;
+            // نمایه برای هر سطح ضریبِ باد دارد؛ بی‌این خط windScale فقط روی کاغذ می‌ماند
+            _tierScale = Mathf.Clamp(tier.windScale, 0.25f, 2f);
         }
 
         private void ApplyImmediate()
         {
-            MaterialLibrary.SetWind(_speed, _strength, _phase, gustSharpness);
+            MaterialLibrary.SetWind(_speed, _strength * _tierScale, _phase, gustSharpness);
         }
 
         /// <summary>مقدارِ جهانیِ باد را می‌خواند (تست‌ها؛ چیزی نمی‌نویسد).</summary>

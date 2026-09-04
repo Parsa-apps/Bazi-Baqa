@@ -21,7 +21,7 @@ namespace BaziBaqa
     public sealed class GraphicsProfile
     {
         public const string ResourcePath = "Graphics/GraphicsProfile";
-        public const int CurrentVersion = 3;
+        public const int CurrentVersion = 4;
 
         [SerializeField] private int version = CurrentVersion;
         [SerializeField] private string defaultTier = "medium";
@@ -154,6 +154,8 @@ namespace BaziBaqa
                 if (tier.shadowResolution < 256 || tier.shadowResolution > 4096) issues.Add(tier.id + ": shadowResolution outside 256..4096 (" + tier.shadowResolution + ")");
                 if (tier.qualityLevel < 0 || tier.qualityLevel >= QualitySettings.names.Length) issues.Add(tier.id + ": qualityLevel " + tier.qualityLevel + " is outside the project quality levels (" + QualitySettings.names.Length + ")");
                 if (tier.particleBudget < 32) issues.Add(tier.id + ": particleBudget is too low (" + tier.particleBudget + ")");
+                if (tier.cullDistance < 8f) issues.Add(tier.id + ": cullDistance is dangerously small (" + tier.cullDistance.ToString("F0", CultureInfo.InvariantCulture) + ")");
+                if (tier.maxCulledObjects < 16) issues.Add(tier.id + ": maxCulledObjects is too small to be useful (" + tier.maxCulledObjects + ")");
                 if (tier.ao && tier.aoIntensity <= 0.001f) issues.Add(tier.id + ": ambient occlusion is on but its intensity is zero");
             }
 
@@ -216,6 +218,13 @@ namespace BaziBaqa
             public int foliageCount = 700;                  // بوته‌های چمن (در یک draw call)
             public float windScale = 1.0f;                  // ضریبِ شدتِ بادِ شیدرها
 
+            // ---- بودجه‌ی دید (گام ۷): CullingGroup سه نوار می‌سازد ----
+            // نزدیک = کامل، میانی = بی‌سایه، دور = بی‌رندر. همه‌یِ اینها انتخابِ بصری‌اند؛
+            // منطقِ بازی هیچ‌وقت از «دیده‌شدن» چیزی نمی‌پرسد.
+            public float shadowCasterDistance = 42f;
+            public float cullDistance = 70f;
+            public int maxCulledObjects = 220;
+
             public bool ao = true;
             [Range(0f, 2f)] public float aoIntensity = 0.7f;
             public float aoRadius = 0.4f;
@@ -271,6 +280,11 @@ namespace BaziBaqa
                 lampBudget = Mathf.Clamp(lampBudget, 0, 8);
                 foliageCount = Mathf.Clamp(foliageCount, 0, 4096);
                 windScale = Mathf.Clamp(windScale, 0f, 2f);
+                cullDistance = Mathf.Clamp(cullDistance, 8f, 400f);
+                shadowCasterDistance = Mathf.Clamp(shadowCasterDistance, 1f, 400f);
+                // سایه نباید از خودِ شیء زنده‌تر باشد (تصویرِ سایه‌ی معلق روی زمین)
+                if (shadowCasterDistance > cullDistance) shadowCasterDistance = cullDistance;
+                maxCulledObjects = Mathf.Clamp(maxCulledObjects, 16, 512);
                 // چراغ‌های بیشتر از بودجه‌ی نورِ اضافه‌ی URP، بی‌اثر و گران‌اند
                 if (lampBudget > maxAdditionalLights) lampBudget = Mathf.Max(0, maxAdditionalLights);
             }

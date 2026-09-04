@@ -45,7 +45,8 @@ namespace BaziBaqa.Tests
         public void WindField_IsTheOnlyWindWriter()
         {
             string wind = Read(GraphicsDir + "/WindField.cs");
-            StringAssert.Contains("MaterialLibrary.SetWind(_speed, _strength, _phase, gustSharpness)", wind,
+            StringAssert.Contains("MaterialLibrary.SetWind(_speed, _strength * _tierScale, _phase, gustSharpness)", wind,
+                "ضریبِ بادِ نمایه باید در همان فراخوانیِ سراسری بخورد"
                 "WindField باید همان بردارِ قراردادِ شیدر را بنویسد");
             StringAssert.Contains("public void ApplyTier()", wind);
             StringAssert.Contains("public static Vector4 GlobalState", wind, "تست‌ها از همین‌جا می‌خوانند");

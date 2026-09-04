@@ -29,7 +29,8 @@ GameBootstrap
         ├── WindField                   تک‌نویسنده‌ی _BaziWindState (بادِ بَرگشت‌دار، هوامحور)
         ├── FoliageScatter              بوته‌هایِ رویه‌ای در یک mesh (بذرِ جدا از RNGِ بازی)
         ├── VfxDirector                 آب/آتش/دود/جرقه/موجِ ضربه با ObjectPool (Shuriken، بدونِ Instantiate)
-        └── MotionDirector              انیماتورِ رویه‌ای: ActorMotion (گام/ضربه) + BuildingMotion (رشد/آسیب)
+        ├── MotionDirector              انیماتورِ رویه‌ای: ActorMotion (گام/ضربه) + BuildingMotion (رشد/آسیب)
+        └── DistanceCuller              بودجه‌ی دید: خاموش‌کردنِ رندر/سایه‌ی اجزایِ دور (فقط Renderer)
         ├── RenderPipelineBridge        اعمالِ سطحِ کیفیت روی موتور (تک‌نویسنده)
         ├── MaterialLibrary             حلِ شیدر URP/built-in + کشِ متریال + ثابت‌های جهانی
         └── ScreenSpaceAmbientOcclusionFeature  (داخل Renderer Data یِ URP)

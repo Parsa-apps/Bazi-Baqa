@@ -81,6 +81,15 @@ namespace BaziBaqa
             QualitySettings.antiAliasing = MaterialLibrary.IsUniversal ? 0 : Mathf.Max(0, tier.msaa);
             SetRealtimeReflectionProbes(tier.reflections);
 
+            // ---- بودجه‌هایِ سخت‌افزاری (گام ۷) ----
+            // ذراتِ فیزیکی: روی موبایلِ متوسط، بررسیِ برخوردِ باران با صدها collider
+            // گران‌ترین کارِ رایگانِ دنیا است؛ با سقفِ نمایه بی‌خطر می‌ماند.
+            QualitySettings.particleRaycastBudget = Mathf.Clamp(tier.particleBudget, 4, 4096);
+            // بارگذاریِ بافت/مش در تکه‌هایِ کوچک‌تر روی سطحِ پایین (قطع‌شدنِ یک‌لحظه‌ای کمتر)
+            QualitySettings.asyncUploadTimeSlice = tier.qualityLevel <= 0 ? 2 : 4;
+            QualitySettings.asyncUploadBufferSize = tier.qualityLevel <= 1 ? 8 : 16;
+            QualitySettings.asyncUploadPersistentBuffer = tier.qualityLevel >= 2;
+
             MaterialLibrary.SetAmbientOcclusionParams(tier.ao ? tier.aoIntensity : 0f, tier.aoRadius, tier.aoSampleCount, tier.ao);
         }
 

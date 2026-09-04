@@ -111,6 +111,9 @@
 | لایه‌ی انیمیشن (زنده) | Test Runner → PlayMode → `GraphicsPlayModeTests` | ۱۷ تست سبز (ساختِ اندام‌ها، پایانِ رشد، بی‌خطای مدیر در صحنهٔ خالی) |
 | رابطِ AAA (شیشه/پنجره/آیکن) | Test Runner → EditMode → `UiLayerEditModeTests` | ۷ تست سبز (قراردادِ UGUI، متریالِ مشترک، جداسازیِ مالکیت، نبودِ Random در آیکن) |
 | رابطِ AAA (زنده) | Test Runner → PlayMode → `UiLayerPlayModeTests` | ۵ تست سبز (حل/سقوطِ آرامِ شیشه، پایانِ انیمیشنِ پنجره، کشِ آیکن، خاموش‌شدنِ اینترو) |
+| بودجه‌ی گرافیک | Test Runner → EditMode → `PerformanceLayerEditModeTests` | ۸ تست سبز (نمایه v۴، تک‌نویسنده‌ی QualitySettings، کالرِ فقط‌رندری، مصرفِ windScale) |
+| بودجه‌ی گرافیک (زنده) | Test Runner → PlayMode → `GraphicsPerfPlayModeTests` | ۴ تست سبز (کالینگِ فاصله، بازگشتِ وضعیت، سقفِ استخر، نشتی‌نکردنِ کشِ متریال) |
+| آزمونِ نهاییِ دستی | `Docs/Performance.md` → چک‌لیستِ بخش ۱۰ | ۱۲ مرحله روی دستگاهِ هدف (منو، ساخت، شب، باران، انفجار، کیفیت‌ها) |
 | استخرِ افکت‌ها | PlayMode → `VfxDirector_PlaysEffectsFromPoolWithoutGrowingMaterials` | `ActiveEffects ≤ PoolCapacity`، بدونِ متریالِ تازه، بازگشتِ کامل به استخر |
 | شیدرهایِ آب/آتش | PlayMode → `WaterAndFireMaterials_ResolveToProjectShaders` | هیچ رندررِ بی‌متریالی در صحنه نیست |
 | رگرسیونِ Gameplay | `Tools/unity_validation.sh` + تست‌های موجود | هیچ تستِ منطق/ذخیره/رابطی نباید قرمز شود |
