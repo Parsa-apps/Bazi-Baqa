@@ -283,6 +283,111 @@ namespace BaziBaqa.Tests
             Assert.IsNotNull(director.Sky, "مدیرِ گرافیک باید خودِ Rig را هم نگه دارد");
         }
 
+
+        // ============================== گام ۳: محیط زنده ==============================
+
+        [UnityTest]
+        public IEnumerator WindField_WritesWindGlobalAndAnswersToWeather()
+        {
+            GraphicsDirector.Ensure();
+            yield return null;
+            WindField wind = WindField.Instance;
+            Assert.IsNotNull(wind, "مدیرِ گرافیک باید WindField را نصب کند");
+
+            GameManager game = GameManager.Instance;
+            if (game != null && game.Weather != null) game.Weather.SetWeather(WeatherType.Clear, false);
+            for (int i = 0; i < 25; i++) wind.ApplyNow();
+            Vector4 clearWind = WindField.GlobalState;
+            float clearStrength = wind.Strength;
+
+            Assert.Greater(clearWind.y, 0f, "ثابتِ جهانیِ باد باید نوشته شده باشد (وگرنه برگ‌ها میخی‌اند)");
+            Assert.GreaterOrEqual(clearWind.w, 0.5f);
+            Assert.LessOrEqual(clearWind.w, 8f);
+            Assert.GreaterOrEqual(clearWind.x, 0f);
+
+            if (game != null && game.Weather != null)
+            {
+                game.Weather.SetWeather(WeatherType.Storm, false);
+                for (int i = 0; i < 40; i++) wind.ApplyNow();
+                Assert.Greater(wind.Strength, clearStrength + 0.15f, "طوفان باید باد را محسوس‌تر کند");
+                Assert.AreEqual(WeatherType.Storm, wind.LastWeather);
+                game.Weather.SetWeather(WeatherType.Clear, false);
+                for (int i = 0; i < 40; i++) wind.ApplyNow();
+            }
+            Debug.Log("GraphicsPlayMode: " + wind.Report());
+        }
+
+        [UnityTest]
+        public IEnumerator FoliageScatter_BuildsOneMeshWithoutTouchingGameplayObjects()
+        {
+            GraphicsDirector.Ensure();
+            yield return null;
+            FoliageScatter scatter = FoliageScatter.Instance;
+            Assert.IsNotNull(scatter, "پراکندگیِ گیاهی نصب نشد");
+
+            GameManager game = GameManager.Instance;
+            if (game == null || game.World == null || game.World.TerrainRoot == null)
+            {
+                Assert.AreEqual(0, scatter.TuftCount, "بیرون از بازی نباید بوته‌ای ساخته شود");
+                Assert.Pass("جهازی ساخته نشده؛ فقط حالتِ idle بررسی شد");
+            }
+
+            int resourcesBefore = game.World.ResourceRoot != null ? game.World.ResourceRoot.childCount : 0;
+            int buildingsBefore = game.World.BuildingRoot != null ? game.World.BuildingRoot.childCount : 0;
+
+            scatter.Refresh();
+            yield return null;
+
+            int budget = GraphicsProfile.Load().Current.foliageCount;
+            Assert.GreaterOrEqual(scatter.TuftCount, 0);
+            Assert.LessOrEqual(scatter.TuftCount, budget, "بوته‌ها از بودجه‌ی سطحِ کیفیت نباید بیشتر شود");
+            Assert.LessOrEqual(scatter.DrawCalls, 1, "همه‌ی بوته‌ها در یک mesh/یک draw call هستند");
+            if (scatter.TuftCount > 0)
+            {
+                Assert.AreEqual(scatter.TuftCount * 8, scatter.VertexCount, "هر بوته هشت رأس دارد");
+            }
+
+            // مهم‌ترین ادعا: این «تزئینی» هیچ گره‌ی gameplay نساخته و یکی هم پاک نکرده
+            int resourcesAfter = game.World.ResourceRoot != null ? game.World.ResourceRoot.childCount : 0;
+            int buildingsAfter = game.World.BuildingRoot != null ? game.World.BuildingRoot.childCount : 0;
+            Assert.AreEqual(resourcesBefore, resourcesAfter, "پراکندگیِ چمن نباید منابع را جابه‌جا/کم/زیاد کند");
+            Assert.AreEqual(buildingsBefore, buildingsAfter, "ساختمان‌ها دست‌نخورده‌اند");
+            Debug.Log("GraphicsPlayMode: " + scatter.Report());
+        }
+
+        [UnityTest]
+        public IEnumerator GroundAndLeaves_UseTexturedSurfaceMaterials()
+        {
+            GameManager game = GameManager.Instance;
+            if (game == null || game.World == null)
+            {
+                Assert.Pass("جهازی ساخته نشده؛ متریال‌ها در همین حالت بررسی نمی‌شوند");
+            }
+            yield return null;
+
+            Material ground = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Ground, new Color(0.21f, 0.34f, 0.2f), 0f, 0.16f);
+            Assert.IsNotNull(ground);
+            Assert.AreNotEqual("Hidden/InternalErrorShader", ground.shader.name, "زمین نباید شیدرِ خطا بگیرد");
+            StringAssert.Contains("BaziBaqa/Surface", ground.shader.name);
+
+            int rendererCount = 0;
+            MeshRenderer[] renderers = game.World.TerrainRoot != null
+                ? game.World.TerrainRoot.GetComponentsInChildren<MeshRenderer>(false)
+                : new MeshRenderer[0];
+            bool groundUsesSurface = false;
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i].sharedMaterial != null && renderers[i].sharedMaterial.name.Contains("Ground"))
+                {
+                    groundUsesSurface = true;
+                }
+                rendererCount++;
+            }
+            Assert.Greater(rendererCount, 0, "صحنه باید دست‌کم یک رندرر داشته باشد");
+            Assert.IsTrue(groundUsesSurface || renderers.Length == 0,
+                "متریالِ زمین باید از MaterialLibrary بیاید (نامِ BaziSurface_Ground)");
+        }
+
         private static MaterialLibrary.SurfaceStyle GroundStyle()
         {
             return MaterialLibrary.SurfaceStyle.Ground;

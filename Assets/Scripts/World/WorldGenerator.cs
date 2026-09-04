@@ -222,6 +222,7 @@ namespace BaziBaqa
             Mesh mesh = new Mesh { name = WorldParts.GroundMesh };
             Vector3[] vertices = new Vector3[(xSegments + 1) * (zSegments + 1)];
             Vector2[] uv = new Vector2[vertices.Length];
+            Color[] biomeColors = new Color[vertices.Length];      // رنگِ زیست‌بوم (گام ۳)
             int[] triangles = new int[xSegments * zSegments * 6];
 
             for (int z = 0; z <= zSegments; z++)
@@ -235,6 +236,15 @@ namespace BaziBaqa
                     float noise = Mathf.PerlinNoise((px + 70f) * 0.08f + (_random.NextDouble() > 0.5 ? 1f : 0f), (pz + 40f) * 0.08f) * 0.8f;
                     vertices[index] = new Vector3(px, Mathf.Max(0f, edge * 1.9f + noise - 0.7f), pz);
                     uv[index] = new Vector2(x / (float)xSegments, z / (float)zSegments);
+
+                    // رنگِ رأس‌ها فقط از Perlin ساخته می‌شود، نه از _random ⇒ چیدمانِ منابع
+                    // که همین حلقه بعداً می‌خواند، ذره‌جا جابه‌جا نمی‌شود.
+                    float height01 = Mathf.Clamp01(vertices[index].y / 2.4f);
+                    float biome = Mathf.PerlinNoise((px + 11f) * 0.055f, (pz - 23f) * 0.055f);
+                    Color biomeColor = Color.Lerp(new Color(0.66f, 0.6f, 0.44f), new Color(0.5f, 0.8f, 0.44f), height01);
+                    biomeColor = Color.Lerp(biomeColor, new Color(0.82f, 0.74f, 0.5f), Mathf.Abs(biome - 0.5f) * 1.3f);
+                    biomeColor *= Mathf.Lerp(0.66f, 1f, edge);
+                    biomeColors[index] = biomeColor;
                 }
             }
 
@@ -255,6 +265,7 @@ namespace BaziBaqa
 
             mesh.vertices = vertices;
             mesh.uv = uv;
+            mesh.colors = biomeColors;
             mesh.triangles = triangles;
             mesh.RecalculateNormals();
             GameObject ground = new GameObject(WorldParts.Ground);
@@ -392,11 +403,18 @@ namespace BaziBaqa
 
         private void ConfigureMaterials()
         {
-            _groundMaterial = CreateMaterial(new Color(0.21f, 0.34f, 0.2f), 0f);
+            // گام ۳: زمین/تنه/برگ/سنگ بافت‌دار و بادخیز شدند (MaterialLibrary سبک‌ها را
+            // می‌شناسد و متریال‌ها کش سراسری دارند). آب هنوز Tinted است؛ شیدرِ اختصاصیِ آب
+            // در گام ۴ می‌آید. هیچ‌کدام از این مقادیر منطقِ بازی را عوض نمی‌کنند.
+            _groundMaterial = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Ground,
+                new Color(0.21f, 0.34f, 0.2f), 0f, 0.16f);
             _waterMaterial = CreateMaterial(new Color(0.03f, 0.2f, 0.32f), 0.35f);
-            _treeMaterial = CreateMaterial(new Color(0.25f, 0.14f, 0.07f), 0.02f);
-            _leafMaterial = CreateMaterial(new Color(0.1f, 0.35f, 0.16f), 0.08f);
-            _rockMaterial = CreateMaterial(new Color(0.3f, 0.34f, 0.35f), 0.16f);
+            _treeMaterial = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Bark,
+                new Color(0.25f, 0.14f, 0.07f), 0.02f, 0.2f, true);
+            _leafMaterial = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Foliage,
+                new Color(0.1f, 0.35f, 0.16f), 0f, 0.22f, true);
+            _rockMaterial = MaterialLibrary.Surface(MaterialLibrary.SurfaceStyle.Rock,
+                new Color(0.3f, 0.34f, 0.35f), 0.16f, 0.3f);
         }
 
         private Transform CreateRoot(string name, Transform parent = null)

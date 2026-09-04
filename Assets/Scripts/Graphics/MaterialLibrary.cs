@@ -223,6 +223,20 @@ namespace BaziBaqa
             material.SetFloat("_BaziDetailBlend", style == SurfaceStyle.Tinted ? 0f : 0.32f);
 
             ApplyTextures(material, style);
+
+            // رنگِ رأس‌ها: زمین/سنگ/تنه/برگ از vertex color استفاده می‌کنند. شیدر مقدارِ
+            // نبودنِ رنگ را هم درست می‌گیرد (رنگِ پیش‌فرضِ مش ≈ سفید) ⇒ برای هر مشی امن است.
+            if (style == SurfaceStyle.Ground || style == SurfaceStyle.Rock
+                || style == SurfaceStyle.Bark || style == SurfaceStyle.Foliage)
+            {
+                material.EnableKeyword("_BAZI_VERTEX_COLOR_ON");
+            }
+            if (style == SurfaceStyle.Foliage)
+            {
+                material.EnableKeyword("_BAZI_ALPHA_CLIP_ON");
+                material.SetFloat("_Cutoff", 0.42f);
+            }
+
             if (wind)
             {
                 material.EnableKeyword("_BAZI_WIND_ON");
@@ -422,10 +436,23 @@ namespace BaziBaqa
 
         // ------------------------------------------------------------------ حالت‌های جهانی
 
-        /// <summary>بادِ محیطی (شدت/بسامد/فاز/توان ارتفاع) — توسط <c>WindSystem</c> نوشته می‌شود.</summary>
+        /// <summary>
+        /// بادِ محیطی: x=بسامدِ حرکت، y=شدت، z=فاز، w=توانِ ارتفاع (چقدر بالا أكثر از پایین).
+        /// تنها نویسنده <c>WindField</c> است؛ <c>GraphicsDirector</c> فقط مقدارِ اولیه می‌دهد.
+        /// </summary>
         public static void SetWind(Vector4 state)
         {
             Shader.SetGlobalVector("_BaziWindState", state);
+        }
+
+        /// <summary>همان SetWind، با چهار عددِ جدا (خواناییِ بیشتر در فراخوان‌ها).</summary>
+        public static void SetWind(float speed, float strength, float phase, float heightPower)
+        {
+            Shader.SetGlobalVector("_BaziWindState", new Vector4(
+                Mathf.Max(0f, speed),
+                Mathf.Clamp(strength, 0f, 4f),
+                phase,
+                Mathf.Clamp(heightPower, 0.5f, 8f)));
         }
 
         /// <summary>مه ارتفاعی + رنگ آن (چگالی/افت/سقف/کف) — توسط سامانه‌ی نور و هوا نوشته می‌شود.</summary>

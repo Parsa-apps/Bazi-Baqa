@@ -55,6 +55,9 @@ unterminated: list[int] = []
 
 
 def mask_source(source: str) -> Masked:
+    # unterminated یک فهرستِ سراسری است؛ اگر پاک نشود، یک فایلِ بد، گزارشِ همه‌ی فایل‌های
+    # بعدی را آلوده می‌کند (خطای ۱۴۰ کاذب روی فایل‌های سالم)
+    del unterminated[:]
     out = []
     literals = []
     comments = []
@@ -97,7 +100,7 @@ def mask_source(source: str) -> Masked:
             prefix = source[j] + prefix
         verbatim = "@" in prefix
         interpolated = "$" in prefix
-        if ch == '"' and source[i : i + 3] == '"""':
+        if ch == '"' and source[i : i + 3] == '"""' and not verbatim:
             end = source.find('"""', i + 3)
             if end == -1:
                 end = n

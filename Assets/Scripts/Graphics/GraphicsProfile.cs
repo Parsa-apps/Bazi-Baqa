@@ -21,7 +21,7 @@ namespace BaziBaqa
     public sealed class GraphicsProfile
     {
         public const string ResourcePath = "Graphics/GraphicsProfile";
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
 
         [SerializeField] private int version = CurrentVersion;
         [SerializeField] private string defaultTier = "medium";
@@ -178,6 +178,7 @@ namespace BaziBaqa
                        .Append(tier.hdr ? ", HDR" : string.Empty)
                        .Append(tier.proceduralSky ? ", sky" : ", flat")
                        .Append(" lamps ").Append(tier.lampBudget)
+                       .Append(" foliage ").Append(tier.foliageCount)
                        .Append(i + 1 < tiers.Count ? ") | " : ")");
             }
             return builder.ToString();
@@ -210,6 +211,10 @@ namespace BaziBaqa
             [Range(0f, 1f)] public float shadowStrength = 0.82f;
             public float heightFogCeiling = 24f;           // ارتفاعی که مه ارتفاعی تا آنجاست
             [Range(0, 8)] public int lampBudget = 3;       // بیشترین چراغِ هم‌زمانِ شبانه
+
+            // ---- محیط زنده (گام ۳) ----
+            public int foliageCount = 700;                  // بوته‌های چمن (در یک draw call)
+            public float windScale = 1.0f;                  // ضریبِ شدتِ بادِ شیدرها
 
             public bool ao = true;
             [Range(0f, 2f)] public float aoIntensity = 0.7f;
@@ -264,6 +269,8 @@ namespace BaziBaqa
                 shadowStrength = Mathf.Clamp(shadowStrength, 0f, 1f);
                 heightFogCeiling = Mathf.Clamp(heightFogCeiling, 4f, 160f);
                 lampBudget = Mathf.Clamp(lampBudget, 0, 8);
+                foliageCount = Mathf.Clamp(foliageCount, 0, 4096);
+                windScale = Mathf.Clamp(windScale, 0f, 2f);
                 // چراغ‌های بیشتر از بودجه‌ی نورِ اضافه‌ی URP، بی‌اثر و گران‌اند
                 if (lampBudget > maxAdditionalLights) lampBudget = Mathf.Max(0, maxAdditionalLights);
             }

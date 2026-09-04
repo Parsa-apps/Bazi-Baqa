@@ -32,6 +32,7 @@ namespace BaziBaqa
         // عناصر طبیعت
         public const string Ground = "IslandGround";
         public const string GroundMesh = "ProceduralIsland";
+        public const string GrassMesh = "ProceduralGrass";
         public const string Water = "ShallowWater";
         public const string Tree = "Tree";
         public const string TreeTrunk = "Trunk";

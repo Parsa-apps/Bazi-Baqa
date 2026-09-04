@@ -18,6 +18,7 @@
 - راهنمای بومی‌سازی: `Docs/Localization.md` — راهنمای فونت و TextMeshPro: `Docs/Typography.md`
 - خطِ رندر: URP با شیدرهای رویه‌ایِ خودِ پروژه و مسیرِ پشتیبانِ Built-in — راهنمای `Docs/URPGraphics.md`
 - نورپردازی سینمایی: چرخه‌ی صبح/ظهر/غروب/شب با مه و آسمانِ رویه‌ای — راهنمای `Docs/Lighting.md`
+- محیط زنده: بادِ بَرگشت‌دار، بوته‌هایِ رویه‌ای در یک draw call، رنگِ زیست‌بومِ زمین — `Docs/Environment.md`
 - مدیریت نسخه: `Docs/Versioning.md` — اعتبارسنجی زمان اجرا: `Docs/RuntimeValidation.md`
 
 ## اجرای پروژه

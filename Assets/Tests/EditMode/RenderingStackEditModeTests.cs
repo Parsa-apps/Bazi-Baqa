@@ -372,7 +372,13 @@ namespace BaziBaqa.Tests
         [Test]
         public void SkyLightingRig_DayNightCycle_HasClosedLoopAndRealContrast()
         {
-            string rig = Read("Assets/Scripts/Graphics/SkyLightingRig.cs");
+            string rigFull = Read("Assets/Scripts/Graphics/SkyLightingRig.cs");
+            // فقط داخلِ آرایه‌ی Keys شمرده می‌شود؛ وگرنه «float time = 0.34f» در Update هم با الگو می‌خواند
+            int from = rigFull.IndexOf("Key[] Keys =", StringComparison.Ordinal);
+            Assert.Greater(from, 0, "آرایه‌ی کلیدهایِ چرخه‌ی شبانه‌روزی پیدا نشد");
+            int to = rigFull.IndexOf("};", from, StringComparison.Ordinal);
+            Assert.Greater(to, from, "آرایه‌ی Keys بسته نشده است");
+            string rig = rigFull.Substring(from, to - from);
             MatchCollection times = Regex.Matches(rig, @"time = ([0-9.]+)f");
             MatchCollection nights = Regex.Matches(rig, @"night = ([0-9.]+)f");
             MatchCollection intensities = Regex.Matches(rig, @"intensity = ([0-9.]+)f");

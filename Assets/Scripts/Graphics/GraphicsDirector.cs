@@ -34,6 +34,8 @@ namespace BaziBaqa
         public IReadOnlyList<MonoBehaviour> Children { get { return _children; } }
         public CinematicVolumeRig Volume { get; private set; }
         public SkyLightingRig Sky { get; private set; }
+        public WindField Wind { get; private set; }
+        public FoliageScatter Foliage { get; private set; }
         public bool IsInstalled { get { return Instance == this; } }
 
         /// <summary>نصبِ خودکار در اولین فریمِ هر صحنه (شاملِ صحنه‌های تست).</summary>
@@ -77,9 +79,10 @@ namespace BaziBaqa
 
         private void OnEnable()
         {
-            // بازنشانیِ مقادیرِ جهانی؛ اگر شیدرها قبل از نصبِ Rig کامپایل شوند، صفر خالی نماند
-            MaterialLibrary.SetAtmosphere(0f, 1f, 0f, 0f);
-            MaterialLibrary.SetWind(0.012f, 0.85f, 0f, 2f);
+            // هیچ ثابتِ جهانی این‌جا نوشته نمی‌شود: باد کارِ WindField است (که در Awake همان
+            // لحظه اول مقدار می‌دهد) و مه/اتمسفر کارِ SkyLightingRig. دو نویسنده برای یک
+            // بردارِ جهانی، یعنی نتیجه‌ای که به ترتیبِ اجرا بستگی دارد؛ دروازه‌ی
+            // Tools/project_lint.py و تست‌های EditMode همین را تضمین می‌کنند.
         }
 
         private void Install()
@@ -91,6 +94,12 @@ namespace BaziBaqa
 
             Sky = GetOrAdd<SkyLightingRig>();
             if (Sky != null) _children.Add(Sky);
+
+            Wind = GetOrAdd<WindField>();
+            if (Wind != null) _children.Add(Wind);
+
+            Foliage = GetOrAdd<FoliageScatter>();
+            if (Foliage != null) _children.Add(Foliage);
 
             // فازهای بعدیِ گرافیک همین‌جا اضافه می‌شوند (محیط زنده، VFX، کیفیت)
             GraphicsProfile profile = GraphicsProfile.Load();
@@ -138,6 +147,8 @@ namespace BaziBaqa
                     Sky.Refresh();
                     Sky.ApplyNow();
                 }
+                if (Wind != null) Wind.ApplyTier();
+                if (Foliage != null) Foliage.Refresh();
             }
 
             // ۳) بازسازیِ جهان: نورِ اصلی و ریشه‌ها تازه‌اند ⇒ Rigِ نور باید دوباره پیدا کند
@@ -147,6 +158,7 @@ namespace BaziBaqa
             {
                 _lastWorldGeneration = generation;
                 if (Sky != null) Sky.Refresh();
+                if (Foliage != null) Foliage.Refresh();
             }
 
             // ۴) اولین باری که جهان ساخته شد، یک گزارشِ کامل می‌نویسیم (برای ممیزیِ صحنه)
@@ -165,6 +177,8 @@ namespace BaziBaqa
             builder.Append(" | volume=").Append(Volume != null && Volume.IsActive ? "active" : "inactive");
             builder.Append(" | materials=").Append(MaterialLibrary.CachedMaterialCount);
             builder.Append(" | ").Append(Sky != null ? Sky.Report() : "sky=absent");
+            builder.Append(" | ").Append(Wind != null ? Wind.Report() : "wind=absent");
+            builder.Append(" | ").Append(Foliage != null ? Foliage.Report() : "foliage=absent");
             return builder.ToString();
         }
 
@@ -174,6 +188,8 @@ namespace BaziBaqa
             GraphicsProfile.Load(true);
             if (Volume != null) Volume.Rebuild();
             if (Sky != null) { Sky.Refresh(); Sky.ApplyNow(); }
+            if (Wind != null) { Wind.ApplyTier(); Wind.ApplyNow(); }
+            if (Foliage != null) Foliage.Refresh();
             RenderPipelineBridge.ApplyCurrentQuality(true);
         }
 
