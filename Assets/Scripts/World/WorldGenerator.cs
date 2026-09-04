@@ -20,6 +20,7 @@ namespace BaziBaqa
         private readonly List<GameObject> _generatedObjects = new List<GameObject>();
         private readonly Dictionary<string, Material> _materials = new Dictionary<string, Material>();
         private AmbientLife _ambientLife;
+        private WorldVFX _worldVfx;
         private System.Random _random;
         private Material _groundMaterial;
         private Material _waterMaterial;
@@ -41,6 +42,7 @@ namespace BaziBaqa
             ConfigureEnvironment();
             _ambientLife = WorldRoot.gameObject.AddComponent<AmbientLife>();
             _ambientLife.Initialize();
+            _worldVfx = WorldRoot.gameObject.AddComponent<WorldVFX>();
         }
 
         public void Generate(int seed)
@@ -52,6 +54,7 @@ namespace BaziBaqa
             CreateTerrain();
             CreateResourceNodes();
             CreateNaturalProps();
+            if (_worldVfx != null) _worldVfx.Initialize(Vector3.zero);
         }
 
         public void ClearGeneratedWorld()

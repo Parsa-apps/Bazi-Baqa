@@ -173,7 +173,7 @@ namespace BaziBaqa
     [Serializable]
     public class GameSaveData
     {
-    public int saveVersion = 2;
+    public int saveVersion = 3;
     public int seed = 14729;
     public int day = 1;
     public float dayTime = 0.28f;
@@ -188,6 +188,9 @@ namespace BaziBaqa
     public int questIndex;
     public AchievementSaveState achievements = new AchievementSaveState();
     public DailyRewardSaveState dailyReward = new DailyRewardSaveState();
+    public EquipmentSaveState equipment = new EquipmentSaveState();
+    public StorySaveState story = new StorySaveState();
+    public RaidSaveState raid = new RaidSaveState();
 
         public static GameSaveData CreateNew(int newSeed)
         {

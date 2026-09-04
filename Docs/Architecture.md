@@ -19,10 +19,13 @@ GameBootstrap
     ├── QuestSystem        مأموریت‌ها و مراحل داستانی
     ├── AchievementSystem  دستاوردها و پاداش‌ها
     ├── DailyRewardSystem  پاداش روزانه و ردیف روزها
+    ├── EquipmentSystem    تجهیزات و ارتقای ابزار/سلاح/زره
+    ├── StoryDirector      تصمیم‌های داستانی در روزهای کلیدی
+    ├── RaidSystem         حمله‌ی روزانه و غنیمت
     ├── PerformanceManager تنظیم خودکار کیفیت بر اساس نرخ فریم
     ├── GameLogger         خطایابی و پایداری
     ├── SaveSystem         ذخیره‌ی اتمیک و نسخه‌ی پشتیبان
-    └── UIManager          رابط فارسی و راست‌چین
+    └── UIManager          رابط فارسی و راست‌چین + نقشه‌ی جزیره
 
 SurvivorAgent ── SurvivorBrain ── ResourceNode / BuildingController
 SurvivorAgent ── Fleeing (واکنش به خطر شبانه) ── EnemyAgent
@@ -33,6 +36,11 @@ QuestSystem    ── Construction / Resources / Survivors / Clock
 AchievementSystem ── Build / Defeat / Day
 AudioManager   ── UIManager / GameManager / Clock.NightChanged (موسیقی خطر)
 AmbientLife    ── WorldGenerator (تکان درختان و پرندگان)
+WorldVFX       ── WorldGenerator (آتش، دود، جرقّه‌ی اردوگاه)
+EquipmentSystem ── SurvivorAgent / RaidSystem (جمع‌آوری، حمله، کاهش آسیب)
+StoryDirector  ── GameManager.Clock (تصمیم‌های روزانه)
+RaidSystem     ── Guards / Resources / Equipment (یورش روزانه)
+UIManager      ── MiniMap / Equipment / Raid / Story panels
 AndroidBuild (Assets/Editor) ── BuildPipeline ── APK / AAB
 ```
 

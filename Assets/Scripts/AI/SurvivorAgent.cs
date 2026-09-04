@@ -65,7 +65,9 @@ namespace BaziBaqa
         public void NotifyDamage(float amount)
         {
             if (!IsAlive) return;
-            Health = Mathf.Max(0f, Health - Mathf.Max(0f, amount));
+            float armor = GameManager.Instance.Equipment != null ? GameManager.Instance.Equipment.ArmorReduction : 0f;
+            amount = Mathf.Max(0f, amount) * (1f - armor);
+            Health = Mathf.Max(0f, Health - amount);
             Morale = Mathf.Max(0f, Morale - amount * 0.15f);
             if (Health <= 0f) Fall();
         }
@@ -223,7 +225,8 @@ namespace BaziBaqa
                         {
                             _workTimer = 1.2f;
                             int baseAmount = Role == SurvivorRole.Farmer ? 3 : 2;
-                            int amount = _targetNode.Gather(Mathf.CeilToInt(baseAmount * (_brain == null ? 1f : _brain.GatheringMultiplier())));
+                            float toolBonus = GameManager.Instance.Equipment != null ? GameManager.Instance.Equipment.ToolGatherBonus : 0f;
+                            int amount = _targetNode.Gather(Mathf.CeilToInt(baseAmount * (_brain == null ? 1f : _brain.GatheringMultiplier()) * (1f + toolBonus)));
                             if (amount > 0)
                             {
                                 GameManager.Instance.Resources.Add(_targetNode.type, amount, "جمع‌آوری توسط " + DisplayName);
@@ -263,7 +266,9 @@ namespace BaziBaqa
         private void AttackNearbyEnemy()
         {
             EnemyAgent enemy = GameManager.Instance.FindNearestEnemy(transform.position, 3.5f);
-            if (enemy != null) enemy.TakeDamage(3.5f * Time.deltaTime);
+            if (enemy == null) return;
+            float weaponBonus = GameManager.Instance.Equipment != null ? GameManager.Instance.Equipment.WeaponDamageBonus : 0f;
+            enemy.TakeDamage((3.5f + weaponBonus) * Time.deltaTime);
         }
 
         private void MoveTo(Vector3 target, float delta, float speed)

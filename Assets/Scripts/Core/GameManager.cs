@@ -32,6 +32,9 @@ namespace BaziBaqa
         public QuestSystem Quests { get; private set; }
         public AchievementSystem Achievements { get; private set; }
         public DailyRewardSystem DailyRewards { get; private set; }
+        public EquipmentSystem Equipment { get; private set; }
+        public StoryDirector Story { get; private set; }
+        public RaidSystem Raid { get; private set; }
         public PerformanceManager Performance { get; private set; }
         public AudioManager Audio { get; private set; }
         public UIManager UI { get; private set; }
@@ -76,6 +79,9 @@ namespace BaziBaqa
             Quests = gameObject.AddComponent<QuestSystem>();
             Achievements = gameObject.AddComponent<AchievementSystem>();
             DailyRewards = gameObject.AddComponent<DailyRewardSystem>();
+            Equipment = gameObject.AddComponent<EquipmentSystem>();
+            Story = gameObject.AddComponent<StoryDirector>();
+            Raid = gameObject.AddComponent<RaidSystem>();
             Performance = gameObject.AddComponent<PerformanceManager>();
             Audio = gameObject.AddComponent<AudioManager>();
             World.Initialize();
@@ -153,6 +159,15 @@ namespace BaziBaqa
             if (DailyRewards == null) DailyRewards = gameObject.GetComponent<DailyRewardSystem>();
             if (DailyRewards == null) DailyRewards = gameObject.AddComponent<DailyRewardSystem>();
             DailyRewards.Initialize(save);
+            if (Equipment == null) Equipment = gameObject.GetComponent<EquipmentSystem>();
+            if (Equipment == null) Equipment = gameObject.AddComponent<EquipmentSystem>();
+            Equipment.Initialize(save);
+            if (Story == null) Story = gameObject.GetComponent<StoryDirector>();
+            if (Story == null) Story = gameObject.AddComponent<StoryDirector>();
+            Story.Initialize(save);
+            if (Raid == null) Raid = gameObject.GetComponent<RaidSystem>();
+            if (Raid == null) Raid = gameObject.AddComponent<RaidSystem>();
+            Raid.Initialize(save);
             if (Performance == null) Performance = gameObject.GetComponent<PerformanceManager>();
             if (Performance == null) Performance = gameObject.AddComponent<PerformanceManager>();
             Performance.Initialize();
@@ -253,6 +268,9 @@ namespace BaziBaqa
             if (Quests != null) Quests.Refresh(save);
             if (Achievements != null) Achievements.Refresh(save);
             if (DailyRewards != null) DailyRewards.Refresh(save);
+            if (Equipment != null) Equipment.CopyTo(save);
+            if (Story != null) Story.CopyTo(save);
+            if (Raid != null) Raid.CopyTo(save);
             save.settings.soundEnabled = Audio == null || Audio.SoundEnabled;
             save.settings.vibrationEnabled = Audio == null || Audio.VibrationEnabled;
             save.settings.tutorialCompleted = _tutorialCompleted;
@@ -374,6 +392,7 @@ namespace BaziBaqa
             if (Progression != null) Progression.AddXp(8, "زنده ماندن در شب");
             if (Achievements != null) Achievements.RegisterDay(day);
             if (Quests != null) Quests.TryComplete();
+            if (Story != null) Story.OnDay(day);
             GameEvents.Notify("روز " + GameClock.ToPersianDigits(day.ToString()) + " آغاز شد؛ یک امتیاز فناوری گرفتید.");
             SaveGame();
             if (day >= 7 && Phase == GamePhase.Playing) WinGame();

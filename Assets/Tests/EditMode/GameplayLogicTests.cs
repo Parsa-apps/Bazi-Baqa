@@ -98,7 +98,37 @@ namespace BaziBaqa.Tests
             Assert.IsNotNull(save.achievements);
             Assert.IsNotNull(save.dailyReward);
             Assert.AreEqual(0, save.questIndex);
-            Assert.AreEqual(2, save.saveVersion);
+            Assert.AreEqual(3, save.saveVersion);
         }
-    }
+        [Test]
+        public void NewSaveInitializesExpandedSystems()
+        {
+            GameSaveData save = GameSaveData.CreateNew(7);
+            Assert.IsNotNull(save.equipment);
+            Assert.IsNotNull(save.story);
+            Assert.IsNotNull(save.raid);
+            Assert.AreEqual(1, save.equipment.tool);
+            Assert.AreEqual(0, save.story.lastDecisionDay);
+            Assert.AreEqual(0, save.raid.lastRaidDay);
+        }
+
+        [Test]
+        public void EquipmentCostsAreValid()
+        {
+            var costs = EquipmentSystem.GetUpgradeCosts(EquipmentType.Weapon, 2);
+            Assert.AreEqual(ResourceType.Wood, costs[0].type);
+            Assert.AreEqual(40, costs[0].amount);
+            Assert.Greater(costs.Count, 0);
+        }
+
+        [Test]
+        public void StoryDefinitionsExistOnKeyDays()
+        {
+            Assert.AreEqual(2, StoryDefinitions.All[0].day);
+            Assert.AreEqual(4, StoryDefinitions.All[1].day);
+            Assert.AreEqual(3, StoryDefinitions.All.Count);
+            Assert.IsNotEmpty(StoryDefinitions.All[0].choices[0].title);
+        }
+
+}
 }

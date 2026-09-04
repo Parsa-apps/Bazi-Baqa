@@ -20,6 +20,8 @@ required_files = [
     "Assets/Scripts/Systems/ConstructionSystem.cs", "Assets/Scripts/Systems/ProgressionSystem.cs",
     "Assets/Scripts/Systems/QuestSystem.cs", "Assets/Scripts/Systems/AchievementSystem.cs",
     "Assets/Scripts/Systems/DailyRewardSystem.cs", "Assets/Scripts/Systems/PerformanceManager.cs",
+    "Assets/Scripts/Systems/EquipmentSystem.cs", "Assets/Scripts/Systems/StoryDirector.cs",
+    "Assets/Scripts/Systems/RaidSystem.cs", "Assets/Scripts/World/WorldVFX.cs",
     "Assets/Scripts/World/AmbientLife.cs", "Assets/Scripts/AI/SurvivorAgent.cs",
     "Assets/Scripts/AI/EnemyAgent.cs", "Assets/Scripts/UI/UIManager.cs",
     "Assets/Scripts/UI/ButtonFx.cs", "Assets/Scripts/UI/CrownPulse.cs",
