@@ -75,6 +75,7 @@ AndroidBuild (Assets/Editor) ── BuildPipeline ── APK / AAB
 - مأموریت‌ها از `QuestSystem`، دستاوردها از `AchievementSystem` و پاداش روزانه از `DailyRewardSystem` بررسی می‌شوند.
   همه در فایل ذخیره (نسخه‌ی ۲) ثبت می‌شوند و هنگام بارگذاری با مقادیر پیش‌فرض ایمن هستند.
 - حیات محیط توسط `AmbientLife` (تکان درختان و پرندگان) بدون Asset خارجی تأمین می‌شود.
+- لایه‌ی رابط هم رویه‌ای است: `UIManager.CreatePanel` تنها نقطه‌یِ ساختِ پنل و `ButtonFx` تنها بازخوردِ لمسی ⇒ `UIGlassPanel`/`WindowFx`/`IntroFx`/`UIIconLibrary` افزوده می‌شوند و هیچ فایلِ منطقی آن‌ها را صدا نمی‌زند (تستِ `UiLayerHooks_AreAdditiveForGameplay`).
 - لایه‌ی بصری از Gameplay جداست: `GraphicsDirector` با `RuntimeInitializeOnLoadMethod` نصب می‌شود،
   هیچ فایلِ Gameplay او را صدا نمی‌زند و حذفِ `Assets/Scripts/Graphics` بازی را بی‌نقص برمی‌گرداند
   (تستِ `GraphicsDirector_InstallsWithoutTouchingGameplayFiles` همین را نگه می‌دارد).

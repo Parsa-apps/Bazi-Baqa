@@ -84,6 +84,8 @@ namespace BaziBaqa
             Image background = _view.AddComponent<Image>();
             background.color = DeepNavy;
             _view.AddComponent<SplashEffects>();
+            _view.AddComponent<IntroFx>();          // اینتروی سینماییِ استودیو (گام ۶)
+            UIGlassPanel.ApplyMood("menu");
 
             GameObject glow = CreatePanel("LogoGlow", _view.transform, new Color(0.06f, 0.38f, 0.42f, 0.42f), new Vector2(0.2f, 0.25f), new Vector2(0.8f, 0.76f));
             glow.AddComponent<GlowPulse>();
@@ -262,13 +264,16 @@ _goalLabel.Set(Loc.Get("hud.objective_line", Loc.Num(GameManager.VictoryDay)) + 
 
         private void CreateGameHud()
         {
+            UIGlassPanel.ApplyMood("hud");
             GameObject header = CreatePanel("HudHeader", _hudRoot.transform, new Color(0.02f, 0.08f, 0.12f, 0.96f), new Vector2(0f, 0.84f), Vector2.one);
             for (int i = 0; i < 6; i++)
             {
                 ResourceType type = (ResourceType)i;
                 GameObject card = CreatePanel("ResourceCard", header.transform, new Color(0.05f, 0.15f, 0.2f, 0.96f), new Vector2(i / 6f, 0.35f), new Vector2((i + 1) / 6f, 0.9f));
                 UIText label = CreateText(card.transform, GameText.ResourceName(type), 16, Color.white, TextAnchor.MiddleCenter);
-                SetRect(label.Rect, Vector2.zero, Vector2.one, new Vector2(3f, 1f), new Vector2(-3f, -1f));
+                SetRect(label.Rect, Vector2.zero, Vector2.one, new Vector2(3f, 1f), new Vector2(-23f, -1f));
+                // آیکنِ رویه‌ای در ابتدایِ راست (چیدمانِ RTL) ⇒ عدد و نام بدونِ Asset خوانا می‌شوند
+                UIIconLibrary.AttachBadge(card.transform, type, 17f, 5f);
                 _resourceLabels[type] = label;
             }
             _clockLabel = CreateText(header.transform, "", 17, Gold, TextAnchor.MiddleRight);
@@ -846,6 +851,16 @@ _notificationLabel.Set(message);
             Outline outline = panel.AddComponent<Outline>();
             outline.effectColor = new Color(0.2f, 0.65f, 0.68f, 0.15f);
             outline.effectDistance = new Vector2(1f, -1f);
+
+            // لایه‌ی AAA (گام ۶): شیشه‌ایِ رویه‌ای برای همه‌ی پنل‌ها؛ انیمیشنِ باز شدن فقط
+            // برای پنجره‌ها (دکمه‌ها مقیاس‌شان را به ButtonFx می‌دهند و دو انیماتور
+            // روی یک localScale نمی‌جنگند).
+            UIGlassPanel.Apply(panel);
+            if (name != "Button")
+            {
+                WindowFx windowFx = panel.AddComponent<WindowFx>();
+                windowFx.Report();
+            }
             return panel;
         }
 

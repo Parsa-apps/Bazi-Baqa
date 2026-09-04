@@ -41,6 +41,8 @@ namespace BaziBaqa
         private const string SkyShaderResource = "Shaders/BaziBaqa-Sky";
         private const string WaterShaderName = "BaziBaqa/Water";
         private const string WaterShaderResource = "Shaders/BaziBaqa-Water";
+        private const string GlassShaderName = "Hidden/BaziBaqa/UIGlass";
+        private const string GlassShaderResource = "Shaders/BaziBaqa-UIGlass";
         private const string FireShaderName = "Hidden/BaziBaqa/Fire";
         private const string FireShaderResource = "Shaders/BaziBaqa-Fire";
 
@@ -584,6 +586,63 @@ namespace BaziBaqa
             material.SetVector("_BaziFireParams", new Vector4(1.1f + mode * 0.2f, 0.65f, 1.45f, Mathf.Max(0.05f, intensity)));
             _materials[key] = material;
             return material;
+        }
+
+        /// <summary>
+        /// متریالِ شیشه‌ایِ پنل‌ها و دکمه‌ها (گام ۶). یک متریالِ مشترک برای همه ⇒ یک batch.
+        /// اگر شیدرِ UI حل نشد null برمی‌گردد و `Image` همان رنگِ تختِ قبل را نگه می‌دارد.
+        /// </summary>
+        public static Material Glass()
+        {
+            Shader shader = ResolveShader(GlassShaderName, "res:" + GlassShaderResource);
+            if (shader == null || shader.name != GlassShaderName)
+            {
+                _diagnostics.Add("ui-glass=unavailable (panels render flat)");
+                return null;
+            }
+
+            const string key = "ui-glass";
+            Material material;
+            if (_materials.TryGetValue(key, out material) && material != null) return material;
+            material = new Material(shader)
+            {
+                name = "BaziBaqa UIGlass",
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            material.SetVector("_BaziGlassParams", new Vector4(0.34f, 0.012f, 0.055f, 0.03f));
+            material.SetColor("_BaziGlassTint", new Color(0.14f, 0.36f, 0.44f, 1f));
+            material.SetColor("_BaziGlassEdge", new Color(0.55f, 0.96f, 1f, 0.7f));
+            material.SetVector("_BaziGlassSweep", new Vector4(0f, 0.18f, 0.42f, 0.3f));
+            material.SetVector("_BaziGlassNoise", new Vector4(9f, 0.045f, 0.3f, 0f));
+            _materials[key] = material;
+            return material;
+        }
+
+        /// <summary>تنظیمِ شدتِ لبه/جاروب برای کل رابط (مقدارِ ۰ یعنی حالتِ بی‌جنب‌وجوشِ منو).</summary>
+        public static void SetGlassMood(float edgeStrength, float sweepAmount, float tintBrightness)
+        {
+            Material material = Glass();
+            if (material == null) return;
+            Color edge = material.GetColor("_BaziGlassEdge");
+            edge.a = Mathf.Clamp01(edgeStrength);
+            material.SetColor("_BaziGlassEdge", edge);
+            Vector4 sweep = material.GetVector("_BaziGlassSweep");
+            sweep.w = Mathf.Clamp01(sweepAmount);
+            material.SetVector("_BaziGlassSweep", sweep);
+            Vector4 noise = material.GetVector("_BaziGlassNoise");
+            noise.z = Mathf.Clamp01(0.12f + 0.5f * tintBrightness);
+            material.SetVector("_BaziGlassNoise", noise);
+        }
+
+        /// <summary>فازِ جاروبِ نور (۰..۱)؛ توسط نخستین پنلِ فعال رانده می‌شود، نه هر پنل.</summary>
+        public static void SetGlassSweepPhase(float phase)
+        {
+            Material material;
+            // عمداً بدونِ Glass(): وقتی شیدر در دسترس نیست، هر فریم نباید دوباره تلاش/یادداشت کند
+            if (!_materials.TryGetValue("ui-glass", out material) || material == null) return;
+            Vector4 sweep = material.GetVector("_BaziGlassSweep");
+            sweep.x = phase;
+            material.SetVector("_BaziGlassSweep", sweep);
         }
 
         /// <summary>پاک‌سازیِ کش (برای تست‌ها و Reload دامنه‌ی ویرایشگر).</summary>
