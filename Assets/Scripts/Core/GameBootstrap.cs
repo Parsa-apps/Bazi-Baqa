@@ -8,9 +8,11 @@ namespace BaziBaqa
     {
         private GameManager _gameManager;
         private UIManager _ui;
+        private RuntimeLogger _runtimeLogger;
 
         private void Awake()
         {
+            EnsureRuntimeLogger();
             EnsureEventSystem();
             _gameManager = GetComponent<GameManager>();
             if (_gameManager == null) _gameManager = gameObject.AddComponent<GameManager>();
@@ -23,6 +25,14 @@ namespace BaziBaqa
         private void Start()
         {
             _ui.BeginPresentation();
+            if (_runtimeLogger != null) _runtimeLogger.Initialize();
+        }
+
+        /// <summary>ثبت‌کننده‌ی زمان اجرا را روی همین گره فعال می‌کند تا خطاها و کرش‌ها ذخیره شوند.</summary>
+        private void EnsureRuntimeLogger()
+        {
+            _runtimeLogger = GetComponent<RuntimeLogger>();
+            if (_runtimeLogger == null) _runtimeLogger = gameObject.AddComponent<RuntimeLogger>();
         }
 
         private static void EnsureEventSystem()
