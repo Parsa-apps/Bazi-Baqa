@@ -179,6 +179,8 @@ namespace BaziBaqa
             CreateFromSave(data);
             GameEvents.Notify(GameText.BuildingName(_placingType) + " ساخته شد.");
             if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(4, "ساخت ساختمان");
+            if (GameManager.Instance.Achievements != null) GameManager.Instance.Achievements.RegisterBuild();
+            if (GameManager.Instance.Quests != null) GameManager.Instance.Quests.TryComplete();
             GameManager.Instance.Audio.PlayBuild();
             GameManager.Instance.SaveSoon();
             CancelPlacement();

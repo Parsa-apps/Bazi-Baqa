@@ -29,6 +29,10 @@ namespace BaziBaqa
         public SurvivalSystem Survival { get; private set; }
         public TrainingSystem Training { get; private set; }
         public ProgressionSystem Progression { get; private set; }
+        public QuestSystem Quests { get; private set; }
+        public AchievementSystem Achievements { get; private set; }
+        public DailyRewardSystem DailyRewards { get; private set; }
+        public PerformanceManager Performance { get; private set; }
         public AudioManager Audio { get; private set; }
         public UIManager UI { get; private set; }
         public CameraController CameraController { get; private set; }
@@ -69,9 +73,14 @@ namespace BaziBaqa
             Survival = gameObject.AddComponent<SurvivalSystem>();
             Training = gameObject.AddComponent<TrainingSystem>();
             Progression = gameObject.AddComponent<ProgressionSystem>();
+            Quests = gameObject.AddComponent<QuestSystem>();
+            Achievements = gameObject.AddComponent<AchievementSystem>();
+            DailyRewards = gameObject.AddComponent<DailyRewardSystem>();
+            Performance = gameObject.AddComponent<PerformanceManager>();
             Audio = gameObject.AddComponent<AudioManager>();
             World.Initialize();
             Clock.DayChanged += OnDayChanged;
+            Clock.NightChanged += OnNightAudio;
             EnemyDirector.Initialize();
             EnsureCamera();
             _initialized = true;
@@ -135,6 +144,18 @@ namespace BaziBaqa
             if (Progression == null) Progression = gameObject.GetComponent<ProgressionSystem>();
             if (Progression == null) Progression = gameObject.AddComponent<ProgressionSystem>();
             Progression.Initialize(save);
+            if (Quests == null) Quests = gameObject.GetComponent<QuestSystem>();
+            if (Quests == null) Quests = gameObject.AddComponent<QuestSystem>();
+            Quests.Initialize(save);
+            if (Achievements == null) Achievements = gameObject.GetComponent<AchievementSystem>();
+            if (Achievements == null) Achievements = gameObject.AddComponent<AchievementSystem>();
+            Achievements.Initialize(save);
+            if (DailyRewards == null) DailyRewards = gameObject.GetComponent<DailyRewardSystem>();
+            if (DailyRewards == null) DailyRewards = gameObject.AddComponent<DailyRewardSystem>();
+            DailyRewards.Initialize(save);
+            if (Performance == null) Performance = gameObject.GetComponent<PerformanceManager>();
+            if (Performance == null) Performance = gameObject.AddComponent<PerformanceManager>();
+            Performance.Initialize();
             Weather.Initialize();
             EnemyDirector.Clear();
             Construction.Initialize(save.buildings);
@@ -152,10 +173,12 @@ namespace BaziBaqa
             if (PlayerPrefs.HasKey("bazi_baqa_sound")) soundEnabled = PlayerPrefs.GetInt("bazi_baqa_sound", 1) == 1;
             if (PlayerPrefs.HasKey("bazi_baqa_vibration")) vibrationEnabled = PlayerPrefs.GetInt("bazi_baqa_vibration", 1) == 1;
             Audio.Initialize(soundEnabled, vibrationEnabled);
+            Audio.SetDanger(Clock.IsNight);
             _initializing = false;
             UI.ShowGame(continuing);
             GameEvents.StateChanged();
             if (!_tutorialCompleted) UI.ShowTutorial();
+            else if (DailyRewards != null && DailyRewards.Claimable) UI.ShowDailyReward();
             if (AliveSurvivorCount() == 0) LoseGame();
         }
 
@@ -213,7 +236,7 @@ namespace BaziBaqa
             if (Phase == GamePhase.MainMenu) return;
             GameSaveData save = new GameSaveData
             {
-                saveVersion = 1,
+                saveVersion = 2,
                 seed = WorldSeedFromCurrent(),
                 day = Clock.Day,
                 dayTime = Clock.NormalizedTime,
@@ -227,6 +250,9 @@ namespace BaziBaqa
             }
             Technology.CopyTo(save);
             if (Progression != null) Progression.CopyTo(save);
+            if (Quests != null) Quests.Refresh(save);
+            if (Achievements != null) Achievements.Refresh(save);
+            if (DailyRewards != null) DailyRewards.Refresh(save);
             save.settings.soundEnabled = Audio == null || Audio.SoundEnabled;
             save.settings.vibrationEnabled = Audio == null || Audio.VibrationEnabled;
             save.settings.tutorialCompleted = _tutorialCompleted;
@@ -346,6 +372,8 @@ namespace BaziBaqa
         {
             Technology.AddPoints(1);
             if (Progression != null) Progression.AddXp(8, "زنده ماندن در شب");
+            if (Achievements != null) Achievements.RegisterDay(day);
+            if (Quests != null) Quests.TryComplete();
             GameEvents.Notify("روز " + GameClock.ToPersianDigits(day.ToString()) + " آغاز شد؛ یک امتیاز فناوری گرفتید.");
             SaveGame();
             if (day >= 7 && Phase == GamePhase.Playing) WinGame();
@@ -403,10 +431,19 @@ namespace BaziBaqa
             SaveGame();
         }
 
+        private void OnNightAudio(bool night)
+        {
+            if (Audio != null) Audio.SetDanger(night);
+        }
+
         private void OnDestroy()
         {
             if (Instance == this) Instance = null;
-            if (Clock != null) Clock.DayChanged -= OnDayChanged;
+            if (Clock != null)
+            {
+                Clock.DayChanged -= OnDayChanged;
+                Clock.NightChanged -= OnNightAudio;
+            }
         }
     }
 }

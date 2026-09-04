@@ -19,6 +19,7 @@ namespace BaziBaqa
         private readonly List<ResourceNode> _resourceNodes = new List<ResourceNode>();
         private readonly List<GameObject> _generatedObjects = new List<GameObject>();
         private readonly Dictionary<string, Material> _materials = new Dictionary<string, Material>();
+        private AmbientLife _ambientLife;
         private System.Random _random;
         private Material _groundMaterial;
         private Material _waterMaterial;
@@ -38,6 +39,8 @@ namespace BaziBaqa
             _worldFont = Resources.Load<Font>("Fonts/DejaVuSans");
             ConfigureMaterials();
             ConfigureEnvironment();
+            _ambientLife = WorldRoot.gameObject.AddComponent<AmbientLife>();
+            _ambientLife.Initialize();
         }
 
         public void Generate(int seed)
@@ -59,6 +62,7 @@ namespace BaziBaqa
             ClearChildren(ActorRoot);
             ClearChildren(BuildingRoot);
             ClearChildren(EffectRoot);
+            if (_ambientLife != null) _ambientLife.Clear();
             _resourceNodes.Clear();
             _generatedObjects.Clear();
         }
@@ -325,6 +329,7 @@ namespace BaziBaqa
             node.Initialize(type, amount);
             _resourceNodes.Add(node);
             _generatedObjects.Add(nodeObject);
+            if (type == ResourceType.Wood && _ambientLife != null) _ambientLife.RegisterTree(nodeObject.transform);
         }
 
         private void CreateNaturalProps()
@@ -341,6 +346,7 @@ namespace BaziBaqa
                     leaves.transform.localScale = Vector3.one * 1.1f;
                     SetMaterial(leaves, _leafMaterial);
                     _generatedObjects.Add(tree);
+                    if (_ambientLife != null) _ambientLife.RegisterTree(tree.transform);
                 }
                 else
                 {

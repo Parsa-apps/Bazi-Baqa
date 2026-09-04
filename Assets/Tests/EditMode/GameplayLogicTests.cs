@@ -80,5 +80,25 @@ namespace BaziBaqa.Tests
             Assert.AreEqual("انرژی", GameText.ResourceName(ResourceType.Energy));
             Assert.AreEqual("برج دیده‌بانی", GameText.BuildingName(BuildingType.WatchTower));
         }
+
+        [Test]
+        public void QuestDefinitionsAreAvailable()
+        {
+            Assert.Greater(QuestsDefinition.Count, 0);
+            QuestDefinition definition = QuestsDefinition.Data(0);
+            Assert.IsNotEmpty(definition.id);
+            Assert.Greater(definition.rewardAmount, 0);
+            Assert.Greater(definition.rewardXp, 0);
+        }
+
+        [Test]
+        public void NewSaveInitializesMetaSystems()
+        {
+            GameSaveData save = GameSaveData.CreateNew(99);
+            Assert.IsNotNull(save.achievements);
+            Assert.IsNotNull(save.dailyReward);
+            Assert.AreEqual(0, save.questIndex);
+            Assert.AreEqual(2, save.saveVersion);
+        }
     }
 }

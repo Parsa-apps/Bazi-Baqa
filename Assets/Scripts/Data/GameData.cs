@@ -173,18 +173,21 @@ namespace BaziBaqa
     [Serializable]
     public class GameSaveData
     {
-        public int saveVersion = 1;
-        public int seed = 14729;
-        public int day = 1;
-        public float dayTime = 0.28f;
-        public int playerLevel = 1;
-        public int playerXp;
-        public int technologyPoints;
-        public int unlockedTechnologyMask;
-        public ResourceState resources = new ResourceState();
-        public SettingsSaveData settings = new SettingsSaveData();
-        public List<SurvivorSaveData> survivors = new List<SurvivorSaveData>();
-        public List<BuildingSaveData> buildings = new List<BuildingSaveData>();
+    public int saveVersion = 2;
+    public int seed = 14729;
+    public int day = 1;
+    public float dayTime = 0.28f;
+    public int playerLevel = 1;
+    public int playerXp;
+    public int technologyPoints;
+    public int unlockedTechnologyMask;
+    public ResourceState resources = new ResourceState();
+    public SettingsSaveData settings = new SettingsSaveData();
+    public List<SurvivorSaveData> survivors = new List<SurvivorSaveData>();
+    public List<BuildingSaveData> buildings = new List<BuildingSaveData>();
+    public int questIndex;
+    public AchievementSaveState achievements = new AchievementSaveState();
+    public DailyRewardSaveState dailyReward = new DailyRewardSaveState();
 
         public static GameSaveData CreateNew(int newSeed)
         {

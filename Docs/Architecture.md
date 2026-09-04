@@ -14,16 +14,25 @@ GameBootstrap
     ├── WorldGenerator     زمین، منابع طبیعی و بازیابی جهان
     ├── ConstructionSystem ساخت، ارتقا و جانمایی لمسی
     ├── WeatherSystem      باران، مه و نور
-    ├── EnemyDirector      حمله‌های شبانه
+    ├── EnemyDirector      حمله‌های شبانه (موج‌های هماهنگ)
     ├── ProgressionSystem  تجربه و «مرحله‌ی گروه»
+    ├── QuestSystem        مأموریت‌ها و مراحل داستانی
+    ├── AchievementSystem  دستاوردها و پاداش‌ها
+    ├── DailyRewardSystem  پاداش روزانه و ردیف روزها
+    ├── PerformanceManager تنظیم خودکار کیفیت بر اساس نرخ فریم
+    ├── GameLogger         خطایابی و پایداری
     ├── SaveSystem         ذخیره‌ی اتمیک و نسخه‌ی پشتیبان
     └── UIManager          رابط فارسی و راست‌چین
 
 SurvivorAgent ── SurvivorBrain ── ResourceNode / BuildingController
+SurvivorAgent ── Fleeing (واکنش به خطر شبانه) ── EnemyAgent
+EnemyAgent      ── Retire/Retreat (تشخیص خطر) ── WeatherSpeed (واکنش محیط)
 TrainingSystem ── Workshop ── GameManager.RecruitSurvivor
 ProgressionSystem ── GameEvents / SurvivingActions (جمع‌آوری، ساخت، ارتقا، تربیت، فناوری، دفاع)
-CameraController ── ConstructionSystem
-AudioManager ── UIManager / GameManager
+QuestSystem    ── Construction / Resources / Survivors / Clock
+AchievementSystem ── Build / Defeat / Day
+AudioManager   ── UIManager / GameManager / Clock.NightChanged (موسیقی خطر)
+AmbientLife    ── WorldGenerator (تکان درختان و پرندگان)
 AndroidBuild (Assets/Editor) ── BuildPipeline ── APK / AAB
 ```
 
@@ -45,8 +54,11 @@ AndroidBuild (Assets/Editor) ── BuildPipeline ── APK / AAB
 - ساخت‌وساز از طریق `ConstructionSystem` انجام می‌شود؛ UI فقط فرمان انتخاب ساختمان را صادر می‌کند.
 - پیشرفت گروه از `ProgressionSystem` انجام می‌شود؛ منطق ریاضی آن در `ProgressionMath` مستقل و قابل تست است و
   فقط در بازیکردن، سطح بالا می‌رود و پاداش می‌دهد.
+- مأموریت‌ها از `QuestSystem`، دستاوردها از `AchievementSystem` و پاداش روزانه از `DailyRewardSystem` بررسی می‌شوند.
+  همه در فایل ذخیره (نسخه‌ی ۲) ثبت می‌شوند و هنگام بارگذاری با مقادیر پیش‌فرض ایمن هستند.
+- حیات محیط توسط `AmbientLife` (تکان درختان و پرندگان) بدون Asset خارجی تأمین می‌شود.
 - خروجی اندروید از اسکریپت `Assets/Editor/AndroidBuild` (منوی `BaziBaqa > Build`) ساخته می‌شود و پس از پیکربندی
-  خودکار IL2CPP/ARM64، APK یا AAB تولید می‌کند.
+  خودکار IL2CPP/ARM64، APK یا AAB تولید می‌کند. `PerformanceManager` کیفیت را بر اساس نرخ فریم دستگاه تنظیم می‌کند.
 
 ## مسیرهای توسعه‌ی بعدی
 

@@ -75,6 +75,9 @@ namespace BaziBaqa
                 if (data.settings == null) data.settings = new SettingsSaveData();
                 if (data.survivors == null) data.survivors = new System.Collections.Generic.List<SurvivorSaveData>();
                 if (data.buildings == null) data.buildings = new System.Collections.Generic.List<BuildingSaveData>();
+                if (data.achievements == null) data.achievements = new AchievementSaveState();
+                if (data.dailyReward == null) data.dailyReward = new DailyRewardSaveState();
+                if (data.questIndex < 0) data.questIndex = 0;
                 return data;
             }
             catch (Exception exception)
