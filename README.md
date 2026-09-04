@@ -16,6 +16,7 @@
 - راهنمای معماری: `Docs/Architecture.md`
 - راهنمای خروجی Android: `Docs/AndroidBuild.md`
 - راهنمای بومی‌سازی: `Docs/Localization.md` — راهنمای فونت و TextMeshPro: `Docs/Typography.md`
+- خطِ رندر: URP با شیدرهای رویه‌ایِ خودِ پروژه و مسیرِ پشتیبانِ Built-in — راهنمای `Docs/URPGraphics.md`
 - مدیریت نسخه: `Docs/Versioning.md` — اعتبارسنجی زمان اجرا: `Docs/RuntimeValidation.md`
 
 ## اجرای پروژه
@@ -38,4 +39,8 @@
 پیش از هر بیلد، دروازه‌های ایستا اجرا شوند: `python3 Tools/project_lint.py`، `python3 Tools/localization_table.py --check`
 و `python3 Tools/validate_project.py` (یا یک‌جا: `Tools/unity_validation.sh`).
 
-این نسخه بدون Asset خارجی، با Primitive و افکت‌های رویه‌ای اجرا می‌شود تا پروژه در اولین باز شدن Unity خطای Missing Reference نداشته باشد. پوشه‌های `Prefabs`، `Materials`، `Textures` و `Audio` برای جایگزینی تدریجی Assetهای نهایی آماده هستند.
+این نسخه بدون Asset خارجی اجرا می‌شود: Primitive + شیدر/بافتِ رویه‌ایِ خودِ پروژه؛ پس در اولین باز شدن
+Unity خطای Missing Reference ندارد. بافت‌های Albedo/Normal/Mask با
+`python3 Tools/procedural_textures.py --apply` بازتولید می‌شوند و برای فعال‌کردنِ کاملِ پس‌پردازِ
+سینمایی، یک منو کافی است: `BaziBaqa > Rendering > Install URP Assets`. پوشه‌های `Prefabs`،
+`Materials` و `Audio` برای جایگزینی تدریجی Assetهای نهایی آماده هستند.

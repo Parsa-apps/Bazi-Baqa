@@ -56,6 +56,12 @@ namespace BaziBaqa
 
         // سامانه‌ها
         public const string InputEventSystem = "Input EventSystem";
+        // ---- گره‌های لایه‌ی گرافیک (فاز ۳)؛ همه ASCII تا قواعدِ نام‌گذاریِ صحنه نشکند ----
+        public const string GraphicsDirector = "GraphicsDirector";
+        public const string LightingRig = "CinematicLightingRig";
+        public const string EnvironmentFx = "EnvironmentFx";
+        public const string QualityDirector = "QualityDirector";
+
         public const string GameCamera = "Game Camera";
         public const string UiCanvas = "UI Canvas";
     }

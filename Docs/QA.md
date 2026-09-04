@@ -91,3 +91,16 @@
 - [ ] کنترل لمس، pinch zoom و دکمه‌ی برگشت تست شده است.
 - [ ] متن‌ها در اندازه‌های مختلف خوانا هستند.
 - [ ] پروژه در IL2CPP و ARM64 بدون خطای کامپایل ساخته می‌شود.
+
+| بررسی | روش | انتظار |
+|---|---|---|
+| ساختارِ لایه‌ی گرافیک | `python3 Tools/project_lint.py` | `0 خطا، 0 هشدار`؛ شاملِ بررسیِ شیدر، CBUFFER، بافت‌ها و تک‌نویسنده‌ی مه |
+| میزِ شیدرها | `BaziBaqa > Rendering > Validate Rendering Setup` | بدونِ «خطای کامپایل»؛ هر سه شیدر از `Resources` بارگذاری شوند |
+| نصبِ URP | `BaziBaqa > Rendering > Install URP Assets` | چهار فایل در `Assets/Settings/URP` + اتصالِ هر سطحِ کیفیت؛ گزارش در `Logs/RenderingSetupReport.txt` |
+| بافت‌های بی‌درز | `python3 Tools/procedural_textures.py --check` | ۱۵ فایلِ موجود و حجمِ معقول (< ۲ مگابایت منبع) |
+| تست‌های ایستایِ گرافیک | Test Runner → EditMode → `RenderingStackEditModeTests` | ۹ تست سبز |
+| تست‌های زنده‌ی گرافیک | Test Runner → PlayMode → `GraphicsPlayModeTests` | ۶ تست سبز؛ با URP نصب‌شده `volume=active` در لاگ |
+| رگرسیونِ Gameplay | `Tools/unity_validation.sh` + تست‌های موجود | هیچ تستِ منطق/ذخیره/رابطی نباید قرمز شود |
+
+یادآوری: در محفظه‌ی توسعه‌ی این مخزن، Unity نصب نیست؛ لذا «بیلد» به‌صورت ایستا + ابزارهای
+ارائه‌شده راستی‌آزمایی شده و اجرای واقعیِ Test Runner/Shader Compiler بر عهده‌ی ماشین توسعه‌دهنده است.

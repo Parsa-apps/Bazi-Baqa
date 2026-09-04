@@ -122,7 +122,7 @@ namespace BaziBaqa.Tests
             GameManager.Instance.Save.Save(save);
 
             GameSaveData loaded = GameManager.Instance.Save.Load();
-            Assert.IsNotNull(loaded, "ذخیره‌ی 작성‌شده باید بازخوانی شود.");
+            Assert.IsNotNull(loaded, "ذخیره‌ی نوشته‌شده باید بازخوانی شود.");
             Assert.AreEqual(SaveSystem.CurrentSaveVersion, loaded.saveVersion, "نسخه پس از چرخه باید ثابت بماند.");
             Assert.AreEqual(5, loaded.questIndex);
             Assert.IsNotNull(loaded.equipment, "ساختارهای سیستم باید سالم بمانند.");

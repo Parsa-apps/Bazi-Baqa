@@ -23,6 +23,11 @@ GameBootstrap
     ├── StoryDirector      تصمیم‌های داستانی در روزهای کلیدی
     ├── RaidSystem         حمله‌ی روزانه و غنیمت
     ├── PerformanceManager تنظیم خودکار کیفیت بر اساس نرخ فریم
+    └── GraphicsDirector  (لایه‌ی بصری؛ خودش را نصب می‌کند، GameManager آن را صدا نمی‌زند)
+        ├── CinematicVolumeRig          استک Volume: Bloom/Tonemap/Color/Vignette/DoF/Grain
+        ├── RenderPipelineBridge        اعمالِ سطحِ کیفیت روی موتور (تک‌نویسنده)
+        ├── MaterialLibrary             حلِ شیدر URP/built-in + کشِ متریال + ثابت‌های جهانی
+        └── ScreenSpaceAmbientOcclusionFeature  (داخل Renderer Data یِ URP)
     ├── GameLogger         خطایابی و پایداری
     ├── SaveSystem         ذخیره‌ی اتمیک و نسخه‌ی پشتیبان
     └── UIManager          رابط فارسی و راست‌چین + نقشه‌ی جزیره
@@ -65,6 +70,11 @@ AndroidBuild (Assets/Editor) ── BuildPipeline ── APK / AAB
 - مأموریت‌ها از `QuestSystem`، دستاوردها از `AchievementSystem` و پاداش روزانه از `DailyRewardSystem` بررسی می‌شوند.
   همه در فایل ذخیره (نسخه‌ی ۲) ثبت می‌شوند و هنگام بارگذاری با مقادیر پیش‌فرض ایمن هستند.
 - حیات محیط توسط `AmbientLife` (تکان درختان و پرندگان) بدون Asset خارجی تأمین می‌شود.
+- لایه‌ی بصری از Gameplay جداست: `GraphicsDirector` با `RuntimeInitializeOnLoadMethod` نصب می‌شود،
+  هیچ فایلِ Gameplay او را صدا نمی‌زند و حذفِ `Assets/Scripts/Graphics` بازی را بی‌نقص برمی‌گرداند
+  (تستِ `GraphicsDirector_InstallsWithoutTouchingGameplayFiles` همین را نگه می‌دارد).
+- همه‌ی متریال‌ها از `MaterialLibrary` می‌آیند؛ `Shader.Find` مستقیم در کدِ بازی ممنوع است
+  (دروازه‌ی `Tools/project_lint.py` و تستِ EditMode آن را بررسی می‌کنند).
 - خروجی اندروید از اسکریپت `Assets/Editor/AndroidBuild` (منوی `BaziBaqa > Build`) ساخته می‌شود و پس از پیکربندی
   خودکار IL2CPP/ARM64، APK یا AAB تولید می‌کند. `PerformanceManager` کیفیت را بر اساس نرخ فریم دستگاه تنظیم می‌کند.
 
@@ -83,4 +93,7 @@ AndroidBuild (Assets/Editor) ── BuildPipeline ── APK / AAB
 | تعداد فعال اولیه | 6 بازمانده، حداکثر 24 دشمن |
 | اندازه‌ی صحنه‌ی نمونه | 64 × 44 متر |
 | دفعات ذخیره | پایان روز، هر 30 ثانیه، خروج |
-| کیفیت پیش‌فرض | سایه‌ی نرم، مه سبک، MSAA خاموش |
+| کیفیت پیش‌فرض | متوسط: renderScale 0.90، سایه 1024، AO روشن، MSAA خاموش |
+| بافت‌های گرافیکی | ۱۵ نقشه‌ی ۱۲–۲۵۶ پیکسلیِ رویه‌ای (mipmap + Repeat + ASTC در بیلد) |
+| شیدرها | ۳ شیدرِ پروژه در `Resources/Shaders` (URP + built-in)، SRP Batcher سازگار |
+| Draw Call | متریال‌ها کش سراسری دارند؛ بازتولیدِ جهان متریالِ تازه نمی‌سازد (تست PlayMode) |

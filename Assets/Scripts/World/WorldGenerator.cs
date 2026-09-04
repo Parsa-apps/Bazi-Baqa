@@ -432,18 +432,14 @@ namespace BaziBaqa
             if (renderer != null) renderer.sharedMaterial = material;
         }
 
+        /// <summary>
+        /// متریالِ رنگیِ جهان. از فاز ۳ به بعد دیگر `Shader.Find(«Standard»)» نیست:
+        /// MaterialLibrary شیدر را بین URP/built-in حل می‌کند و متریال‌ها را مالکیت دارد،
+        /// پس با تعویض خطِ رندر هیچ سطحی ارغوانی نمی‌شود و متریالِ تکراری ساخته نمی‌شود.
+        /// </summary>
         private Material CreateMaterial(Color color, float metallic)
         {
-            string key = color.r.ToString("F3") + color.g.ToString("F3") + color.b.ToString("F3") + color.a.ToString("F3") + metallic.ToString("F3");
-            if (_materials.TryGetValue(key, out Material cached) && cached != null) return cached;
-            Shader shader = Shader.Find("Standard");
-            if (shader == null) shader = Shader.Find("Universal Render Pipeline/Lit");
-            if (shader == null) shader = Shader.Find("UI/Default");
-            Material material = new Material(shader);
-            material.color = color;
-            if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", metallic);
-            if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", 0.42f);
-            _materials[key] = material;
+            Material material = MaterialLibrary.Tinted(color, metallic);
             return material;
         }
 
@@ -481,10 +477,8 @@ namespace BaziBaqa
 
         private void OnDestroy()
         {
-            foreach (Material material in _materials.Values)
-            {
-                if (material != null) Destroy(material);
-            }
+            // متریال‌ها در MaterialLibrary زندگی می‌کنند (بینِ بازسازیِ جهان ها قابل‌استفاده‌ی دوباره‌اند)؛
+            // این‌جا فقط فهرستِ محلی پاک می‌شود تا چیزی نابود نشود که دیگری به آن ارجاع دارد.
             _materials.Clear();
         }
 

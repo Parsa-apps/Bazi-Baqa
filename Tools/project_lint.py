@@ -984,6 +984,324 @@ def check_hardcoded_text(paths: list[Path], tables: dict):
             info("کلیدهای بلااستفاده (شاید از کدِ دیگری/از قبل حذف‌شده خوانده شوند): " + ", ".join(f"{k}:{v}" for k, v in sorted(prefix_groups.items())))
 
 
+# ---------- فاز ۳: خطِ رندر، شیدرها و بافت‌ها ----------
+
+SHADER_DIR = "Assets/Resources/Shaders"
+TEXTURE_DIR = "Assets/Resources/Textures/Graphics"
+URP_PACKAGE = "com.unity.render-pipelines.universal"
+GUARD_DEFINE = "BAZI_UNIVERSAL"
+# این فایل تنها جایی است که Shader.Find مجاز است (حل‌کننده‌ی متریال)؛ بقیه باید از MaterialLibrary بخوانند
+SHADER_FIND_ALLOWLIST = {"Assets/Scripts/Graphics/MaterialLibrary.cs"}
+# تنها نوشتنِ مه/نورِ محیطی باید از یک‌جا انجام شود، وگرنه دو سیستم با هم می‌جنگند
+FOG_WRITERS = {"Assets/Scripts/Systems/WeatherSystem.cs", "Assets/Scripts/World/WorldGenerator.cs",
+               "Assets/Scripts/Graphics/SkyLightingRig.cs"}
+LIGHT_WRITERS = FOG_WRITERS | {"Assets/Scripts/Systems/PerformanceManager.cs"}
+# کاراکترهایِ خارج از الفبای لاتین/فارسی که تا حالا تصادفی وارد کامنت‌ها شده‌اند
+STRAY_SCRIPT_RANGES = ((0x3040, 0x30FF), (0x4E00, 0x9FFF), (0xAC00, 0xD7AF), (0x3130, 0x318F))
+
+
+def read_text(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except Exception:
+        return ""
+
+
+def strip_shader_text(text: str) -> tuple[str, list[str]]:
+    """کامنت‌های شیدر را پوشیدن و لیستِ literalها را نگه داشتن (برای شمارشِ دقیقِ پرانتز)."""
+    out: list[str] = []
+    literals: list[str] = []
+    i = 0
+    n = len(text)
+    while i < n:
+        ch = text[i]
+        if ch == "/" and i + 1 < n and text[i + 1] == "/":
+            while i < n and text[i] != "\n":
+                out.append(" ")
+                i += 1
+            continue
+        if ch == "/" and i + 1 < n and text[i + 1] == "*":
+            out.append("  ")
+            i += 2
+            while i < n and not (text[i] == "*" and i + 1 < n and text[i + 1] == "/"):
+                out.append("\n" if text[i] == "\n" else " ")
+                i += 1
+            out.append("  ")
+            i += 2
+            continue
+        if ch == '"':
+            buffer = ['"']
+            i += 1
+            while i < n and text[i] != '"':
+                if text[i] == "\\":
+                    buffer.append(text[i:i + 2])
+                    i += 2
+                    continue
+                buffer.append(text[i])
+                i += 1
+            buffer.append('"')
+            i += 1
+            literals.append("".join(buffer[1:-1]))
+            out.append("\u0001" * len("".join(buffer)))
+            continue
+        out.append(ch)
+        i += 1
+    return "".join(out), literals
+
+
+def shader_passes(code: str) -> list[tuple[str, str]]:
+    """فهرستِ (متنِ Pass) برای هر بلوک Pass {...} در شیدر؛ با شمارشِ آکولادِ تو‌در‌تو."""
+    passes: list[tuple[str, str]] = []
+    marker = "Pass"
+    start = 0
+    while True:
+        index = code.find(marker, start)
+        if index < 0:
+            break
+        brace = code.find("{", index)
+        if brace < 0:
+            break
+        end = slice_balanced(code, brace)
+        passes.append((code[index:end[1]], code[:index]))
+        start = end[1]
+    return passes
+
+
+def cbuffer_members(block: str) -> list[str]:
+    members: list[str] = []
+    for match in re.finditer(r"^\s*(float4|float3|float2|float|int|half4|half3|half2|half)\s+(\w+)\s*;", block, re.M):
+        members.append(f"{match.group(1)} {match.group(2)}")
+    return members
+
+
+def check_rendering_pipeline(paths: list[Path]) -> None:
+    # ۱) manifest: URP ثبت و سازگار با Unity 2022.3 باشد
+    manifest_path = ROOT / "Packages" / "manifest.json"
+    if not manifest_path.exists():
+        err("Packages/manifest.json وجود ندارد")
+        return
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        err(f"Packages/manifest.json نامعتبر است: {exc}")
+        return
+    deps = manifest.get("dependencies", {})
+    urp_version = deps.get(URP_PACKAGE)
+    if not urp_version:
+        err(f"{URP_PACKAGE} در manifest نیست؛ فاز ۳ روی خطِ رندرِ قابل‌برنامه‌ریزی ساخته شده است")
+    elif not str(urp_version).startswith(("14.", "12.", "13.")):
+        err(f"نسخه‌ی URP ({urp_version}) با Unity 2022.3 (.URP 14.x) سازگارِ شناخته‌شده نیست")
+
+    # ۲) asmdef: هر assembly که شیدرهای URP/انواع URP را می‌بیند باید defineِ نسخه‌محور داشته باشد
+    for asmdef in sorted((ROOT / "Assets").rglob("*.asmdef")):
+        try:
+            data = json.loads(asmdef.read_text(encoding="utf-8"))
+        except Exception as exc:
+            err(f"{rel(asmdef)} نامعتبر است: {exc}")
+            continue
+        refs = set(data.get("references", []))
+        defines = {entry.get("define") for entry in data.get("versionDefines", []) or []}
+        uses_urp = bool({"Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Core.Runtime"} & refs)
+        if uses_urp and GUARD_DEFINE not in defines:
+            err(f"{rel(asmdef)}: به اسمبلی‌های URP ارجاع دارد ولی `versionDefines` برای {GUARD_DEFINE} ندارد "
+                "⇒ اگر پکیج حذف شود کلِ assembly نمی‌سازد")
+        if GUARD_DEFINE in defines and not uses_urp:
+            warn(f"{rel(asmdef)}: define‌ی {GUARD_DEFINE} دارد ولی ارجاعِ URP ندارد")
+
+    # ۳) فایل‌های C#: کدهایِ وابسته به URP باید پشتِ #if BAZI_UNIVERSAL باشند
+    urp_code = re.compile(r"using UnityEngine\.Rendering\.Universal;|\b(ScriptableRendererFeature|ScriptableRenderPass|UniversalRenderPipelineAsset|UniversalRendererData|VolumeProfile|Bloom|ColorAdjustments|Tonemapping|DepthOfField|FilmGrain|Vignette)\b")
+    for path in paths:
+        text = raw_code(path)
+        if not urp_code.search(text):
+            continue
+        masked = mask_source(text).code
+        # اگر بیرونِ بلوکِ #if BAZI_UNIVERSAL استفاده شده باشد، بدون پکیج URP کامپایل می‌شکند
+        depth_guard = 0
+        for line in masked.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("#if"):
+                if GUARD_DEFINE in stripped:
+                    depth_guard += 1
+                else:
+                    depth_guard += 1000
+            elif stripped.startswith("#endif"):
+                depth_guard = max(0, depth_guard - 1) if depth_guard % 1000 == 0 else depth_guard - 1000
+            elif depth_guard == 0 and urp_code.search(line) and not stripped.startswith("//"):
+                rel_path = rel(path)
+                if "Graphics" not in rel_path and "Tests" not in rel_path and "Editor" not in rel_path:
+                    warn(f"{rel_path}: استفاده از نوعِ URP بیرون از #{GUARD_DEFINE} (اگر پکیج نباشد نمی‌سازد)")
+                break
+
+    # ۴) شیدرها
+    shader_dir = ROOT / SHADER_DIR
+    shader_files = sorted(shader_dir.rglob("*")) if shader_dir.exists() else []
+    declared_names: dict[str, str] = {}
+    for path in shader_files:
+        if path.suffix.lower() not in (".shader", ".hlsl", ".cginc"):
+            continue
+        rel_path = rel(path)
+        if not path.with_suffix(path.suffix + ".meta").exists():
+            err(f"{rel_path}: فایل .meta ندارد (GUID ناپایدار و ارجاع‌های شکسته)")
+        if path.suffix.lower() != ".shader":
+            continue
+        text = read_text(path)
+        code, literals = strip_shader_text(text)
+        if code.count("{") != code.count("}"):
+            err(f"{rel_path}: آکولاد نامتوازن ({code.count('{')} باز، {code.count('}')} بسته)")
+        if code.count("(") != code.count(")"):
+            err(f"{rel_path}: پرانتز نامتوازن ({code.count('(')} باز، {code.count(')')} بسته)")
+
+        match = re.search(r'^\s*Shader\s+"([^"]+)"', text, re.M)
+        if not match:
+            err(f"{rel_path}: بلوک Shader \"...\" ندارد")
+        else:
+            shader_name = match.group(1)
+            if shader_name in declared_names:
+                err(f"{rel_path}: نامِ «{shader_name}» تکراری است با {declared_names[shader_name]}")
+            declared_names[shader_name] = rel_path
+            leaf = shader_name.split("/")[-1]
+            stem = path.stem
+            expected_prefix = "Hidden/" in shader_name
+            expected_stem = f"BaziBaqa-{leaf}"
+            if stem != expected_stem:
+                err(f"{rel_path}: نامِ فایل باید {expected_stem}.shader باشد (قرارداد: فایل = «BaziBaqa-<leaf>»، "
+                    f"تا Resources.Load(\"Shaders/{expected_stem}\") در بیلد هم کار کند)")
+            if not (shader_name.startswith("BaziBaqa/") or expected_prefix):
+                err(f"{rel_path}: نامِ شیدر باید با «BaziBaqa/» یا «Hidden/BaziBaqa/» شروع شود، بود: {shader_name}")
+            _ = literals
+
+        if 'Tags { "RenderPipeline" = "UniversalPipeline" }' not in " ".join(text.split()):
+            if "RenderPipeline" not in text or "UniversalPipeline" not in text:
+                err(f"{rel_path}: هیچ SubShader با تگ RenderPipeline=UniversalPipeline ندارد ⇒ زیر URP استفاده نمی‌شود")
+
+        if "Fallback" not in text and "BaziBaqa/Emissive" not in text and "Hidden/" not in text:
+            warn(f"{rel_path}: Fallback ندارد؛ اگر هر دو SubShader رد شوند متریال ارغوانی می‌شود")
+
+        # هر بلوک HLSLPROGRAM نباید UnityCG.cginc وارد کند
+        for block_match in re.finditer(r"HLSLPROGRAM(.*?)ENDHLSL", text, re.S):
+            block = block_match.group(1)
+            if "UnityCG.cginc" in block or "Lighting.cginc" in block:
+                err(f"{rel_path}: داخل HLSLPROGRAM از UnityCG/Lighting.cginc استفاده شده؛ URP کامپایل نمی‌شود")
+            if "HLSLSUPPORT" in block:
+                warn(f"{rel_path}: HLSLSUPPORT دستی در URP لازم نیست")
+            if "UniversalPipeline" in text and "CBUFFER_START(UnityPerMaterial)" not in block and "Pass" in block:
+                if "Blit" not in path.name and "ScreenSpace" not in path.name:
+                    warn(f"{rel_path}: یک Pass بدون CBUFFER_START(UnityPerMaterial) ⇒ SRP Batcher برای آن Pass غیرفعال است")
+            if "#pragma vertex" in block and "#pragma target" not in block and "ScreenSpace" not in path.name:
+                warn(f"{rel_path}: یک Pass بدون #pragma target (پیش‌فرضِ پایین، keywordهای مدرن رد می‌شوند)")
+
+        # چیدمان UnityPerMaterial باید در همه Passها یکی باشد، وگرنه SRP Batcher می‌شکند
+        layouts: list[tuple[str, ...]] = []
+        for block in code.split("Pass\n")[1:]:
+            buffer_match = re.search(r"CBUFFER_START\(UnityPerMaterial\)(.*?)CBUFFER_END", block, re.S)
+            if buffer_match:
+                layouts.append(tuple(cbuffer_members(buffer_match.group(1))))
+        distinct = set(layouts)
+        if len(distinct) > 1:
+            err(f"{rel_path}: چیدمانِ UnityPerMaterial بین Passها فرق می‌کند ⇒ SRP Batcher غیرفعال "
+                f"({len(layouts)} Pass، {len(distinct)} چیدمان)")
+        for name in ("_BaziColor", "_BaziRoughness", "_BaziMetallic"):
+            if f"Shader \"BaziBaqa/Surface\"" in text and name not in text:
+                err(f"{rel_path}: خاصیت {name} در شیدرِ سطح نیست (MaterialLibrary روی آن تکیه می‌کند)")
+
+    # ۵) بافت‌ها: هر نامی که MaterialLibrary می‌خواند باید فایل داشته باشد
+    texture_dir = ROOT / TEXTURE_DIR
+    available = {p.stem for p in texture_dir.glob("*.png")} if texture_dir.exists() else set()
+    for path in paths:
+        text = raw_code(path)
+        for match in re.finditer(r'MaterialLibrary\.Texture\(\s*"([^"]+)"', text):
+            name = match.group(1)
+            if name not in available:
+                err(f"{rel(path)}: بافت «{name}» در {TEXTURE_DIR} نیست ⇒ متریال بدون نقشه می‌ماند")
+        for match in re.finditer(r'SetTexture\(material,\s*"[^"]+",\s*"([^"]+)"', text):
+            name = match.group(1)
+            if name not in available:
+                err(f"{rel(path)}: بافتِ درخواستی «{name}» وجود ندارد ({TEXTURE_DIR})")
+    for png in sorted(texture_dir.glob("*.png")) if texture_dir.exists() else []:
+        meta = png.with_suffix(png.suffix + ".meta")
+        if not meta.exists():
+            err(f"{rel(png)}: .meta ندارد")
+            continue
+        meta_text = read_text(meta)
+        if "TextureImporter:" not in meta_text:
+            err(f"{rel(meta)}: ایمپورترِ بافت ندارد (DefaultImporter ⇒ Wrap/sRGB تنظیم نمی‌شود)")
+        is_linear = any(marker in png.stem.lower() for marker in ("normal", "mask", "noise"))
+        if is_linear and "sRGBTexture: 1" in meta_text:
+            err(f"{rel(meta)}: نقشه‌ی نرمال/ماسک باید sRGBTexture: 0 باشد، وگرنه عددِ نرمال خراب می‌شود")
+        if not is_linear and "sRGBTexture: 0" in meta_text:
+            err(f"{rel(meta)}: بافتِ رنگی باید sRGBTexture: 1 باشد")
+        if "wrapU: 0" not in meta_text:
+            err(f"{rel(meta)}: wrapU باید 0 (Repeat) باشد تا تایل‌شدن درز نداشته باشد")
+
+    # ۶) Solver تنها: Shader.Find فقط در MaterialLibrary
+    for path in paths:
+        rel_path = rel(path)
+        if rel_path in SHADER_FIND_ALLOWLIST:
+            continue
+        text = raw_code(path)
+        if "Shader.Find(" in mask_source(text).code:
+            err(f"{rel_path}: Shader.Find مستقیم ⇒ زیر URP ارغوانی می‌شود؛ از MaterialLibrary.ResolveShader استفاده کنید")
+
+    # ۷) تک‌نویسنده‌ی مه و نور
+    fog_write = re.compile(r"RenderSettings\.fog(Color|Density)?\s*=|RenderSettings\.ambientLight\s*=|RenderSettings\.skybox\s*=")
+    light_write = re.compile(r"\.intensity\s*=[^=]|\.color\s*=[^=]")
+    for path in paths:
+        rel_path = rel(path)
+        text = raw_code(path)
+        masked = mask_source(text).code
+        if "RenderSettings." in masked and rel_path not in FOG_WRITERS and fog_write.search(masked):
+            err(f"{rel_path}: نوشتنِ RenderSettings.fog/ambientLight خارج از لایه‌ی نور است (تعارضِ دو نویسنده)")
+        if "WorldGenerator" in rel_path and "Directional" in masked and rel_path not in LIGHT_WRITERS:
+            warn(f"{rel_path}: ساختنِ نورِ جهت‌دار در WorldGenerator؛ با SkyLightingRig هماهنگ است؟")
+
+    # ۸) نمایه‌ی گرافیک
+    profile_path = ROOT / "Assets/Resources/Graphics/GraphicsProfile.json"
+    if not profile_path.exists():
+        err("Assets/Resources/Graphics/GraphicsProfile.json نیست؛ GraphicsProfile به پیش‌فرضِ کد می‌افتد")
+    else:
+        try:
+            profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            err(f"GraphicsProfile.json نامعتبر است: {exc}")
+            profile = None
+        if profile is not None:
+            if profile.get("version") != 1:
+                err(f"GraphicsProfile.json: version باید ۱ باشد، بود {profile.get('version')}")
+            tiers = profile.get("tiers") or []
+            if not tiers:
+                err("GraphicsProfile.json: فهرست tiers خالی است")
+            ids = [tier.get("id") for tier in tiers]
+            if len(set(ids)) != len(ids):
+                err(f"GraphicsProfile.json: شناسه‌ی تکراری در tiers: {ids}")
+            if profile.get("defaultTier") not in ids:
+                err(f"GraphicsProfile.json: defaultTier («{profile.get('defaultTier')}») در tiers نیست")
+            previous_scale = previous_shadow = -1.0
+            for tier in tiers:
+                scale = float(tier.get("renderScale", 1.0))
+                shadow = int(tier.get("shadowResolution", 1024))
+                if not (0.4 <= scale <= 1.5):
+                    err(f"GraphicsProfile.json: renderScale نامعتبر در «{tier.get('id')}»: {scale}")
+                if scale < previous_scale - 1e-6:
+                    err(f"GraphicsProfile.json: renderScale در «{tier.get('id')}» از سطحِ قبلی کم‌تر است")
+                if shadow < previous_shadow:
+                    err(f"GraphicsProfile.json: shadowResolution در «{tier.get('id')}» از سطحِ قبلی کم‌تر است")
+                previous_scale, previous_shadow = scale, shadow
+                for key in ("qualityLevel", "hdr", "msaa", "ao", "bloom", "vignette", "particleBudget"):
+                    if key not in tier:
+                        err(f"GraphicsProfile.json: کلید «{key}» در «{tier.get('id')}» نیست")
+            info(f"GraphicsProfile: {len(tiers)} سطح («{'، '.join(str(i) for i in ids)}») سالم است")
+
+    # ۹) کاراکترهایِ بیگانه در منبع (تجربه‌ی واقعی: چند بار یک کلمه‌ی چینی/کره‌ای در کامنت افتاد)
+    for path in paths + [p for p in (ROOT / SHADER_DIR).rglob("*") if p.is_file()] if (ROOT / SHADER_DIR).exists() else paths:
+        if path.suffix.lower() not in (".cs", ".shader", ".hlsl", ".cginc"):
+            continue
+        for lineno, line in enumerate(read_text(path).splitlines(), 1):
+            for char in line:
+                if any(start <= ord(char) <= end for start, end in STRAY_SCRIPT_RANGES):
+                    err(f"{rel(path)}:{lineno}: کاراکترِ خارج از الفبای پروژه ({char!r}) — کامنت/رشته را مروری کنید")
+                    break
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--quiet", action="store_true")
@@ -1011,6 +1329,7 @@ def main() -> int:
     check_textmeshpro(runtime_paths, tables)
     check_versions(tables)
     check_hardcoded_text(runtime_paths, tables)
+    check_rendering_pipeline(runtime_paths)
 
     if args.json:
         print(json.dumps({"errors": ERRORS, "warnings": WARNINGS, "info": INFO}, ensure_ascii=False, indent=2))

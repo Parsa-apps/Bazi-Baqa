@@ -1,0 +1,164 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+
+namespace BaziBaqa
+{
+    /// <summary>
+    /// میزبانِ همه‌ی سامانه‌هایِ لایه‌ی گرافیک: پس‌پردازِ سینمایی، نورِ سینمایی، باد/محیط،
+    /// افکت‌های ویژه و مدیرِ کیفیتِ بصری.
+    ///
+    /// چرا خودش را نصب می‌کند (<c>RuntimeInitializeOnLoadMethod</c>)؟ چون قرار بود لایه‌ی
+    /// Visual بدون دست‌زدن به سامانه‌هایِ سالمِ Gameplay اضافه شود. صحنه، <c>GameBootstrap</c>
+    /// و پریفب‌ها دست‌نخورده می‌مانند؛ اگر این فایل حذف شود، بازی دقیقاً مثل قبل اجرا می‌شود.
+    ///
+    /// ترتیب اجرا: نصب بعد از Awake صحنه ⇒ <c>GameManager.Instance</c> وجود دارد، ولی هنوز
+    /// هیچ داده‌ای بارگذاری نشده؛ پس این کلاس هیچ وابستگیِ اجباری به داده ندارد و فقط
+    /// وضعیت‌های جهانیِ شیدر را مقداردهی اولیه می‌کند.
+    /// </summary>
+    [DefaultExecutionOrder(-30)]
+    public sealed class GraphicsDirector : MonoBehaviour
+    {
+        public static GraphicsDirector Instance { get; private set; }
+
+        [SerializeField] private bool autoInstallChildren = true;
+
+        private readonly List<MonoBehaviour> _children = new List<MonoBehaviour>();
+        private int _lastQualityLevel = -1;
+        private int _lastWorldGeneration;
+        private float _retryTimer;
+        private Camera _camera;
+        private bool _bootLogged;
+
+        public IReadOnlyList<MonoBehaviour> Children { get { return _children; } }
+        public CinematicVolumeRig Volume { get; private set; }
+        public bool IsInstalled { get { return Instance == this; } }
+
+        /// <summary>نصبِ خودکار در اولین فریمِ هر صحنه (شاملِ صحنه‌های تست).</summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void InstallOnSceneLoad()
+        {
+            Ensure();
+        }
+
+        /// <summary>
+        /// ساختِ مدیرِ گرافیک (idempotent). در EditMode که RuntimeInitializeOnLoadMethod اجرا
+        /// نمی‌شود، تست‌ها و ابزارهای ویرایشگر همین را صدا می‌زنند.
+        /// </summary>
+        public static GraphicsDirector Ensure()
+        {
+            if (Instance != null) return Instance;
+
+            GraphicsDirector existing = FindFirstObjectByType<GraphicsDirector>();
+            if (existing != null)
+            {
+                Instance = existing;
+                return existing;
+            }
+
+            GameObject host = new GameObject(WorldParts.GraphicsDirector);
+            GraphicsDirector director = host.AddComponent<GraphicsDirector>();
+            DontDestroyOnLoad(host);
+            return director;
+        }
+
+        private void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
+            Install();
+        }
+
+        private void OnEnable()
+        {
+            // بازنشانیِ مقادیرِ جهانی؛ اگر شیدرها قبل از نصبِ Rig کامپایل شوند، صفر خالی نماند
+            MaterialLibrary.SetAtmosphere(0f, 1f, 0f, 0f);
+            MaterialLibrary.SetWind(0.012f, 0.85f, 0f, 2f);
+        }
+
+        private void Install()
+        {
+            if (!autoInstallChildren) return;
+
+            Volume = GetOrAdd<CinematicVolumeRig>();
+            if (Volume != null) _children.Add(Volume);
+
+            // فازهای بعدیِ گرافیک همین‌جا اضافه می‌شوند (نور سینمایی، محیط، VFX، کیفیت)
+            GraphicsProfile profile = GraphicsProfile.Load();
+            List<string> issues = new List<string>();
+            profile.Validate(issues);
+            for (int i = 0; i < issues.Count; i++)
+            {
+                GameLogger.Warn("GraphicsProfile issue: " + issues[i]);
+            }
+
+            RenderPipelineBridge.ApplyCurrentQuality(true);
+        }
+
+        private T GetOrAdd<T>() where T : Component
+        {
+            T component = GetComponent<T>();
+            if (component == null) component = gameObject.AddComponent<T>();
+            return component;
+        }
+
+        private void Update()
+        {
+            // ۱) دوربین ممکن است بعد از ما ساخته شود ⇒ تا سه ثانیه هر نیم‌ثانیه تلاش می‌کنیم
+            if (_camera == null)
+            {
+                _retryTimer -= Time.unscaledDeltaTime;
+                if (_retryTimer <= 0f)
+                {
+                    _retryTimer = 0.5f;
+                    _camera = Camera.main;
+                    if (_camera != null) RenderPipelineBridge.ApplyCurrentQuality(true);
+                }
+            }
+
+            // ۲) تغییرِ کیفیت (از PerformanceManager یا منو) ⇒ بازاعمالِ لایه‌ی بصری
+            int quality = QualitySettings.GetQualityLevel();
+            if (quality != _lastQualityLevel)
+            {
+                _lastQualityLevel = quality;
+                RenderPipelineBridge.ApplyCurrentQuality(true);
+                if (Volume != null) Volume.Rebuild();
+            }
+
+            // ۳) اولین باری که جهان ساخته شد، یک گزارشِ کامل می‌نویسیم (برای ممیزیِ صحنه)
+            if (!_bootLogged && GameManager.Instance != null && GameManager.Instance.World != null)
+            {
+                _bootLogged = true;
+                GameLogger.System(Report());
+            }
+        }
+
+        /// <summary>گزارشِ وضعیتِ لایه‌ی گرافیک؛ ابزارِ ویرایشگر و تست‌ها همین را خوانده و بررسی می‌کنند.</summary>
+        public string Report()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append("GraphicsDirector | ").Append(RenderPipelineBridge.Describe());
+            builder.Append(" | volume=").Append(Volume != null && Volume.IsActive ? "active" : "inactive");
+            builder.Append(" | materials=").Append(MaterialLibrary.CachedMaterialCount);
+            return builder.ToString();
+        }
+
+        /// <summary>بازخوانیِ دستی (پس از نصبِ URP Asset یا تغییرِ فایل نمایه).</summary>
+        public void Refresh()
+        {
+            GraphicsProfile.Load(true);
+            if (Volume != null) Volume.Rebuild();
+            RenderPipelineBridge.ApplyCurrentQuality(true);
+        }
+
+        private void OnDisable()
+        {
+            if (Instance == this) Instance = null;
+        }
+    }
+}
