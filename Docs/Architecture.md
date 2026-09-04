@@ -14,14 +14,34 @@ GameBootstrap
     ├── WorldGenerator     زمین، منابع طبیعی و بازیابی جهان
     ├── ConstructionSystem ساخت، ارتقا و جانمایی لمسی
     ├── WeatherSystem      باران، مه و نور
-    ├── EnemyDirector      حمله‌های شبانه
+    ├── EnemyDirector      حمله‌های شبانه (موج‌های هماهنگ)
+    ├── ProgressionSystem  تجربه و «مرحله‌ی گروه»
+    ├── QuestSystem        مأموریت‌ها و مراحل داستانی
+    ├── AchievementSystem  دستاوردها و پاداش‌ها
+    ├── DailyRewardSystem  پاداش روزانه و ردیف روزها
+    ├── EquipmentSystem    تجهیزات و ارتقای ابزار/سلاح/زره
+    ├── StoryDirector      تصمیم‌های داستانی در روزهای کلیدی
+    ├── RaidSystem         حمله‌ی روزانه و غنیمت
+    ├── PerformanceManager تنظیم خودکار کیفیت بر اساس نرخ فریم
+    ├── GameLogger         خطایابی و پایداری
     ├── SaveSystem         ذخیره‌ی اتمیک و نسخه‌ی پشتیبان
-    └── UIManager          رابط فارسی و راست‌چین
+    └── UIManager          رابط فارسی و راست‌چین + نقشه‌ی جزیره
 
 SurvivorAgent ── SurvivorBrain ── ResourceNode / BuildingController
+SurvivorAgent ── Fleeing (واکنش به خطر شبانه) ── EnemyAgent
+EnemyAgent      ── Retire/Retreat (تشخیص خطر) ── WeatherSpeed (واکنش محیط)
 TrainingSystem ── Workshop ── GameManager.RecruitSurvivor
-CameraController ── ConstructionSystem
-AudioManager ── UIManager / GameManager
+ProgressionSystem ── GameEvents / SurvivingActions (جمع‌آوری، ساخت، ارتقا، تربیت، فناوری، دفاع)
+QuestSystem    ── Construction / Resources / Survivors / Clock
+AchievementSystem ── Build / Defeat / Day
+AudioManager   ── UIManager / GameManager / Clock.NightChanged (موسیقی خطر)
+AmbientLife    ── WorldGenerator (تکان درختان و پرندگان)
+WorldVFX       ── WorldGenerator (آتش، دود، جرقّه‌ی اردوگاه)
+EquipmentSystem ── SurvivorAgent / RaidSystem (جمع‌آوری، حمله، کاهش آسیب)
+StoryDirector  ── GameManager.Clock (تصمیم‌های روزانه)
+RaidSystem     ── Guards / Resources / Equipment (یورش روزانه)
+UIManager      ── MiniMap / Equipment / Raid / Story panels
+AndroidBuild (Assets/Editor) ── BuildPipeline ── APK / AAB
 ```
 
 ## جریان شروع
@@ -40,6 +60,13 @@ AudioManager ── UIManager / GameManager
 - ذخیره ابتدا در فایل موقت نوشته و سپس با نسخه‌ی پشتیبان جابه‌جا می‌شود تا قطع برق فایل اصلی را خراب نکند.
 - سیستم‌ها به جای `FindObjectOfType`، از مرجع `GameManager.Instance` استفاده می‌کنند.
 - ساخت‌وساز از طریق `ConstructionSystem` انجام می‌شود؛ UI فقط فرمان انتخاب ساختمان را صادر می‌کند.
+- پیشرفت گروه از `ProgressionSystem` انجام می‌شود؛ منطق ریاضی آن در `ProgressionMath` مستقل و قابل تست است و
+  فقط در بازیکردن، سطح بالا می‌رود و پاداش می‌دهد.
+- مأموریت‌ها از `QuestSystem`، دستاوردها از `AchievementSystem` و پاداش روزانه از `DailyRewardSystem` بررسی می‌شوند.
+  همه در فایل ذخیره (نسخه‌ی ۲) ثبت می‌شوند و هنگام بارگذاری با مقادیر پیش‌فرض ایمن هستند.
+- حیات محیط توسط `AmbientLife` (تکان درختان و پرندگان) بدون Asset خارجی تأمین می‌شود.
+- خروجی اندروید از اسکریپت `Assets/Editor/AndroidBuild` (منوی `BaziBaqa > Build`) ساخته می‌شود و پس از پیکربندی
+  خودکار IL2CPP/ARM64، APK یا AAB تولید می‌کند. `PerformanceManager` کیفیت را بر اساس نرخ فریم دستگاه تنظیم می‌کند.
 
 ## مسیرهای توسعه‌ی بعدی
 

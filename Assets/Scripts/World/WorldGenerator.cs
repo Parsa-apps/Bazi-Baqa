@@ -3,6 +3,8 @@ using UnityEngine;
 
 namespace BaziBaqa
 {
+    /// <summary>تولید جهان؛ پیش از سامانه‌های وابسته به دنیا ساخته می‌شود.</summary>
+    [DefaultExecutionOrder(-20)]
     public sealed class WorldGenerator : MonoBehaviour
     {
         public const float WorldWidth = 64f;
@@ -19,6 +21,8 @@ namespace BaziBaqa
         private readonly List<ResourceNode> _resourceNodes = new List<ResourceNode>();
         private readonly List<GameObject> _generatedObjects = new List<GameObject>();
         private readonly Dictionary<string, Material> _materials = new Dictionary<string, Material>();
+        private AmbientLife _ambientLife;
+        private WorldVFX _worldVfx;
         private System.Random _random;
         private Material _groundMaterial;
         private Material _waterMaterial;
@@ -35,9 +39,12 @@ namespace BaziBaqa
             ActorRoot = CreateRoot("بازماندگان", WorldRoot);
             BuildingRoot = CreateRoot("ساختمان‌ها", WorldRoot);
             EffectRoot = CreateRoot("جلوه‌ها", WorldRoot);
-            _worldFont = Resources.Load<Font>("Fonts/DejaVuSans");
+            _worldFont = GameFont.Persian;
             ConfigureMaterials();
             ConfigureEnvironment();
+            _ambientLife = WorldRoot.gameObject.AddComponent<AmbientLife>();
+            _ambientLife.Initialize();
+            _worldVfx = WorldRoot.gameObject.AddComponent<WorldVFX>();
         }
 
         public void Generate(int seed)
@@ -49,6 +56,7 @@ namespace BaziBaqa
             CreateTerrain();
             CreateResourceNodes();
             CreateNaturalProps();
+            if (_worldVfx != null) _worldVfx.Initialize(Vector3.zero);
         }
 
         public void ClearGeneratedWorld()
@@ -59,6 +67,8 @@ namespace BaziBaqa
             ClearChildren(ActorRoot);
             ClearChildren(BuildingRoot);
             ClearChildren(EffectRoot);
+            if (_ambientLife != null) _ambientLife.Clear();
+            if (_worldVfx != null) _worldVfx.Clear();
             _resourceNodes.Clear();
             _generatedObjects.Clear();
         }
@@ -325,6 +335,7 @@ namespace BaziBaqa
             node.Initialize(type, amount);
             _resourceNodes.Add(node);
             _generatedObjects.Add(nodeObject);
+            if (type == ResourceType.Wood && _ambientLife != null) _ambientLife.RegisterTree(nodeObject.transform);
         }
 
         private void CreateNaturalProps()
@@ -341,6 +352,7 @@ namespace BaziBaqa
                     leaves.transform.localScale = Vector3.one * 1.1f;
                     SetMaterial(leaves, _leafMaterial);
                     _generatedObjects.Add(tree);
+                    if (_ambientLife != null) _ambientLife.RegisterTree(tree.transform);
                 }
                 else
                 {

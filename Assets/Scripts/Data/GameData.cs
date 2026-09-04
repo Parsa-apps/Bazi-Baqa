@@ -171,24 +171,55 @@ namespace BaziBaqa
     }
 
     [Serializable]
+    public class EquipmentSaveState
+    {
+        public int tool = 1;
+        public int weapon = 1;
+        public int armor = 1;
+    }
+
+    [Serializable]
+    public class StorySaveState
+    {
+        public int lastDecisionDay;
+    }
+
+    [Serializable]
+    public class RaidSaveState
+    {
+        public int lastRaidDay;
+        public int wins;
+        public int losses;
+    }
+
+    [Serializable]
     public class GameSaveData
     {
-        public int saveVersion = 1;
-        public int seed = 14729;
-        public int day = 1;
-        public float dayTime = 0.28f;
-        public int playerLevel = 1;
-        public int technologyPoints;
-        public int unlockedTechnologyMask;
-        public ResourceState resources = new ResourceState();
-        public SettingsSaveData settings = new SettingsSaveData();
-        public List<SurvivorSaveData> survivors = new List<SurvivorSaveData>();
-        public List<BuildingSaveData> buildings = new List<BuildingSaveData>();
+    public int saveVersion = 3;
+    public int seed = 14729;
+    public int day = 1;
+    public float dayTime = 0.28f;
+    public int playerLevel = 1;
+    public int playerXp;
+    public int technologyPoints;
+    public int unlockedTechnologyMask;
+    public ResourceState resources = new ResourceState();
+    public SettingsSaveData settings = new SettingsSaveData();
+    public List<SurvivorSaveData> survivors = new List<SurvivorSaveData>();
+    public List<BuildingSaveData> buildings = new List<BuildingSaveData>();
+    public int questIndex;
+    public AchievementSaveState achievements = new AchievementSaveState();
+    public DailyRewardSaveState dailyReward = new DailyRewardSaveState();
+    public EquipmentSaveState equipment = new EquipmentSaveState();
+    public StorySaveState story = new StorySaveState();
+    public RaidSaveState raid = new RaidSaveState();
 
         public static GameSaveData CreateNew(int newSeed)
         {
             GameSaveData data = new GameSaveData();
             data.seed = newSeed;
+            // سه مأموریتِ اول به‌عنوان پنجره‌ی شروعِ متمایز صادر شده‌اند (شاخص‌های ۰،۱،۲).
+            data.questIndex = 3;
             data.survivors.Add(CreateSurvivor("سارا", SurvivorRole.Gatherer, new Vector3(-2f, 0f, -1f)));
             data.survivors.Add(CreateSurvivor("یونس", SurvivorRole.Builder, new Vector3(2f, 0f, -1f)));
             data.survivors.Add(CreateSurvivor("آوا", SurvivorRole.Medic, new Vector3(-1f, 0f, 2f)));
@@ -231,58 +262,22 @@ namespace BaziBaqa
     {
         public static string ResourceName(ResourceType type)
         {
-            switch (type)
-            {
-                case ResourceType.Wood: return "چوب";
-                case ResourceType.Stone: return "سنگ";
-                case ResourceType.Food: return "غذا";
-                case ResourceType.Gold: return "طلا";
-                case ResourceType.Energy: return "انرژی";
-                case ResourceType.Water: return "آب";
-                default: return "منبع";
-            }
+            return Loc.Get("resource." + type.ToString().ToLowerInvariant());
         }
 
         public static string RoleName(SurvivorRole role)
         {
-            switch (role)
-            {
-                case SurvivorRole.Gatherer: return "جمع‌آور";
-                case SurvivorRole.Builder: return "سازنده";
-                case SurvivorRole.Medic: return "پزشک";
-                case SurvivorRole.Guard: return "نگهبان";
-                case SurvivorRole.Scout: return "پیشاهنگ";
-                case SurvivorRole.Farmer: return "کشاورز";
-                default: return "بازمانده";
-            }
+            return Loc.Get("role." + role.ToString().ToLowerInvariant());
         }
 
         public static string BuildingName(BuildingType type)
         {
-            switch (type)
-            {
-                case BuildingType.Camp: return "اردوگاه";
-                case BuildingType.House: return "خانه";
-                case BuildingType.Storage: return "انبار";
-                case BuildingType.Farm: return "مزرعه";
-                case BuildingType.WatchTower: return "برج دیده‌بانی";
-                case BuildingType.Workshop: return "کارگاه";
-                case BuildingType.Wall: return "دیوار دفاعی";
-                case BuildingType.SolarStation: return "نیروگاه خورشیدی";
-                default: return "ساختمان";
-            }
+            return Loc.Get("building." + type.ToString().ToLowerInvariant());
         }
 
         public static string WeatherName(WeatherType type)
         {
-            switch (type)
-            {
-                case WeatherType.Clear: return "آسمان صاف";
-                case WeatherType.Rain: return "بارانی";
-                case WeatherType.Fog: return "مه‌آلود";
-                case WeatherType.Storm: return "توفانی";
-                default: return "آرام";
-            }
+            return Loc.Get("weather." + type.ToString().ToLowerInvariant());
         }
     }
 }

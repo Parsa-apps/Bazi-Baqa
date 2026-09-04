@@ -8,6 +8,8 @@ namespace BaziBaqa
     public sealed class ConstructionSystem : MonoBehaviour
     {
         private readonly List<BuildingController> _buildings = new List<BuildingController>();
+        private readonly ObjectPool<GameObject> _ghostPool = new ObjectPool<GameObject>(CreateGhost);
+        private Material _ghostMaterial;
         private BuildingType _placingType;
         private bool _placing;
         private GameObject _ghost;
@@ -49,20 +51,41 @@ namespace BaziBaqa
             CancelPlacement();
             _placingType = type;
             _placing = true;
-            _ghost = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            // نشانگرِ ساخت از استخر گرفته می‌شود تا ساخت/نابودیِ مکرر و تخصیصِ حافظه اتفاق نیفتد.
+            _ghost = _ghostPool.Get();
             _ghost.name = "نشانگر ساخت";
             _ghost.transform.localScale = new Vector3(1.7f, 0.04f, 1.5f);
             _ghost.transform.position = GameManager.Instance.World.ClampToIsland(Vector3.zero);
+            _ghost.SetActive(true);
             Renderer renderer = _ghost.GetComponent<Renderer>();
-            renderer.sharedMaterial = CreateGhostMaterial();
+            renderer.sharedMaterial = EnsureGhostMaterial();
             GameEvents.Notify("محل ساخت «" + GameText.BuildingName(type) + "» را روی زمین لمس کنید.");
         }
 
         public void CancelPlacement()
         {
             _placing = false;
-            if (_ghost != null) Destroy(_ghost);
+            if (_ghost != null)
+            {
+                _ghost.SetActive(false);
+                _ghostPool.Release(_ghost);
+            }
             _ghost = null;
+        }
+
+        /// <summary>ماده‌ی نشانگر یک‌بار ساخته و سپس در انتخاب‌های بعدی دوباره استفاده می‌شود.</summary>
+        private Material EnsureGhostMaterial()
+        {
+            if (_ghostMaterial != null) return _ghostMaterial;
+            _ghostMaterial = CreateGhostMaterial();
+            return _ghostMaterial;
+        }
+
+        private static GameObject CreateGhost()
+        {
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            go.SetActive(false);
+            return go;
         }
 
         public void Upgrade(BuildingController building)
@@ -76,6 +99,7 @@ namespace BaziBaqa
             }
             building.ApplyUpgrade();
             GameEvents.Notify(GameText.BuildingName(building.Type) + " ارتقا یافت.");
+            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(3, "ارتقای ساختمان");
             GameManager.Instance.SaveSoon();
         }
 
@@ -177,6 +201,9 @@ namespace BaziBaqa
             };
             CreateFromSave(data);
             GameEvents.Notify(GameText.BuildingName(_placingType) + " ساخته شد.");
+            if (GameManager.Instance.Progression != null) GameManager.Instance.Progression.AddXp(4, "ساخت ساختمان");
+            if (GameManager.Instance.Achievements != null) GameManager.Instance.Achievements.RegisterBuild();
+            if (GameManager.Instance.Quests != null) GameManager.Instance.Quests.TryComplete();
             GameManager.Instance.Audio.PlayBuild();
             GameManager.Instance.SaveSoon();
             CancelPlacement();
@@ -238,6 +265,18 @@ namespace BaziBaqa
         private static List<ResourceCost> Costs(params ResourceCost[] costs)
         {
             return new List<ResourceCost>(costs);
+        }
+
+        private void OnDestroy()
+        {
+            if (_ghost != null)
+            {
+                Destroy(_ghost);
+                _ghost = null;
+            }
+            _ghostPool.Clear(go => { if (go != null) Destroy(go); });
+            if (_ghostMaterial != null) Destroy(_ghostMaterial);
+            _ghostMaterial = null;
         }
 
         private static Material CreateGhostMaterial()

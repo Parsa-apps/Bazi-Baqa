@@ -1,0 +1,9 @@
+{
+  "versionName": "0.1.0",
+  "versionCode": 1,
+  "bundleId": "com.parsaapps.bazibaqa",
+  "company": "Parsa Apps",
+  "product": "سرزمین بقا",
+  "minSdkVersion": 26,
+  "targetSdkVersion": 34
+}

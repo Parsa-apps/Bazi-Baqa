@@ -1,0 +1,369 @@
+{
+  "defaultLanguage": "fa",
+  "languages": [
+    {
+      "language": "fa",
+      "direction": "rtl",
+      "entries": [
+        {
+          "key": "game.title",
+          "value": "سرزمین بقا"
+        },
+        {
+          "key": "game.tagline",
+          "value": "با هم‌کاری، زنده می‌مانیم"
+        },
+        {
+          "key": "game.studio",
+          "value": "Parsa Apps"
+        },
+        {
+          "key": "game.director",
+          "value": "فرشاد پارسا"
+        },
+        {
+          "key": "game.loading",
+          "value": "در حال آماده‌سازی سرزمین بقا"
+        },
+        {
+          "key": "game.footer",
+          "value": "ساخته شده توسط Parsa Apps  •  مدیریت: فرشاد پارسا"
+        },
+        {
+          "key": "game.credits",
+          "value": "ساخته شده توسط\nParsa Apps\n\nمدیریت: فرشاد پارسا\n\nوب‌سایت رسمی:\nParsa-apps.github.io"
+        },
+        {
+          "key": "menu.new_game",
+          "value": "سفر تازه"
+        },
+        {
+          "key": "menu.continue_game",
+          "value": "ادامه‌ی سفر"
+        },
+        {
+          "key": "menu.settings",
+          "value": "تنظیمات"
+        },
+        {
+          "key": "menu.about",
+          "value": "درباره"
+        },
+        {
+          "key": "menu.quit",
+          "value": "خروج"
+        },
+        {
+          "key": "hud.day",
+          "value": "روز"
+        },
+        {
+          "key": "hud.group",
+          "value": "گروه"
+        },
+        {
+          "key": "hud.technology",
+          "value": "فناوری"
+        },
+        {
+          "key": "hud.objective",
+          "value": "هدف"
+        },
+        {
+          "key": "hud.morale",
+          "value": "روحیه"
+        },
+        {
+          "key": "modal.pause",
+          "value": "بازی متوقف شد"
+        },
+        {
+          "key": "modal.continue",
+          "value": "ادامه"
+        },
+        {
+          "key": "modal.main_menu",
+          "value": "بازگشت به منو"
+        },
+        {
+          "key": "resource.wood",
+          "value": "چوب"
+        },
+        {
+          "key": "resource.stone",
+          "value": "سنگ"
+        },
+        {
+          "key": "resource.food",
+          "value": "غذا"
+        },
+        {
+          "key": "resource.gold",
+          "value": "طلا"
+        },
+        {
+          "key": "resource.energy",
+          "value": "انرژی"
+        },
+        {
+          "key": "resource.water",
+          "value": "آب"
+        },
+        {
+          "key": "building.camp",
+          "value": "اردوگاه"
+        },
+        {
+          "key": "building.house",
+          "value": "خانه"
+        },
+        {
+          "key": "building.storage",
+          "value": "انبار"
+        },
+        {
+          "key": "building.farm",
+          "value": "مزرعه"
+        },
+        {
+          "key": "building.watchtower",
+          "value": "برج دیده‌بانی"
+        },
+        {
+          "key": "building.workshop",
+          "value": "کارگاه"
+        },
+        {
+          "key": "building.wall",
+          "value": "دیوار دفاعی"
+        },
+        {
+          "key": "building.solarstation",
+          "value": "نیروگاه خورشیدی"
+        },
+        {
+          "key": "role.gatherer",
+          "value": "جمع‌آور"
+        },
+        {
+          "key": "role.builder",
+          "value": "سازنده"
+        },
+        {
+          "key": "role.medic",
+          "value": "پزشک"
+        },
+        {
+          "key": "role.guard",
+          "value": "نگهبان"
+        },
+        {
+          "key": "role.scout",
+          "value": "پیشاهنگ"
+        },
+        {
+          "key": "role.farmer",
+          "value": "کشاورز"
+        },
+        {
+          "key": "weather.clear",
+          "value": "آسمان صاف"
+        },
+        {
+          "key": "weather.rain",
+          "value": "بارانی"
+        },
+        {
+          "key": "weather.fog",
+          "value": "مه‌آلود"
+        },
+        {
+          "key": "weather.storm",
+          "value": "توفانی"
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "direction": "ltr",
+      "entries": [
+        {
+          "key": "game.title",
+          "value": "Land of Survival"
+        },
+        {
+          "key": "game.tagline",
+          "value": "Together we survive"
+        },
+        {
+          "key": "game.studio",
+          "value": "Parsa Apps"
+        },
+        {
+          "key": "game.director",
+          "value": "Farshad Parsa"
+        },
+        {
+          "key": "game.loading",
+          "value": "Preparing the land of survival"
+        },
+        {
+          "key": "game.footer",
+          "value": "Built by Parsa Apps  •  Directed by Farshad Parsa"
+        },
+        {
+          "key": "game.credits",
+          "value": "Built by\nParsa Apps\n\nDirected by Farshad Parsa\n\nOfficial site:\nParsa-apps.github.io"
+        },
+        {
+          "key": "menu.new_game",
+          "value": "New Journey"
+        },
+        {
+          "key": "menu.continue_game",
+          "value": "Continue Journey"
+        },
+        {
+          "key": "menu.settings",
+          "value": "Settings"
+        },
+        {
+          "key": "menu.about",
+          "value": "About"
+        },
+        {
+          "key": "menu.quit",
+          "value": "Quit"
+        },
+        {
+          "key": "hud.day",
+          "value": "Day"
+        },
+        {
+          "key": "hud.group",
+          "value": "Group"
+        },
+        {
+          "key": "hud.technology",
+          "value": "Technology"
+        },
+        {
+          "key": "hud.objective",
+          "value": "Objective"
+        },
+        {
+          "key": "hud.morale",
+          "value": "Morale"
+        },
+        {
+          "key": "modal.pause",
+          "value": "Game Paused"
+        },
+        {
+          "key": "modal.continue",
+          "value": "Continue"
+        },
+        {
+          "key": "modal.main_menu",
+          "value": "Back to Menu"
+        },
+        {
+          "key": "resource.wood",
+          "value": "Wood"
+        },
+        {
+          "key": "resource.stone",
+          "value": "Stone"
+        },
+        {
+          "key": "resource.food",
+          "value": "Food"
+        },
+        {
+          "key": "resource.gold",
+          "value": "Gold"
+        },
+        {
+          "key": "resource.energy",
+          "value": "Energy"
+        },
+        {
+          "key": "resource.water",
+          "value": "Water"
+        },
+        {
+          "key": "building.camp",
+          "value": "Camp"
+        },
+        {
+          "key": "building.house",
+          "value": "House"
+        },
+        {
+          "key": "building.storage",
+          "value": "Storage"
+        },
+        {
+          "key": "building.farm",
+          "value": "Farm"
+        },
+        {
+          "key": "building.watchtower",
+          "value": "Watchtower"
+        },
+        {
+          "key": "building.workshop",
+          "value": "Workshop"
+        },
+        {
+          "key": "building.wall",
+          "value": "Defense Wall"
+        },
+        {
+          "key": "building.solarstation",
+          "value": "Solar Station"
+        },
+        {
+          "key": "role.gatherer",
+          "value": "Gatherer"
+        },
+        {
+          "key": "role.builder",
+          "value": "Builder"
+        },
+        {
+          "key": "role.medic",
+          "value": "Medic"
+        },
+        {
+          "key": "role.guard",
+          "value": "Guard"
+        },
+        {
+          "key": "role.scout",
+          "value": "Scout"
+        },
+        {
+          "key": "role.farmer",
+          "value": "Farmer"
+        },
+        {
+          "key": "weather.clear",
+          "value": "Clear Sky"
+        },
+        {
+          "key": "weather.rain",
+          "value": "Rainy"
+        },
+        {
+          "key": "weather.fog",
+          "value": "Foggy"
+        },
+        {
+          "key": "weather.storm",
+          "value": "Stormy"
+        }
+      ]
+    }
+  ]
+}
