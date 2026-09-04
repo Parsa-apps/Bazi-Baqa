@@ -24,6 +24,21 @@ namespace BaziBaqa
         {
             _currentLevel = QualitySettings.GetQualityLevel();
             Application.targetFrameRate = 60;
+            Application.lowMemory += OnLowMemory;
+        }
+
+        /// <summary>استفاده/فشار حافظه: کیفیت را کمی پایین می‌آورد و منابع بلااستفاده را آزاد می‌کند.</summary>
+        private void OnLowMemory()
+        {
+            if (_currentLevel > 0) _currentLevel--;
+            QualitySettings.SetQualityLevel(_currentLevel, true);
+            GameLogger.Info("هشدار حافظه: کیفیت به «" + QualitySettings.names[_currentLevel] + "» کاهش یافت و منابع آزاد شدند.");
+            Resources.UnloadUnusedAssets();
+        }
+
+        private void OnDestroy()
+        {
+            Application.lowMemory -= OnLowMemory;
         }
 
         private void Update()
