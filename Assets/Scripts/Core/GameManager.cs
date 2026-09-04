@@ -90,7 +90,6 @@ namespace BaziBaqa
                 _autoSaveTimer = 30f;
                 SaveGame();
             }
-            if (Input.GetKeyDown(KeyCode.Escape) && !UI.HandleBack()) TogglePause();
         }
 
         public void StartNewGame()
