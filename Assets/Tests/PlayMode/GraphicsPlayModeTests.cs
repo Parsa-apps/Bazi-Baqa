@@ -452,6 +452,106 @@ namespace BaziBaqa.Tests
             Assert.Greater(renderers.Length, 0);
         }
 
+        [UnityTest]
+        public IEnumerator ActorMotion_AnimatesLimbsWithoutTouchingGameplayTransforms()
+        {
+            GameObject root = new GameObject("MotionTestActor");
+            GameObject torso = new GameObject("Torso");
+            torso.transform.SetParent(root.transform, false);
+            torso.transform.localPosition = new Vector3(0f, 0.9f, 0f);
+            torso.transform.localScale = new Vector3(0.5f, 0.85f, 0.5f);
+            MeshFilter torsoFilter = torso.AddComponent<MeshFilter>();
+            torsoFilter.sharedMesh = Resources.GetBuiltinResource<Mesh>("Capsule.fbx");
+            torso.AddComponent<MeshRenderer>().sharedMaterial = MaterialLibrary.Tinted(new Color(0.4f, 0.45f, 0.5f));
+
+            ActorMotion motion = root.AddComponent<ActorMotion>();
+            motion.Configure(root);
+            yield return null;
+
+            Assert.AreEqual(4, torso.GetComponentsInChildren<MeshFilter>().Length - 1,
+                "چهار اندام باید به بدنه اضافه شده باشد");
+            Assert.AreEqual(0, root.GetComponentsInChildren<Collider>().Length,
+                "اندام‌ها نباید Collider بیاورند (انتخابِ لمسی نمی‌شکند)");
+
+            Vector3 baseRootScale = root.localScale;
+            Quaternion baseRootRotation = root.rotation;
+            Vector3 baseRootPosition = root.position;
+            Vector3 baseTorsoScale = torso.transform.localScale;
+            bool torsoMoved = false;
+
+            for (int frame = 0; frame < 12; frame++)
+            {
+                // حرکتِ دادنِ ریشه از بیرون، همان کاری است که SurvivorAgent می‌کند
+                root.transform.position += Vector3.right * 0.05f;
+                yield return null;
+                if ((torso.transform.localScale - baseTorsoScale).sqrMagnitude > 1e-8f) torsoMoved = true;
+            }
+
+            Assert.IsTrue(torsoMoved, "فرمِ بدن باید با گام‌ها تغییر کند");
+            Assert.AreEqual(baseRootScale, root.localScale, "مقیاسِ ریشه دست‌نخورده می‌ماند");
+            Assert.AreEqual(baseRootRotation, root.rotation, "چرخشِ ریشه مالِ خودِ Agent است");
+            StringAssert.Contains("speed=", motion.Report());
+            Assert.IsFalse(string.IsNullOrEmpty(motion.Report()));
+            UnityEngine.Object.Destroy(root);
+        }
+
+        [UnityTest]
+        public IEnumerator BuildingMotion_GrowsChildrenAndLeavesRootToLogic()
+        {
+            GameObject root = new GameObject("MotionTestBuilding");
+            root.transform.localScale = new Vector3(1f, 1f, 1f);
+            GameObject body = new GameObject("Body");
+            body.transform.SetParent(root.transform, false);
+            body.transform.localPosition = new Vector3(0f, 0.65f, 0f);
+            body.transform.localScale = new Vector3(2.4f, 1.3f, 2.1f);
+            MeshFilter bodyFilter = body.AddComponent<MeshFilter>();
+            bodyFilter.sharedMesh = Resources.GetBuiltinResource<Mesh>("Cube.fbx");
+            body.AddComponent<MeshRenderer>().sharedMaterial = MaterialLibrary.Tinted(new Color(0.5f, 0.4f, 0.3f));
+
+            BuildingMotion motion = root.AddComponent<BuildingMotion>();
+            motion.Configure(root);
+            motion.PlayConstruction();
+
+            Assert.IsTrue(motion.IsGrowing, "بلافاصله بعد از ساخت باید در حالِ رشد باشد");
+            Vector3 baseRootScale = root.localScale;
+            yield return null;                    // یک فریم تا بدنه واقعاً جمع شود
+            Vector3 smallBodyScale = body.transform.localScale;
+            Assert.Less(smallBodyScale.y, 1f, "در آغازِ رشد ساختمان تقریباً جمع است");
+
+            float waited = 0f;
+            while (motion.IsGrowing && waited < 2f)
+            {
+                waited += Time.deltaTime;
+                yield return null;
+            }
+
+            Assert.IsFalse(motion.IsGrowing, "رشد باید تمام شود");
+            Assert.Greater(body.transform.localScale.y, smallBodyScale.y * 1.5f,
+                "بدنه‌ی ساختمان باید باز شده باشد");
+            Assert.AreEqual(baseRootScale, root.localScale,
+                "مقیاسِ ریشه را BuildingController (نه انیماتور) تعیین می‌کند");
+            Assert.GreaterOrEqual(motion.Growth, 0.995f);
+            StringAssert.Contains("grow=", motion.Report());
+            UnityEngine.Object.Destroy(root);
+        }
+
+        [UnityTest]
+        public IEnumerator MotionDirector_RescansSafelyWithoutWorld()
+        {
+            GraphicsDirector director = GraphicsDirector.Ensure();
+            yield return null;
+            MotionDirector motion = director.Motion;
+            Assert.IsNotNull(motion, "لایه‌ی انیمیشن باید توسط مدیرِ گرافیک نصب شود");
+
+            // در صحنه‌ی خالیِ تست (بیِ جهان) نباید استثنا بدهد و نباید مؤلفه‌ای بسازد
+            motion.Refresh();
+            motion.ApplyTier();
+            yield return null;
+            Assert.GreaterOrEqual(motion.AnimatedActors, 0);
+            StringAssert.Contains("motion actors=", motion.Report());
+            StringAssert.Contains("stride=", motion.Report(), "گامِ به‌روزرسانیِ پله‌ای گزارش می‌شود");
+        }
+
         private static MaterialLibrary.SurfaceStyle GroundStyle()
         {
             return MaterialLibrary.SurfaceStyle.Ground;

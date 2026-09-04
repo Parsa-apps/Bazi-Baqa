@@ -107,6 +107,8 @@
 | بی‌خطر‌بودنِ پراکندگی روی Gameplay | PlayMode → `FoliageScatter_BuildsOneMeshWithoutTouchingGameplayObjects` | `childCount` منابع/ساختمان‌ها عوض نمی‌شود |
 | پاسخِ باد به هوا | PlayMode → `WindField_WritesWindGlobalAndAnswersToWeather` | طوفان، شدتِ `_BaziWindState` را بالا می‌برد |
 | لایه‌ی VFX | Test Runner → EditMode → `VfxLayerEditModeTests` | ۴ تست سبز (قراردادِ شیدرها، استخر، نبودِ وابستگیِ معکوس) |
+| لایه‌ی انیمیشن | Test Runner → EditMode → `AnimationLayerEditModeTests` | ۷ تست سبز (مالکیتِ ترنسفورم، بی‌Collider بودنِ اندام‌ها، PropertyBlock به‌جای متریالِ مشترک) |
+| لایه‌ی انیمیشن (زنده) | Test Runner → PlayMode → `GraphicsPlayModeTests` | ۱۷ تست سبز (ساختِ اندام‌ها، پایانِ رشد، بی‌خطای مدیر در صحنهٔ خالی) |
 | استخرِ افکت‌ها | PlayMode → `VfxDirector_PlaysEffectsFromPoolWithoutGrowingMaterials` | `ActiveEffects ≤ PoolCapacity`، بدونِ متریالِ تازه، بازگشتِ کامل به استخر |
 | شیدرهایِ آب/آتش | PlayMode → `WaterAndFireMaterials_ResolveToProjectShaders` | هیچ رندررِ بی‌متریالی در صحنه نیست |
 | رگرسیونِ Gameplay | `Tools/unity_validation.sh` + تست‌های موجود | هیچ تستِ منطق/ذخیره/رابطی نباید قرمز شود |

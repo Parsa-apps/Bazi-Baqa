@@ -37,6 +37,7 @@ namespace BaziBaqa
         public WindField Wind { get; private set; }
         public FoliageScatter Foliage { get; private set; }
         public VfxDirector Vfx { get; private set; }
+        public MotionDirector Motion { get; private set; }
         public bool IsInstalled { get { return Instance == this; } }
 
         /// <summary>نصبِ خودکار در اولین فریمِ هر صحنه (شاملِ صحنه‌های تست).</summary>
@@ -105,6 +106,9 @@ namespace BaziBaqa
             Vfx = GetOrAdd<VfxDirector>();
             if (Vfx != null) _children.Add(Vfx);
 
+            Motion = GetOrAdd<MotionDirector>();
+            if (Motion != null) _children.Add(Motion);
+
             // فازهای بعدیِ گرافیک همین‌جا اضافه می‌شوند (محیط زنده، VFX، کیفیت)
             GraphicsProfile profile = GraphicsProfile.Load();
             List<string> issues = new List<string>();
@@ -154,6 +158,7 @@ namespace BaziBaqa
                 if (Wind != null) Wind.ApplyTier();
                 if (Foliage != null) Foliage.Refresh();
                 if (Vfx != null) Vfx.Refresh();
+                if (Motion != null) Motion.ApplyTier();
             }
 
             // ۳) بازسازیِ جهان: نورِ اصلی و ریشه‌ها تازه‌اند ⇒ Rigِ نور باید دوباره پیدا کند
@@ -165,6 +170,7 @@ namespace BaziBaqa
                 if (Sky != null) Sky.Refresh();
                 if (Foliage != null) Foliage.Refresh();
                 if (Vfx != null) Vfx.Refresh();
+                if (Motion != null) Motion.Refresh();
             }
 
             // ۴) اولین باری که جهان ساخته شد، یک گزارشِ کامل می‌نویسیم (برای ممیزیِ صحنه)
@@ -186,6 +192,7 @@ namespace BaziBaqa
             builder.Append(" | ").Append(Wind != null ? Wind.Report() : "wind=absent");
             builder.Append(" | ").Append(Foliage != null ? Foliage.Report() : "foliage=absent");
             builder.Append(" | ").Append(Vfx != null ? Vfx.Report() : "vfx=absent");
+            builder.Append(" | ").Append(Motion != null ? Motion.Report() : "motion=absent");
             return builder.ToString();
         }
 
@@ -198,6 +205,7 @@ namespace BaziBaqa
             if (Wind != null) { Wind.ApplyTier(); Wind.ApplyNow(); }
             if (Foliage != null) Foliage.Refresh();
             if (Vfx != null) Vfx.Refresh();
+            if (Motion != null) { Motion.ApplyTier(); Motion.Refresh(); }
             RenderPipelineBridge.ApplyCurrentQuality(true);
         }
 
